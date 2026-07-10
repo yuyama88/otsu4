@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>トレーニング記録</title>
+  <style>
+    :root{
+      --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280;
+      --line:#d1d5db; --accent:#2563eb; --accent2:#059669; --danger:#dc2626;
+      --shadow:0 8px 24px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+    header{position:sticky;top:0;z-index:10;background:#111827;color:#fff;padding:14px 16px}
+    header h1{font-size:20px;margin:0}
+    header p{font-size:12px;margin:4px 0 0;color:#cbd5e1}
+    main{max-width:900px;margin:auto;padding:14px 12px 90px}
+    nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+    nav button{border:0;border-radius:12px;padding:11px 6px;background:#e5e7eb;font-weight:700}
+    nav button.active{background:var(--accent);color:#fff}
+    section{display:none}.active-section{display:block}
+    .card{background:var(--card);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
+    h2{font-size:17px;margin:0 0 12px} h3{font-size:15px;margin:14px 0 8px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+    input,select,textarea,button{font:inherit}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+    textarea{min-height:72px;resize:vertical}
+    .primary,.secondary,.danger{border:0;border-radius:11px;padding:11px 14px;font-weight:800}
+    .primary{background:var(--accent);color:#fff}.secondary{background:#e5e7eb}.danger{background:#fee2e2;color:var(--danger)}
+    .full{width:100%;margin-top:10px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{background:#f8fafc;border-radius:12px;padding:12px;text-align:center}
+    .stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+    .record{border-top:1px solid #e5e7eb;padding:11px 0}
+    .record:first-child{border-top:0}
+    .record-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .record-title{font-weight:800}.record-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .delta{font-size:12px;font-weight:800;color:var(--accent2)}
+    .delta.down{color:var(--danger)}
+    .icon-btn{border:0;background:#f3f4f6;border-radius:8px;padding:6px 9px}
+    canvas{width:100%;height:260px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+    .empty{text-align:center;color:var(--muted);padding:22px 8px}
+    .week-row{display:flex;justify-content:space-between;border-top:1px solid #e5e7eb;padding:10px 0}
+    .week-row:first-child{border-top:0}
+    .note{font-size:12px;color:var(--muted);line-height:1.55}
+    .backup-row{display:flex;gap:8px;flex-wrap:wrap}.backup-row button{flex:1;min-width:120px}
+    @media(max-width:600px){.grid-3{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>トレーニング記録</h1>
+  <p>筋トレの重量・回数推移と、週ごとのランニング距離を管理</p>
+</header>
+
+<main>
+  <nav>
+    <button data-tab="workout" class="active">筋トレ</button>
+    <button data-tab="running">ランニング</button>
+    <button data-tab="charts">グラフ</button>
+  </nav>
+
+  <section id="workout" class="active-section">
+    <div class="card">
+      <h2>筋トレを記録</h2>
+      <div class="grid">
+        <div><label>日付</label><input id="wDate" type="date"></div>
+        <div><label>種目</label><input id="exercise" list="exerciseList" placeholder="例：ベンチプレス"></div>
+      </div>
+      <datalist id="exerciseList"></datalist>
+      <div class="grid-3" style="margin-top:10px">
+        <div><label>重量 kg</label><input id="weight" type="number" inputmode="decimal" min="0" step="0.25"></div>
+        <div><label>回数</label><input id="reps" type="number" inputmode="numeric" min="1"></div>
+        <div><label>セット数</label><input id="sets" type="number" inputmode="numeric" min="1" value="1"></div>
+      </div>
+      <div style="margin-top:10px"><label>メモ</label><textarea id="wNote" placeholder="フォーム、体調など"></textarea></div>
+      <button id="addWorkout" class="primary full">筋トレ記録を追加</button>
+    </div>
+    <div class="card">
+      <h2>筋トレ履歴</h2>
+      <div id="workoutList"></div>
+    </div>
+  </section>
+
+  <section id="running">
+    <div class="card">
+      <h2>ランニングを記録</h2>
+      <div class="grid">
+        <div><label>日付</label><input id="rDate" type="date"></div>
+        <div><label>距離 km</label><input id="distance" type="number" inputmode="decimal" min="0.1" step="0.1"></div>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <div><label>時間（分）</label><input id="duration" type="number" inputmode="numeric" min="1"></div>
+        <div><label>種別</label>
+          <select id="runType"><option>軽いラン</option><option>通常ラン</option><option>ペース走</option><option>インターバル</option><option>シャトルラン</option></select>
+        </div>
+      </div>
+      <div style="margin-top:10px"><label>メモ</label><textarea id="rNote" placeholder="体調、コースなど"></textarea></div>
+      <button id="addRun" class="primary full">ランニング記録を追加</button>
+    </div>
+    <div class="card">
+      <h2>今週の集計</h2>
+      <div class="stats">
+        <div class="stat"><b id="weekKm">0.0</b><span>今週 km</span></div>
+        <div class="stat"><b id="weekRuns">0</b><span>今週 回</span></div>
+        <div class="stat"><b id="monthKm">0.0</b><span>今月 km</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>週ごとの距離</h2>
+      <div id="weeklyList"></div>
+    </div>
+    <div class="card">
+      <h2>ランニング履歴</h2>
+      <div id="runList"></div>
+    </div>
+  </section>
+
+  <section id="charts">
+    <div class="card">
+      <h2>筋トレ推移</h2>
+      <div class="grid">
+        <div><label>種目</label><select id="chartExercise"></select></div>
+        <div><label>表示項目</label>
+          <select id="chartMetric">
+            <option value="weight">最高重量</option>
+            <option value="reps">最高回数</option>
+            <option value="volume">総負荷（重量×回数×セット）</option>
+            <option value="e1rm">推定1RM</option>
+          </select>
+        </div>
+      </div>
+      <div id="comparison" class="note" style="margin:10px 0"></div>
+      <canvas id="workoutChart" width="800" height="360"></canvas>
+    </div>
+    <div class="card">
+      <h2>週ごとのランニング距離</h2>
+      <canvas id="runChart" width="800" height="360"></canvas>
+    </div>
+    <div class="card">
+      <h2>データ管理</h2>
+      <p class="note">データはこの端末のブラウザ内に保存される。機種変更やブラウザ削除に備えて、定期的にバックアップ推奨。</p>
+      <div class="backup-row">
+        <button id="exportBtn" class="secondary">JSONを書き出す</button>
+        <button id="importBtn" class="secondary">JSONを読み込む</button>
+        <button id="clearBtn" class="danger">全データ削除</button>
+      </div>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+    </div>
+  </section>
+</main>
+
+<script>
+const KEY='training_tracker_v1';
+let data=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{workouts:[],runs:[]}}catch{return{workouts:[],runs:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+const today=()=>new Date().toISOString().slice(0,10);
+wDate.value=today(); rDate.value=today();
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('section').forEach(x=>x.classList.remove('active-section'));
+ b.classList.add('active'); document.getElementById(b.dataset.tab).classList.add('active-section');
+ if(b.dataset.tab==='charts') drawCharts();
+});
+
+addWorkout.onclick=()=>{
+ const ex=exercise.value.trim(), wt=Number(weight.value), rp=Number(reps.value), st=Number(sets.value);
+ if(!wDate.value||!ex||wt<0||!rp||!st){alert('日付・種目・重量・回数・セット数を入力してな');return}
+ data.workouts.push({id:crypto.randomUUID(),date:wDate.value,exercise:ex,weight:wt,reps:rp,sets:st,note:wNote.value.trim(),created:Date.now()});
+ weight.value=''; reps.value=''; sets.value=1; wNote.value=''; save();
+};
+addRun.onclick=()=>{
+ const km=Number(distance.value), min=Number(duration.value);
+ if(!rDate.value||km<=0){alert('日付と距離を入力してな');return}
+ data.runs.push({id:crypto.randomUUID(),date:rDate.value,distance:km,duration:min||0,type:runType.value,note:rNote.value.trim(),created:Date.now()});
+ distance.value=''; duration.value=''; rNote.value=''; save();
+};
+
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmtDate(s){const d=new Date(s+'T00:00:00');return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`}
+function sorted(a){return [...a].sort((x,y)=>(y.date+x.created).localeCompare(x.date+y.created))}
+function getPrevious(w){
+ return data.workouts.filter(x=>x.exercise===w.exercise && (x.date<w.date || (x.date===w.date&&x.created<w.created)))
+ .sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created))[0];
+}
+function deltaHTML(w){
+ const p=getPrevious(w); if(!p)return '<span class="record-sub">初回記録</span>';
+ const dw=w.weight-p.weight, dr=w.reps-p.reps;
+ const arr=[];
+ if(dw!==0)arr.push(`重量 ${dw>0?'+':''}${dw}kg`);
+ if(dr!==0)arr.push(`回数 ${dr>0?'+':''}${dr}回`);
+ if(!arr.length)return '<span class="record-sub">前回と同じ</span>';
+ const down=(dw<0&&dr<=0)||(dr<0&&dw<=0);
+ return `<span class="delta ${down?'down':''}">前回比：${arr.join(' / ')}</span>`;
+}
+function renderWorkouts(){
+ const box=workoutList;
+ const arr=sorted(data.workouts);
+ box.innerHTML=arr.length?arr.map(w=>`<div class="record">
+  <div class="record-head"><div><div class="record-title">${esc(w.exercise)}</div>
+  <div class="record-sub">${fmtDate(w.date)}　${w.weight}kg × ${w.reps}回 × ${w.sets}セット</div>
+  ${deltaHTML(w)}${w.note?`<div class="record-sub">${esc(w.note)}</div>`:''}</div>
+  <button class="icon-btn" onclick="delWorkout('${w.id}')">削除</button></div></div>`).join(''):'<div class="empty">まだ記録がないで</div>';
+}
+window.delWorkout=id=>{if(confirm('この筋トレ記録を削除する？')){data.workouts=data.workouts.filter(x=>x.id!==id);save()}};
+window.delRun=id=>{if(confirm('このランニング記録を削除する？')){data.runs=data.runs.filter(x=>x.id!==id);save()}};
+
+function weekStart(dateStr){
+ const d=new Date(dateStr+'T00:00:00'); const day=(d.getDay()+6)%7;
+ d.setDate(d.getDate()-day); return d.toISOString().slice(0,10);
+}
+function weeklyRuns(){
+ const m={}; data.runs.forEach(r=>{const k=weekStart(r.date);m[k]=(m[k]||0)+r.distance});
+ return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]));
+}
+function renderRuns(){
+ const arr=sorted(data.runs);
+ runList.innerHTML=arr.length?arr.map(r=>`<div class="record"><div class="record-head"><div>
+ <div class="record-title">${r.distance.toFixed(1)}km　${esc(r.type)}</div>
+ <div class="record-sub">${fmtDate(r.date)}${r.duration?`　${r.duration}分　平均 ${(r.duration/r.distance).toFixed(1)}分/km`:''}</div>
+ ${r.note?`<div class="record-sub">${esc(r.note)}</div>`:''}</div>
+ <button class="icon-btn" onclick="delRun('${r.id}')">削除</button></div></div>`).join(''):'<div class="empty">まだ記録がないで</div>';
+ const ws=weekStart(today()), ym=today().slice(0,7);
+ const wr=data.runs.filter(r=>weekStart(r.date)===ws);
+ weekKm.textContent=wr.reduce((s,r)=>s+r.distance,0).toFixed(1);
+ weekRuns.textContent=wr.length;
+ monthKm.textContent=data.runs.filter(r=>r.date.startsWith(ym)).reduce((s,r)=>s+r.distance,0).toFixed(1);
+ const weeks=weeklyRuns().reverse();
+ weeklyList.innerHTML=weeks.length?weeks.map(([d,km])=>`<div class="week-row"><span>${fmtDate(d)}〜</span><b>${km.toFixed(1)} km</b></div>`).join(''):'<div class="empty">週データがまだないで</div>';
+}
+function refreshExerciseOptions(){
+ const ex=[...new Set(data.workouts.map(x=>x.exercise))].sort();
+ exerciseList.innerHTML=ex.map(x=>`<option value="${esc(x)}">`).join('');
+ const current=chartExercise.value;
+ chartExercise.innerHTML=ex.length?ex.map(x=>`<option ${x===current?'selected':''}>${esc(x)}</option>`).join(''):'<option>記録なし</option>';
+}
+chartExercise.onchange=drawWorkoutChart; chartMetric.onchange=drawWorkoutChart;
+
+function prepareCanvas(canvas){
+ const dpr=window.devicePixelRatio||1, rect=canvas.getBoundingClientRect();
+ canvas.width=Math.max(600,rect.width*dpr); canvas.height=300*dpr;
+ const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+ return {ctx,w:canvas.width/dpr,h:canvas.height/dpr};
+}
+function drawLine(canvas,points,labels,titleSuffix=''){
+ const {ctx,w,h}=prepareCanvas(canvas); ctx.clearRect(0,0,w,h);
+ const pad={l:48,r:18,t:22,b:48}, cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+ ctx.font='12px sans-serif';ctx.fillStyle='#6b7280';ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1;
+ if(!points.length){ctx.textAlign='center';ctx.fillText('表示できる記録がないで',w/2,h/2);return}
+ let min=Math.min(...points),max=Math.max(...points); if(min===max){min=Math.max(0,min-1);max+=1}
+ const range=max-min;
+ for(let i=0;i<=4;i++){const y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+  const val=max-range*i/4;ctx.textAlign='right';ctx.fillText(val.toFixed(val<10?1:0),pad.l-7,y+4)}
+ const xs=points.map((_,i)=>pad.l+(points.length===1?cw/2:cw*i/(points.length-1)));
+ const ys=points.map(v=>pad.t+ch*(max-v)/range);
+ ctx.strokeStyle='#2563eb';ctx.lineWidth=3;ctx.beginPath();xs.forEach((x,i)=>i?ctx.lineTo(x,ys[i]):ctx.moveTo(x,ys[i]));ctx.stroke();
+ xs.forEach((x,i)=>{ctx.fillStyle='#2563eb';ctx.beginPath();ctx.arc(x,ys[i],4,0,Math.PI*2);ctx.fill();
+  if(points.length<=8||i===0||i===points.length-1){ctx.fillStyle='#111827';ctx.textAlign='center';ctx.fillText(points[i].toFixed(points[i]<10?1:0),x,ys[i]-9)}
+ });
+ ctx.fillStyle='#6b7280';ctx.textAlign='center';
+ const step=Math.max(1,Math.ceil(labels.length/5)); labels.forEach((l,i)=>{if(i%step===0||i===labels.length-1)ctx.fillText(l,xs[i],h-20)});
+}
+function drawBars(canvas,entries){
+ const {ctx,w,h}=prepareCanvas(canvas);ctx.clearRect(0,0,w,h);
+ if(!entries.length){ctx.fillStyle='#6b7280';ctx.textAlign='center';ctx.fillText('表示できる記録がないで',w/2,h/2);return}
+ const shown=entries.slice(-12),pad={l:45,r:14,t:20,b:50},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b,max=Math.max(...shown.map(x=>x[1]),1);
+ ctx.font='12px sans-serif';
+ for(let i=0;i<=4;i++){let y=pad.t+ch*i/4;ctx.strokeStyle='#e5e7eb';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#6b7280';ctx.textAlign='right';ctx.fillText((max*(1-i/4)).toFixed(0),pad.l-6,y+4)}
+ const gap=8,bw=Math.max(10,(cw-gap*(shown.length+1))/shown.length);
+ shown.forEach(([d,v],i)=>{const x=pad.l+gap+i*(bw+gap),bh=ch*v/max,y=pad.t+ch-bh;ctx.fillStyle='#059669';ctx.fillRect(x,y,bw,bh);
+ ctx.fillStyle='#111827';ctx.textAlign='center';ctx.fillText(v.toFixed(1),x+bw/2,y-6);ctx.fillStyle='#6b7280';ctx.save();ctx.translate(x+bw/2,h-12);ctx.rotate(-.45);ctx.fillText(d.slice(5).replace('-','/'),0,0);ctx.restore()});
+}
+function drawWorkoutChart(){
+ const ex=chartExercise.value,metric=chartMetric.value;
+ let arr=data.workouts.filter(x=>x.exercise===ex).sort((a,b)=>(a.date+a.created).localeCompare(b.date+b.created));
+ const grouped={}; arr.forEach(x=>{const v=metric==='weight'?x.weight:metric==='reps'?x.reps:metric==='volume'?x.weight*x.reps*x.sets:x.weight*(1+x.reps/30); grouped[x.date]=Math.max(grouped[x.date]??-Infinity,v)});
+ const labels=Object.keys(grouped),vals=Object.values(grouped); drawLine(workoutChart,vals,labels.map(x=>x.slice(5).replace('-','/')));
+ if(vals.length){
+  const first=vals[0],last=vals.at(-1),diff=last-first,pct=first?diff/first*100:0;
+  const names={weight:'最高重量',reps:'最高回数',volume:'総負荷',e1rm:'推定1RM'};
+  comparison.textContent=`${names[metric]}：初回 ${first.toFixed(1)} → 最新 ${last.toFixed(1)}（${diff>=0?'+':''}${diff.toFixed(1)} / ${pct>=0?'+':''}${pct.toFixed(1)}%）`;
+ }else comparison.textContent='種目を記録すると、初回から最新までの伸びを表示するで。';
+}
+function drawCharts(){refreshExerciseOptions();drawWorkoutChart();drawBars(runChart,weeklyRuns())}
+function renderAll(){refreshExerciseOptions();renderWorkouts();renderRuns();drawCharts()}
+
+exportBtn.onclick=()=>{
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`training-backup-${today()}.json`;a.click();URL.revokeObjectURL(a.href);
+};
+importBtn.onclick=()=>importFile.click();
+importFile.onchange=async e=>{
+ try{const obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.workouts)||!Array.isArray(obj.runs))throw 0;
+ if(confirm('現在のデータを読み込んだデータで置き換える？')){data=obj;save()}}catch{alert('正しいバックアップJSONではないみたいや')}
+ e.target.value='';
+};
+clearBtn.onclick=()=>{if(confirm('全記録を削除する？この操作は戻せへんで')){data={workouts:[],runs:[]};save()}};
+window.addEventListener('resize',()=>{if(document.getElementById('charts').classList.contains('active-section'))drawCharts()});
+renderAll();
+</script>
+</body>
+</html>
