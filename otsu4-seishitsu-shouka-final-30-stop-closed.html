@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1612">
+  <title>乙4 性質・消火 過去問</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#1a1612;--card:#211e1a;--line:#3a3530;--gold:#c8a96e;--cream:#e8d5b0;--text:#f0e8d8;--muted:#9a9184;--green:#5dde8a;--red:#de5d5d}
+    body{background:var(--bg);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;color:var(--text);min-height:100vh}
+    button{font:inherit;-webkit-tap-highlight-color:transparent}
+    .root{min-height:100vh;display:flex;justify-content:center;padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+    .wrap{width:100%;max-width:430px}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #2e2a24;position:sticky;top:0;background:rgba(26,22,18,.97);backdrop-filter:blur(8px);z-index:5}
+    .header-title{color:var(--cream);font-weight:700;font-size:16px;letter-spacing:.05em}
+    .icon-btn{width:34px;height:34px;border:none;background:none;color:#999;font-size:18px;cursor:pointer;border-radius:8px}
+    .icon-btn:active{background:#2a2520}
+    .settings-box{margin:14px 16px 0}
+    .settings-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:#211e1a;border:1px solid var(--line);border-radius:10px;color:#cfc4b3;padding:11px 14px;cursor:pointer;font-size:13px}
+    .settings-panel{display:none;margin-top:8px;background:#211e1a;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .settings-panel.open{display:block}
+    .setting-label{font-size:11px;color:#8f8679;margin:2px 2px 8px}
+    .genre-grid{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+    .genre-grid::-webkit-scrollbar{display:none}
+    .genre-btn{background:#1a1612;border:1px solid var(--line);border-radius:20px;color:#999;font-size:12px;padding:7px 11px;white-space:nowrap;cursor:pointer;flex-shrink:0}
+    .genre-btn.active{background:#2a2218;border-color:var(--gold);color:var(--gold);font-weight:700}
+    .random-row{margin-top:11px;padding-top:11px;border-top:1px solid #312c26;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .random-copy strong{display:block;color:#d8cfc0;font-size:13px;margin-bottom:2px}.random-copy span{color:#837b70;font-size:11px}
+    .switch{position:relative;width:46px;height:26px;flex-shrink:0}.switch input{display:none}.slider{position:absolute;inset:0;border-radius:20px;background:#3a3530;cursor:pointer;transition:.2s}.slider:after{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;border-radius:50%;background:#aaa;transition:.2s}.switch input:checked+.slider{background:#6c5a38}.switch input:checked+.slider:after{transform:translateX(20px);background:var(--gold)}
+    .start-card,.finish-card{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:18px 16px;padding:26px 20px;text-align:center}
+    .start-icon{font-size:44px;margin-bottom:8px}.start-title{color:var(--cream);font-size:20px;margin-bottom:5px}.start-count{color:var(--gold);font-size:14px;margin-bottom:8px}.session-note{font-size:12px;color:#8f8679;line-height:1.6;margin-bottom:16px}
+    .lap-info{display:inline-block;background:#2a2218;border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-size:12px;font-weight:700;padding:6px 13px;margin:4px 0 13px}
+    .main-btn{width:100%;background:var(--gold);color:var(--bg);border:none;border-radius:9px;padding:14px;font-weight:700;cursor:pointer}.main-btn:active{transform:translateY(1px)}
+    .resume-btn{background:var(--green)}
+    .sub-btn{width:100%;background:none;border:1px solid var(--line);border-radius:9px;color:#999;font-size:13px;padding:10px;margin-top:8px;cursor:pointer}
+    .preview-list{margin-top:17px;display:flex;flex-direction:column;gap:7px;max-height:275px;overflow:auto;padding-right:2px}
+    .preview-row{display:flex;align-items:center;gap:9px;background:#1a1612;border-radius:8px;padding:8px 11px;text-align:left}.preview-num{color:var(--gold);font-size:12px;font-weight:700;min-width:30px}.preview-sub{color:#d0c7b9;font-size:12px;flex:1}.stars{white-space:nowrap}.star{font-size:11px;color:var(--gold)}.star.off{opacity:.18}
+    .empty-msg{color:var(--green);font-size:14px;margin:16px 0 20px}
+    .category-bar{padding:13px 18px 9px;text-align:center}.category-text{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.04em}
+    .progress-row{display:flex;align-items:center;gap:9px;padding:0 18px 9px}.progress-text{color:#8b8377;font-size:11px;white-space:nowrap}.progress-bar{height:3px;background:#302b25;flex:1;border-radius:3px;overflow:hidden}.progress-fill{height:100%;background:var(--gold);transition:width .3s}
+    .overall-progress{text-align:center;color:#6f685f;font-size:10px;margin-bottom:10px}
+    .meta-row{display:flex;align-items:center;gap:7px;padding:0 18px 11px;flex-wrap:wrap}.past-tag{color:var(--gold);font-size:11px;font-weight:700}.type-tag{background:#2a2420;border:1px solid var(--line);border-radius:20px;color:var(--gold);font-size:11px;padding:3px 10px}
+    .question-box{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:0 16px 13px;padding:17px}.question-text{font-size:14px;line-height:1.78;font-weight:500;white-space:pre-line}
+    .options{display:flex;flex-direction:column;gap:8px;padding:0 16px}.option{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 13px;cursor:pointer;text-align:left;color:#d8cfc0;transition:.12s}.option:active{transform:scale(.995)}.option.correct{background:#1a3327;border-color:#2a6b3c}.option.wrong{background:#331a1a;border-color:#6b2a2a}.option.disabled{cursor:default}.opt-num{width:26px;height:26px;border-radius:50%;background:#2e2a24;color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}.opt-text{font-size:13px;line-height:1.58;white-space:pre-line;flex:1}.mark{font-weight:800;font-size:17px}.mark.ok{color:var(--green)}.mark.ng{color:var(--red)}
+    .result-panel{margin:14px 16px 0;background:#1e1b17;border:1px solid;border-radius:12px;padding:16px}.result-label{font-size:15px;font-weight:700;margin-bottom:8px}.result-label.ok{color:var(--green)}.result-label.ng{color:var(--red)}.explanation{color:#b5ac9d;font-size:13px;line-height:1.72;margin-bottom:14px}.exp-label{color:var(--gold);font-weight:700}
+    .finish-emoji{font-size:46px;margin-bottom:9px}.finish-title{color:var(--cream);font-size:19px;margin-bottom:9px}.finish-sub{color:#91887b;font-size:12px;line-height:1.6;margin-bottom:16px}.score-circle{width:104px;height:104px;border:3px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;gap:3px}.score-num{font-size:38px;color:var(--gold);font-weight:800}.score-denom{font-size:13px;color:#888;align-self:flex-end;margin-bottom:21px}.pct{color:#8e867a;font-size:13px;margin-bottom:18px}
+    .result-list{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;max-height:260px;overflow:auto}.result-row{display:flex;align-items:center;justify-content:space-between;background:#1a1612;border-radius:8px;padding:8px 11px;text-align:left}.result-q{font-size:12px;color:#d4cabd}.result-sub{font-size:10px;color:#777066;margin-top:2px}.result-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:15px}.result-badge.ok{background:#1a3327;color:var(--green);border:1px solid #2a6b3c}.result-badge.ng{background:#331a1a;color:var(--red);border:1px solid #6b2a2a}
+    .badge{margin-left:4px;background:var(--gold);color:var(--bg);font-size:9px;font-weight:800;border-radius:10px;padding:1px 5px}.badge.red{background:var(--red);color:#fff}
+    .small-note{font-size:11px;color:#746d63;margin-top:12px;line-height:1.5}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const QUESTIONS=[{"id":1,"genre":"oil_fats","genreLabel":"動植物油・第4石油類","subCategory":"乾性油の自然発火","difficulty":1,"type":"正しいものを選べ","question":"布や紙等に染み込んで大量に放置されていると自然発火する危険性が最も高い危険物は、次のうちどれか。","options":["第4石油類のうちギヤー油","動植物油類のうち半乾性油","動植物油類のうち不乾性油","動植物油類のうち乾性油","第3石油類のうちクレオソート油"],"answer":3,"explanation":"乾性油は不飽和度が高く、空気中の酸素と反応して酸化熱を生じます。布や紙に染み込むと表面積が大きくなり、発生した熱が蓄積して自然発火しやすくなります。"},{"id":2,"genre":"oil_fats","genreLabel":"動植物油・第4石油類","subCategory":"乾性油の一般的性状","difficulty":1,"type":"妥当でないものを選べ","question":"アマニ油などの乾性油の一般的性状について、次のうち妥当でないものはどれか。","options":["比重は、1より大きい。","水に溶けない。","ぼろ布に染み込ませて放置すると自然発火することがある。","薄く延ばして空気中に放置すると、樹脂状に固化する。","空気中で酸化されやすい。"],"answer":0,"explanation":"アマニ油などの乾性油は一般に水より軽く、比重は1未満です。空気中で酸化されやすく、薄膜では乾燥・固化し、布などに染み込ませて積み重ねると酸化熱による自然発火のおそれがあります。"},{"id":3,"genre":"oil_fats","genreLabel":"動植物油・第4石油類","subCategory":"第4石油類の一般性状","difficulty":1,"type":"妥当でないものを選べ","question":"第4石油類について、次のうち妥当でないものはどれか。","options":["比重は1より小さい。","20℃では蒸発しにくい。","潤滑油、切削油の中に該当するものが多い。","引火点は、第1石油類より低い。","霧状消火剤の放射による消火は、有効である。"],"answer":3,"explanation":"第4石油類の引火点は200℃以上250℃未満で、第1石油類（21℃未満）よりはるかに高いので、選択肢4が誤りです。"},{"id":4,"genre":"oil_fats","genreLabel":"動植物油・第4石油類","subCategory":"第4石油類の性状・用途","difficulty":2,"type":"妥当でないものを選べ","question":"第4石油類の性状・用途について、次のうち妥当でないものはどれか。","options":["潤滑油、可塑剤として使用されるものが多い。","ギヤー油、シリンダー油のほか、引火点が200℃以上250℃未満のものである。","凝固点は、引火点とほぼ同じである。","酸、アルカリまたは硝酸塩と反応するものがある。","比重が1より大きいものがある。"],"answer":2,"explanation":"凝固点は液体が固体になる温度、引火点は可燃性蒸気が点火源で引火できる最低液温であり、意味も数値も別物です。"},{"id":5,"genre":"oil_fats","genreLabel":"動植物油・第4石油類","subCategory":"引火点の順序①","difficulty":1,"type":"正しいものを選べ","question":"引火点が低いものから高いものの順になっているものは、次のうちどれか。","options":["自動車ガソリン → トルエン → ギヤー油","自動車ガソリン → 灯油 → トルエン","自動車ガソリン → ギヤー油 → 灯油","トルエン → 自動車ガソリン → ギヤー油","トルエン → ギヤー油 → 灯油"],"answer":0,"explanation":"代表的な引火点は、自動車ガソリンが－40℃以下、トルエンが約4℃、ギヤー油が200℃以上です。したがって「自動車ガソリン → トルエン → ギヤー油」です。"},{"id":6,"genre":"oil_fats","genreLabel":"動植物油・第4石油類","subCategory":"引火点の順序②","difficulty":2,"type":"正しいものを選べ","question":"引火点の低いものから高いものの順になっているものは、次のうちどれか。","options":["酢酸 → ベンゼン → 重油","自動車ガソリン → メタノール → 灯油","灯油 → ジエチルエーテル → アセトン","二硫化炭素 → ギヤー油 → ベンゼン","軽油 → 酢酸エチル → 潤滑油"],"answer":1,"explanation":"自動車ガソリンは－40℃以下、メタノールは約11℃、灯油は40℃以上なので、この順に引火点が高くなります。"},{"id":7,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"C重油の性状・消火","difficulty":2,"type":"適切でない箇所を選べ","question":"次の記述の下線部分A～Eのうち、適切でないものはどれか。\n\n「C重油は、（A）褐色または暗褐色の液体で、（B）引火点は70℃以上と高く、（C）20℃で取り扱う場合は引火の危険は少ないが、いったん燃え始めると、（D）液温が高くなるので消火が困難になる場合がある。大量に燃えている火災の消火には（E）棒状注水が適する。」","options":["A","B","C","D","E"],"answer":4,"explanation":"重油火災への棒状注水は、燃焼油を飛散させて火災を拡大する危険があります。泡、粉末、二酸化炭素などによる窒息消火や、霧状の水による冷却が基本です。"},{"id":8,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"灯油・軽油・重油の共通性状","difficulty":2,"type":"誤っているものを選べ","question":"灯油、軽油および重油について、次のうち誤っているものはどれか。","options":["引火点を比較すると一般に灯油が最も低く、次に軽油、重油の順となる。","いずれも原油の分留によって得られる。","蒸気は、いずれも空気より重い。","灯油と軽油は水より軽いが、重油は水より重い。","灯油と軽油は第2石油類、重油は第3石油類に属する。"],"answer":3,"explanation":"灯油、軽油、重油はいずれも一般に水より軽く、水に浮きます。「重油は水より重い」が誤りです。"},{"id":9,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"重油の性状①","difficulty":1,"type":"妥当でないものを選べ","question":"重油の性状について、次のうち妥当でないものはどれか。","options":["褐色または暗褐色の液体である。","種々の炭化水素の混合物である。","発火点は70～150℃である。","種類により引火点は若干異なる。","不純物として含まれている硫黄は、燃えると亜硫酸ガスになる。"],"answer":2,"explanation":"70～150℃程度は重油の引火点に関する数値で、発火点ではありません。重油の発火点は一般に250℃以上です。"},{"id":10,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"重油の性状②","difficulty":1,"type":"妥当でないものを選べ","question":"重油の性状として、次のうち妥当でないものはどれか。","options":["沸点は100℃より高い。","水に溶けない。","日本産業規格では、1種（A重油）、2種（B重油）および3種（C重油）に分類される。","比重は1より大きい。","引火点は60℃以上である。"],"answer":3,"explanation":"重油は一般に水より軽く、比重は1未満です。水に不溶で、引火点はおおむね60℃以上です。"},{"id":11,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"アクリル酸の性状","difficulty":1,"type":"妥当でないものを選べ","question":"アクリル酸の性状について、次のうち妥当でないものはどれか。","options":["無色の液体である。","引火点は20℃より高い。","重合禁止剤が添加されていないと反応し、発火する危険がある。","酸化性物質との混触により、発火することがある。","エタノール、ジエチルエーテルに溶けない。"],"answer":4,"explanation":"アクリル酸は水、エタノール、ジエチルエーテルなどに溶けます。重合しやすいため、通常は重合防止剤を加えて保管します。"},{"id":12,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"アクリル酸の貯蔵・保管","difficulty":2,"type":"誤っているものを選べ","question":"アクリル酸の貯蔵・保管方法について、次のうち誤っているものはどれか。","options":["容器は密閉し、換気の良いところに保管する。","容器はステンレス鋼または内面をポリエチレンでライニングしたものを用いる。","融点はおよそ14℃と高いので、通常は凍結して保管する。","皮膚に接触すると壊死するおそれがあるので、保護具を使用して取り扱う。","光・熱・過酸化物・鉄さびなどにより重合が加速するので、重合防止剤等を加えて保管する。"],"answer":2,"explanation":"アクリル酸は融点が約14℃ですが、通常は凍結保管しません。凍結・融解による重合防止剤の偏りなどを避け、指定された温度範囲で管理します。"},{"id":13,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"1-ブタノールの性状","difficulty":1,"type":"誤っているものを選べ","question":"1-ブタノールの性状について、次のうち誤っているものはどれか。","options":["酸化すると、ブチルアルデヒドおよび酪酸になる。","皮膚や眼を刺激し、薬傷をおこす。","燃焼範囲は1.4～11.2vol％である。","水に可溶である。","引火点、発火点は軽油とほぼ同じである。"],"answer":4,"explanation":"1-ブタノールの引火点は約35℃、発火点は約325～340℃です。軽油は引火点45℃以上、発火点はおおむね220～250℃であり、両方がほぼ同じとはいえません。"},{"id":14,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"酢酸の性状","difficulty":1,"type":"妥当でないものを選べ","question":"酢酸の性状について、次のうち妥当でないものはどれか。","options":["燃焼下限界は、ガソリンのそれよりも低い。","多くの金属を腐食し、可燃性ガスを発生することがある。","着火すると、青い炎を上げて燃焼する。","引火点は、20℃より高い。","水やエタノールと任意の割合で溶ける。"],"answer":0,"explanation":"酢酸の燃焼下限界は約4vol％で、ガソリンの約1.4vol％より高い値です。したがって「ガソリンより低い」が誤りです。"},{"id":15,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"灯油の性状①","difficulty":1,"type":"妥当なものを選べ","question":"灯油の性状について、次のうち妥当なものはどれか。","options":["自然発火しやすい。","引火点は、40℃以上である。","発火点は、100℃より低い。","液温が常温（20℃）では、蒸気が発生しない。","水によく溶ける。"],"answer":1,"explanation":"灯油の引火点は40℃以上です。20℃でも蒸気は発生しますが、通常は燃焼下限界に達しにくいだけで、蒸気が全く発生しないわけではありません。"},{"id":16,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"灯油の性状②","difficulty":1,"type":"誤っているものを選べ","question":"灯油の性状について、次のうち誤っているものはどれか。","options":["霧状となって浮遊するときは、火がつきやすい。","灯油の中にガソリンを注いでも混じりあわないため、やがて分離する。","引火点は、40℃以上である。","加熱等により引火点以上に液温が上がったときは、火花等により引火する危険がある。","ぼろ布などに染み込んだものは、火がつきやすい。"],"answer":1,"explanation":"灯油とガソリンはいずれも炭化水素を主成分とする石油製品で、互いに混ざります。「やがて分離する」が誤りです。"},{"id":17,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"軽油の性状","difficulty":1,"type":"誤っているものを選べ","question":"軽油の性状について、次のうち誤っているものはどれか。","options":["沸点は、水より高い。","水より軽く、水に不溶である。","酸化剤と混合すると、発熱・爆発のおそれがある。","ディーゼル機関の燃料に用いられる。","引火点は、40℃以下である。"],"answer":4,"explanation":"軽油の引火点は一般に45℃以上です。「40℃以下」が誤りです。"},{"id":18,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"灯油・軽油の共通性状①","difficulty":1,"type":"誤っているものを選べ","question":"灯油および軽油に共通する性状について、次のうち誤っているものはどれか。","options":["水より軽い。","引火点は、20℃より高い。","蒸気は、空気より重い。","発火点は、100℃より低い。","水に溶けない。"],"answer":3,"explanation":"灯油・軽油の発火点はおおむね250℃前後で、100℃より高い値です。"},{"id":19,"genre":"kerosene_heavy","genreLabel":"灯油・軽油・重油","subCategory":"灯油・軽油の共通性状②","difficulty":1,"type":"正しいものを選べ","question":"灯油と軽油の性状について、次のうち正しいものはどれか。","options":["ともに精製したものは無色であるが、軽油はオレンジ色に着色されている。","灯油は一種の植物油であり、軽油は石油製品である。","ともに電気の不導体で、流動により静電気が発生しやすい。","ともに第3石油類に属する。","ともに液温が20℃付近のときでも引火する。"],"answer":2,"explanation":"灯油と軽油はいずれも電気を通しにくく、流動・ろ過・移送などで静電気を蓄積しやすい性質があります。両方とも第2石油類です。"},{"id":20,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"エチルメチルケトンの性状","difficulty":1,"type":"妥当でないものを選べ","question":"エチルメチルケトン（メチルエチルケトン）の性状について、次のうち妥当でないものはどれか。","options":["比重は1より小さい。","アセトンに似た臭いの液体である。","アルコールに溶けやすい。","液温0℃で引火することがある。","液温が200℃になると自然発火する。"],"answer":4,"explanation":"エチルメチルケトンの発火点は約400℃であり、200℃で自然発火するという記述は誤りです。引火点は0℃未満なので、0℃では引火する危険があります。"},{"id":21,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"エチルメチルケトンの貯蔵","difficulty":1,"type":"不適切なものを選べ","question":"エチルメチルケトンの貯蔵または取扱いの注意事項として、次のうち不適切なものはどれか。","options":["換気をよくする。","貯蔵容器は通気口付きのものを使用する。","火気を近づけない。","日光の直射を避ける。","冷暗所に貯蔵する。"],"answer":1,"explanation":"貯蔵容器は蒸気が漏れないよう密栓します。通気口付き容器は可燃性蒸気を放出するため不適切です。"},{"id":22,"genre":"acids_solvents","genreLabel":"アルコール・酸・ケトン","subCategory":"アセトンの性状","difficulty":1,"type":"誤っているものを選べ","question":"アセトンの性状について、次のうち誤っているものはどれか。","options":["比重は1より小さい。","揮発性を有する。","無色で特有の臭気を有する。","水に溶けない。","蒸気比重は1より大きく、蒸気は低所に滞留する。"],"answer":3,"explanation":"アセトンは水と任意の割合で混ざる水溶性液体です。蒸気は空気より重く、低所に滞留しやすい性質があります。"},{"id":23,"genre":"first_petroleum","genreLabel":"ガソリン・トルエン","subCategory":"自動車ガソリンの性状①","difficulty":1,"type":"妥当なものを選べ","question":"自動車ガソリンの性状について、次のうち妥当なものはどれか。","options":["メタンなどの天然ガスが水に溶け込んだものである。","特有なにおいは付臭剤によるものである。","発火点は200℃未満である。","燃焼範囲はおおむね1～8vol％である。","蒸気比重は1～2である。"],"answer":3,"explanation":"自動車ガソリンの燃焼範囲はおおむね1.4～7.6vol％で、概略では1～8vol％です。蒸気比重は空気よりかなり大きく、発火点は約300℃です。"},{"id":24,"genre":"first_petroleum","genreLabel":"ガソリン・トルエン","subCategory":"トルエンの性状","difficulty":2,"type":"誤っているものを選べ","question":"トルエンの性状について、次のうち誤っているものはどれか。","options":["エタノールに溶けるが水に溶けない。","蒸気は1（空気）よりも大きい。","引火点はベンゼンより低い。","芳香族特有の香りをもつ無色透明の液体である。","揮発性がある。"],"answer":2,"explanation":"トルエンの引火点は約4℃、ベンゼンは約－11℃なので、トルエンの方が高い値です。"},{"id":25,"genre":"prevention","genreLabel":"火災予防・設備","subCategory":"屋内貯蔵所の流出事故","difficulty":2,"type":"適切でないものの数を選べ","question":"第1石油類を貯蔵する屋内貯蔵所で、危険物の流出事故が発生した場合の処置として、適切でないものは次のA～Eのうちいくつあるか。\n\nA．電気設備からの引火を防止するため、照明および蒸気を屋根上に排出する設備のスイッチを切った。\nB．流出事故が発生したことを従業員や施設内の人たちに知らせるとともに、消防機関に通報した。\nC．消火の準備をするとともに、床面に流出した危険物に乾燥砂をかけ吸い取った。\nD．危険物を移動させるため、危険物の入っている金属製ドラムを引きずって屋外に運び出した。\nE．貯留設備にたまった危険物をくみ上げ、ふたのある金属容器に収納した。","options":["1つ","2つ","3つ","4つ","5つ"],"answer":1,"explanation":"不適切なのはAとDの2つです。事故発生後に電気スイッチを操作すると火花が出るおそれがあり、金属製ドラムを引きずる行為も火花の原因になります。"},{"id":26,"genre":"prevention","genreLabel":"火災予防・設備","subCategory":"地下埋設配管の腐食①","difficulty":1,"type":"最も考えにくいものを選べ","question":"危険物を取り扱う地下埋設配管（炭素鋼管）が腐食して危険物が漏えいする事故が発生している。この腐食の原因として最も考えにくいものは次のうちどれか。","options":["電気器具のアースをとるため地中に打ち込んだ銅の棒と配管が接触していた。","配管をコンクリート中に埋設した。","配管を埋設した場所の近くの電気設備から直流の迷走電流が流れた。","配管を通気性の異なる2種の土壌にまたがって埋設した。","配管を埋設する際、工具が落下し、配管の被覆がはがれたのに気づかず埋設した。"],"answer":1,"explanation":"健全なコンクリート中への埋設は、他の選択肢に比べ腐食原因になりにくいものです。異種金属接触、迷走電流、土壌差、被覆損傷はいずれも電食・局部腐食の原因になります。"},{"id":27,"genre":"prevention","genreLabel":"火災予防・設備","subCategory":"地下埋設配管の腐食②","difficulty":1,"type":"妥当でないものを選べ","question":"危険物を取り扱う地下埋設配管（炭素鋼管）が腐食して危険物が漏えいする事故が発生している。この腐食の原因として妥当でないものは次のうちどれか。","options":["配管を通気性の異なった2種の土壌にまたがって埋設した。","配管を埋設する際、海砂を使用した。","配管にタールエポキシ樹脂をコーティングした。","電気器具のアースをとるため銅の棒を地中に打ち込んだ際に、配管と銅の棒が接触した。","配管を埋設した場所の近くに直流の電気設備を設置したため、迷走電流の影響が大きくなった。"],"answer":2,"explanation":"タールエポキシ樹脂による被覆は防食措置です。ほかの選択肢は、塩分、異種金属接触、迷走電流、土壌差による腐食を起こし得ます。"},{"id":28,"genre":"special","genreLabel":"特殊引火物","subCategory":"発火点の比較","difficulty":1,"type":"正しいものを選べ","question":"次の危険物のうち、発火点が最も低いものはどれか。","options":["アセトアルデヒド","アセトン","ジエチルエーテル","トルエン","二硫化炭素"],"answer":4,"explanation":"二硫化炭素の発火点は約90℃で、第4類危険物の中でも特に低い値です。高温の配管などに接触するだけで発火する危険があります。"},{"id":29,"genre":"special","genreLabel":"特殊引火物","subCategory":"二硫化炭素の性状①","difficulty":2,"type":"正しい組合せを選べ","question":"二硫化炭素の性状について、次のA～Eのうち妥当なものの組み合わせはどれか。\n\nA．発火点は90℃と低く、高温の配管等との接触により、容易に発火する。\nB．青色の炎をあげて燃える。\nC．比重は1より小さい。\nD．水によく溶ける。\nE．純品は無色であるが、市販品はオレンジ色に着色している。","options":["AとB","AとE","BとC","CとD","DとE"],"answer":0,"explanation":"AとBが正しい記述です。二硫化炭素は発火点が約90℃で、青い炎をあげて燃えます。液比重は約1.26で水より重く、水にはほとんど溶けません。市販品は一般に黄色味を帯びることがありますが、ガソリンのようにオレンジ色へ着色するものではありません。"},{"id":30,"genre":"special","genreLabel":"特殊引火物","subCategory":"特殊引火物の反応性","difficulty":2,"type":"誤っているものを選べ","question":"危険物の性状について、次のうち誤っているものはどれか。","options":["二硫化炭素の比重は1より小さく、水によく溶ける。","二硫化炭素は燃焼すると、有毒な二酸化硫黄を発生する。","ジエチルエーテルは空気中で徐々に酸化して、爆発性の過酸化物を生成することがある。","アセトアルデヒドは加圧下で空気に接触させると、爆発性の過酸化物を生成することがある。","アセトアルデヒドは、アルコールを酸化させると生成される。"],"answer":0,"explanation":"二硫化炭素は水より重く（比重約1.26）、水にはほとんど溶けません。選択肢1は両方とも逆です。"},{"id":31,"genre":"special","genreLabel":"特殊引火物","subCategory":"特殊引火物の性状①","difficulty":1,"type":"妥当でないものを選べ","question":"特殊引火物の性状について、次のうち妥当でないものはどれか。","options":["アセトアルデヒドは空気中で加圧すると、爆発性の過酸化物を生成するおそれがある。","ジエチルエーテルはアルコールによく溶ける。","二硫化炭素は、比重が1より小さい。","酸化プロピレンは、水、エタノールに溶ける。","二硫化炭素の発火点は100℃より低い。"],"answer":2,"explanation":"二硫化炭素の液比重は約1.26で、水より重い液体です。"},{"id":32,"genre":"special","genreLabel":"特殊引火物","subCategory":"特殊引火物の性状②","difficulty":1,"type":"妥当なものを選べ","question":"特殊引火物の性状等について、次のうち妥当なものはどれか。","options":["アセトアルデヒドは、酸化されるとアルコールを生じる。","ジエチルエーテルは、揮発しやすく、刺激臭がある。","二硫化炭素は、比重が1より小さい。","酸化プロピレンは、水に溶けにくい。","イソプレンは、オレンジ色の揮発性液体である。"],"answer":1,"explanation":"ジエチルエーテルは沸点が低く、非常に揮発しやすい無色の液体で、特有の刺激性のある臭いがあります。"},{"id":33,"genre":"special","genreLabel":"特殊引火物","subCategory":"特殊引火物の火災予防・消火","difficulty":2,"type":"妥当でないものを選べ","question":"次のうち妥当でないものはどれか。","options":["二硫化炭素は沸点及び発火点が低いので、容器やタンクに貯蔵するときは、通常水を張って蒸気の発生を抑制する。","酸化プロピレンの火災には、水溶性液体用泡消火剤以外の一般の泡消火剤の使用は不適切である。","ガソリンを収納していた容器は、空き缶といえども危険性があるため、火災予防上安全な場所に保管する。","アセトアルデヒドの引火点は非常に低いが、爆発範囲が狭いのでガソリンと比べると火災の危険性は少ない。","動植物油で乾性油の染み込んだぼろ布等は、通風の悪い場所に堆積しておくと、自然発火することがある。"],"answer":3,"explanation":"アセトアルデヒドは引火点・沸点が非常に低く、燃焼範囲も広いため、ガソリンより危険性が少ないとはいえません。"},{"id":34,"genre":"special","genreLabel":"特殊引火物","subCategory":"ジエチルエーテルの貯蔵","difficulty":1,"type":"妥当でないものを選べ","question":"ジエチルエーテルの貯蔵、取扱いの方法として、次のうち妥当でないものはどれか。","options":["直射日光を避け冷所に貯蔵する。","容器は、密栓する。","火気および高温体の接近を避ける。","建物の内部に滞留した蒸気は、屋外の高所に排出する。","水より重く水に溶けにくいので、容器等に水を張って蒸気の発生を抑制する。"],"answer":4,"explanation":"水を張って貯蔵する方法は、水より重く水に溶けない二硫化炭素に用いる方法です。ジエチルエーテルは水より軽いため、この方法は適しません。"},{"id":35,"genre":"special","genreLabel":"特殊引火物","subCategory":"ジエチルエーテルの性状","difficulty":1,"type":"妥当でないものを選べ","question":"ジエチルエーテルの性状について、次のうち妥当でないものはどれか。","options":["沸点が極めて低い。","電気の良導体であり、流動等によっても静電気が発生しにくい。","蒸気比重は1より大きい。","比重は1より小さく、水にわずかしか溶けない。","引火点が極めて低く、かつ、燃焼範囲も極めて広い。"],"answer":1,"explanation":"ジエチルエーテルは電気を通しにくく、流動・摩擦で静電気を蓄積しやすい液体です。静電気放電が点火源になるため注意が必要です。"},{"id":36,"genre":"special","genreLabel":"特殊引火物","subCategory":"酸化プロピレンの性状","difficulty":1,"type":"誤っているものを選べ","question":"酸化プロピレンの性状として、次のうち誤っているものはどれか。","options":["無色透明の揮発性液体である。","比重は1より小さい。","水、エタノール、ジエチルエーテルに溶ける。","分解は発熱反応で、単独でも分解爆発する。","蒸気比重は1より小さい。"],"answer":4,"explanation":"酸化プロピレンの蒸気比重は約2で、空気より重く低所に滞留しやすい性質があります。"},{"id":37,"genre":"first_petroleum","genreLabel":"ガソリン・トルエン","subCategory":"自動車ガソリンの性状②","difficulty":1,"type":"妥当でないものを選べ","question":"自動車ガソリンの性状について、次のうち妥当でないものはどれか。","options":["燃焼範囲はおおむね1～8vol％である。","発火点は100℃より低い。","オレンジ系の色に着色されている。","比重は1より小さい。","引火点は0℃より低い。"],"answer":1,"explanation":"自動車ガソリンの発火点はおおむね300℃で、100℃より高い値です。引火点は－40℃以下で、常温でも可燃性蒸気を生じます。"}];
+const GENRES=[{"id":"all","label":"すべて","icon":"📚"},{"id":"wrong","label":"間違えた問題","icon":"❌"},{"id":"oil_fats","label":"動植物油・第4石油類","icon":"🛢️"},{"id":"kerosene_heavy","label":"灯油・軽油・重油","icon":"⛽"},{"id":"acids_solvents","label":"アルコール・酸・ケトン","icon":"🧪"},{"id":"first_petroleum","label":"ガソリン・トルエン","icon":"🔥"},{"id":"special","label":"特殊引火物","icon":"⚠️"},{"id":"prevention","label":"火災予防・設備","icon":"🧯"}];
+const SESSION_SIZE=30;
+const PREFIX='otsu4_seishitsu_shouka_v1_';
+const $=s=>document.querySelector(s);
+const byId=id=>QUESTIONS.find(q=>q.id===id);
+const load=(k,fallback)=>{try{const v=localStorage.getItem(PREFIX+k);return v?JSON.parse(v):fallback}catch(e){return fallback}};
+const save=(k,v)=>{try{localStorage.setItem(PREFIX+k,JSON.stringify(v))}catch(e){}};
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+let state={
+  activeGenre:load('activeGenre','all'),
+  random:load('random',false),
+  settingsOpen:false,
+  screen:'start',
+  session:null,
+  selected:null,
+  wrongIds:new Set(load('wrongIds',[])),
+  laps:load('laps',{}),
+  courses:load('courses',{}),
+  activeSessions:load('activeSessions',{}),
+  finish:null
+};
+const modeKey=()=>state.activeGenre+'|'+(state.random?'random':'ordered');
+const genreInfo=()=>GENRES.find(g=>g.id===state.activeGenre)||GENRES[0];
+function filtered(genre=state.activeGenre){
+  if(genre==='all')return QUESTIONS;
+  if(genre==='wrong')return QUESTIONS.filter(q=>state.wrongIds.has(q.id));
+  return QUESTIONS.filter(q=>q.genre===genre);
+}
+function stars(n){return '<span class="stars">'+[1,2,3].map(i=>`<span class="star ${i<=n?'':'off'}">★</span>`).join('')+'</span>'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function persist(){save('activeGenre',state.activeGenre);save('random',state.random);save('wrongIds',[...state.wrongIds]);save('laps',state.laps);save('courses',state.courses);save('activeSessions',state.activeSessions)}
+function validCourse(course,ids){if(!course||!Array.isArray(course.orderIds))return false;const a=[...course.orderIds].sort((x,y)=>x-y),b=[...ids].sort((x,y)=>x-y);return a.length===b.length&&a.every((v,i)=>v===b[i])}
+function makeSession(){
+  const qs=filtered(); if(!qs.length)return null;
+  const key=modeKey(); const ids=qs.map(q=>q.id);
+  let startOffset=0,orderIds;
+  if(state.activeGenre==='wrong'){
+    orderIds=state.random?shuffle(ids):ids;
+  }else{
+    let course=state.courses[key];
+    if(!validCourse(course,ids)) course={nextOffset:0,orderIds:state.random?shuffle(ids):ids};
+    if(course.nextOffset>=course.orderIds.length)course.nextOffset=0;
+    state.courses[key]=course; startOffset=course.nextOffset; orderIds=course.orderIds;
+  }
+  const sessionIds=orderIds.slice(startOffset,startOffset+SESSION_SIZE);
+  const session={modeKey:key,genre:state.activeGenre,random:state.random,ids:sessionIds,current:0,correctCount:0,results:[],selected:null,startOffset,totalInLap:orderIds.length};
+  state.activeSessions[key]=session;persist();return session;
+}
+function startQuiz(){
+  const key=modeKey();
+  state.session=state.activeSessions[key]||makeSession();
+  if(!state.session)return;
+  state.activeGenre=state.session.genre;state.random=state.session.random;state.selected=state.session.selected??null;state.screen='quiz';state.finish=null;render();
+}
+function resetCurrentMode(){const k=modeKey();delete state.activeSessions[k];delete state.courses[k];state.session=null;state.selected=null;persist();render()}
+function pauseQuiz(){if(state.session){state.session.selected=state.selected;state.activeSessions[state.session.modeKey]=state.session}persist();state.screen='start';state.settingsOpen=false;render()}
+function chooseGenre(id){state.activeGenre=id;state.settingsOpen=true;persist();render()}
+function toggleRandom(v){state.random=v;persist();render()}
+function selectAnswer(idx){
+  if(state.selected!==null||!state.session)return;
+  const q=byId(state.session.ids[state.session.current]);const correct=idx===q.answer;
+  state.selected=idx;state.session.selected=idx;
+  if(correct){state.session.correctCount++;state.wrongIds.delete(q.id)}else state.wrongIds.add(q.id);
+  state.session.results.push({id:q.id,correct,selected:idx});
+  state.activeSessions[state.session.modeKey]=state.session;persist();render();
+}
+function nextQuestion(){
+  const s=state.session;if(!s)return;
+  if(s.current+1<s.ids.length){s.current++;s.selected=null;state.selected=null;state.activeSessions[s.modeKey]=s;persist();render();return}
+  let fullLap=true,nextOffset=0;
+  if(s.genre==='wrong'){
+    state.laps[s.modeKey]=(state.laps[s.modeKey]||0)+1;
+  }else{
+    const c=state.courses[s.modeKey]||{nextOffset:0,orderIds:[]};
+    nextOffset=s.startOffset+s.ids.length;
+    fullLap=nextOffset>=s.totalInLap;
+    if(fullLap){state.laps[s.modeKey]=(state.laps[s.modeKey]||0)+1;state.courses[s.modeKey]={nextOffset:0,orderIds:[]};nextOffset=0}
+    else{c.nextOffset=nextOffset;state.courses[s.modeKey]=c}
+  }
+  delete state.activeSessions[s.modeKey];
+  state.finish={ids:s.ids,results:s.results,score:s.correctCount,total:s.ids.length,fullLap,nextOffset,totalInLap:s.totalInLap,genre:s.genre,modeKey:s.modeKey};
+  state.session=null;state.selected=null;state.screen='finish';persist();render();
+}
+function continueAfterFinish(){state.screen='start';state.finish=null;render();startQuiz()}
+function backHome(){state.screen='start';state.finish=null;state.settingsOpen=false;render()}
+function settingsHtml(){
+  return `<div class="settings-box"><button class="settings-toggle" onclick="state.settingsOpen=!state.settingsOpen;render()"><span>⚙️ 出題設定${state.settingsOpen?'を閉じる':'を開く'}</span><span>${state.settingsOpen?'▲':'▼'}</span></button><div class="settings-panel ${state.settingsOpen?'open':''}"><div class="setting-label">分野</div><div class="genre-grid">${GENRES.map(g=>{const count=g.id==='wrong'?state.wrongIds.size:filtered(g.id).length;return `<button class="genre-btn ${state.activeGenre===g.id?'active':''}" onclick="chooseGenre('${g.id}')">${g.icon} ${esc(g.label)}${g.id==='wrong'&&count?` <span class="badge red">${count}</span>`:''}</button>`}).join('')}</div><div class="random-row"><div class="random-copy"><strong>問題をランダム出題</strong><span>OFFなら画像の順番どおり</span></div><label class="switch"><input type="checkbox" ${state.random?'checked':''} onchange="toggleRandom(this.checked)"><span class="slider"></span></label></div></div></div>`
+}
+function header(close=false){return `<div class="header">${close?'<button class="icon-btn" onclick="pauseQuiz()">✕</button>':'<div style="width:34px"></div>'}<span class="header-title">🔥 乙4 性質・消火</span><div style="width:34px"></div></div>`}
+function renderStart(){
+  const qs=filtered(),g=genreInfo(),key=modeKey(),active=state.activeSessions[key],course=state.courses[key],lap=state.laps[key]||0;
+  let progress='1回の出題は最大30問。30問で自動停止します。';
+  if(state.activeGenre!=='wrong'&&course&&course.nextOffset>0)progress+=` 次のセットは全${qs.length}問中${course.nextOffset+1}問目からです。`;
+  const preview=qs.map((q,i)=>`<div class="preview-row"><span class="preview-num">問${i+1}</span><span class="preview-sub">${esc(q.subCategory)}</span>${stars(q.difficulty)}</div>`).join('');
+  const empty=state.activeGenre==='wrong'&&!qs.length;
+  return `<div class="root"><div class="wrap">${header()}${settingsHtml()}<div class="start-card"><div class="start-icon">${g.icon}</div><h2 class="start-title">${esc(g.label)}</h2><div class="start-count">${qs.length}問</div><div class="session-note">${progress}</div>${lap?`<div class="lap-info">🔄 ${lap}周完了</div>`:''}${empty?'<div class="empty-msg">🎉 間違えた問題はありません！</div>':active?`<button class="main-btn resume-btn" onclick="startQuiz()">▶ ${active.current+1}問目から再開</button><button class="sub-btn" onclick="resetCurrentMode()">この分野を最初からやり直す</button>`:`<button class="main-btn" onclick="startQuiz()">スタート →</button>`}<div class="preview-list">${preview}</div></div></div></div>`;
+}
+function renderQuiz(){
+  const s=state.session,q=byId(s.ids[s.current]),g=GENRES.find(x=>x.id===s.genre)||GENRES[0];
+  const answered=state.selected!==null,correct=answered&&state.selected===q.answer;
+  const options=q.options.map((o,i)=>{let cls='option';if(answered){cls+=' disabled';if(i===q.answer)cls+=' correct';else if(i===state.selected)cls+=' wrong'}return `<button class="${cls}" onclick="selectAnswer(${i})"><span class="opt-num">${i+1}</span><span class="opt-text">${esc(o)}</span>${answered&&i===q.answer?'<span class="mark ok">✓</span>':answered&&i===state.selected&&i!==q.answer?'<span class="mark ng">✗</span>':''}</button>`}).join('');
+  const overall=s.genre==='wrong'?'間違えた問題セット':`全体 ${s.startOffset+s.current+1} / ${s.totalInLap}問`;
+  return `<div class="root"><div class="wrap">${header(true)}<div class="category-bar"><span class="category-text">${g.icon} ${esc(g.label)} ／ ${esc(q.subCategory)}</span></div><div class="progress-row"><span class="progress-text">問${s.current+1} / ${s.ids.length}</span><div class="progress-bar"><div class="progress-fill" style="width:${((s.current+1)/s.ids.length)*100}%"></div></div><span class="progress-text">正解 ${s.correctCount}</span></div><div class="overall-progress">${overall}</div><div class="meta-row"><span class="past-tag">過去問題</span><span class="past-tag">／ 問${s.current+1}</span>${stars(q.difficulty)}<span class="type-tag">${esc(q.type)}</span></div><div class="question-box"><p class="question-text">${esc(q.question)}</p></div><div class="options">${options}</div>${answered?`<div class="result-panel" style="border-color:${correct?'#2a6b3c':'#6b2a2a'}"><div class="result-label ${correct?'ok':'ng'}">${correct?'✓ 正解！':'✗ 不正解'}</div><p class="explanation"><span class="exp-label">解説：</span>${esc(q.explanation)}</p><button class="main-btn" onclick="nextQuestion()">${s.current+1>=s.ids.length?'結果を見る':'次の問題へ →'}</button></div>`:''}</div></div>`;
+}
+function renderFinish(){
+  const f=state.finish,pct=Math.round(f.score/f.total*100),remaining=state.wrongIds.size;
+  const title=f.fullLap?'1周完了！':'30問セット終了！';
+  const sub=f.genre==='wrong'?`現在の間違えた問題は${remaining}問です。`:f.fullLap?'この分野の全問題を一通り解き終えました。':`次のセットは全${f.totalInLap}問中${f.nextOffset+1}問目から始まります。`;
+  const rows=f.ids.map((id,i)=>{const q=byId(id),r=f.results[i];return `<div class="result-row"><div><div class="result-q">問${i+1}</div><div class="result-sub">${esc(q.subCategory)}</div></div><span class="result-badge ${r&&r.correct?'ok':'ng'}">${r&&r.correct?'正解 ✓':'不正解 ✗'}</span></div>`}).join('');
+  const nextLabel=f.fullLap?(f.genre==='wrong'?'残った問題に挑戦する':'次の周を始める'):'次のセットへ';
+  return `<div class="root"><div class="wrap">${header()}<div class="finish-card"><div class="finish-emoji">${f.fullLap?'🏁':'⏸️'}</div><h2 class="finish-title">${title}</h2><div class="finish-sub">${sub}</div><div class="score-circle"><span class="score-num">${f.score}</span><span class="score-denom">/ ${f.total}</span></div><div class="pct">${pct}% 正解</div><div class="result-list">${rows}</div>${f.genre==='wrong'&&!remaining?'<div class="empty-msg">🎉 間違えた問題をすべて解消しました！</div>':`<button class="main-btn" onclick="continueAfterFinish()">${nextLabel}</button>`}<button class="sub-btn" onclick="backHome()">出題設定に戻る</button><div class="small-note">回答履歴・途中経過・周回数はこの端末のブラウザに保存されます。</div></div></div></div>`;
+}
+function render(){document.getElementById('app').innerHTML=state.screen==='quiz'?renderQuiz():state.screen==='finish'?renderFinish():renderStart()}
+render();
+</script>
+</body>
+</html>
