@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="会社休み管理" />
+  <title>会社の休み・代休管理</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --text: #172033;
+      --muted: #687386;
+      --line: #dfe5ee;
+      --primary: #2563eb;
+      --primary-2: #dbeafe;
+      --danger: #dc2626;
+      --shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --safe-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --panel: #172033;
+      --panel-2: #202b40;
+      --text: #f8fafc;
+      --muted: #a8b3c7;
+      --line: #334155;
+      --primary: #60a5fa;
+      --primary-2: #1e3a5f;
+      --danger: #f87171;
+      --shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(100%, 1020px);
+      margin: 0 auto;
+      padding: 16px 14px calc(28px + var(--safe-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .brand h1 { margin: 0; font-size: clamp(22px, 5vw, 31px); }
+    .brand p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .icon-btn {
+      width: 44px; height: 44px; border-radius: 13px;
+      border: 1px solid var(--line); background: var(--panel); color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    .notice {
+      display: none;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      padding: 10px 12px;
+      border-radius: 13px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .rule-card {
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, var(--panel), var(--panel-2));
+    }
+    .rule-card strong { display: block; font-size: 15px; margin-bottom: 6px; }
+    .rule-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .rule-card b { color: var(--text); }
+
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .calendar-card { overflow: hidden; }
+    .calendar-head {
+      display: grid;
+      grid-template-columns: 46px 1fr 46px;
+      align-items: center;
+      padding: 14px 12px 10px;
+      gap: 8px;
+    }
+    .month-title { text-align: center; }
+    .month-title strong { font-size: 21px; display: block; }
+    .month-title small {
+      display: block;
+      color: var(--muted);
+      margin-top: 3px;
+      font-weight: 700;
+    }
+    .month-title button {
+      margin-top: 5px;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-weight: 700;
+      padding: 3px 8px;
+    }
+    .nav-btn {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      width: 42px; height: 42px; border-radius: 12px;
+      font-size: 22px;
+    }
+
+    .weekdays, .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+    .weekdays {
+      padding: 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .weekdays div { padding: 8px 2px; }
+    .weekdays div:first-child { color: #ef4444; }
+    .weekdays div:last-child { color: #3b82f6; }
+
+    .calendar-grid {
+      border-top: 1px solid var(--line);
+      background: var(--line);
+      gap: 1px;
+    }
+    .day {
+      position: relative;
+      min-height: 98px;
+      border: 0;
+      background: var(--panel);
+      color: var(--text);
+      text-align: left;
+      padding: 8px 7px 7px;
+      overflow: hidden;
+    }
+    .day.outside-period { opacity: .28; }
+    .day.today::after {
+      content: "";
+      position: absolute; inset: 4px;
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+    .day.manual::before {
+      content: "手動";
+      position: absolute;
+      right: 5px;
+      bottom: 4px;
+      font-size: 8px;
+      font-weight: 900;
+      color: var(--muted);
+    }
+    .day-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 27px; height: 27px; border-radius: 50%;
+      font-weight: 800; font-size: 14px;
+    }
+    .day.sunday .day-number,
+    .day.national-holiday .day-number { color: #ef4444; }
+    .day.saturday .day-number { color: #3b82f6; }
+    .day.saturday-work .day-number { color: #c2410c; }
+    .day.today .day-number { background: var(--primary); color: white; }
+    .status-pill {
+      display: block;
+      width: 100%;
+      margin-top: 7px;
+      padding: 5px 4px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1.2;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .note-dot {
+      position: absolute; right: 7px; top: 9px;
+      width: 7px; height: 7px; border-radius: 50%; background: #f59e0b;
+    }
+
+    .side { padding: 16px; }
+    .side h2 { font-size: 17px; margin: 0 0 12px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .stat {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .stat span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .stat strong { font-size: 22px; }
+
+    .annual-box, .leave-box {
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+    .annual-title { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .annual-main {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 800;
+    }
+    .annual-main strong { color: var(--primary); font-size: 20px; }
+    .annual-detail {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .leave-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .leave-row label { color: var(--muted); font-size: 13px; }
+    .leave-row input {
+      width: 86px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--panel); color: var(--text); text-align: right;
+    }
+    .leave-remain { margin-top: 10px; font-weight: 800; }
+    .leave-remain strong { color: var(--primary); font-size: 23px; }
+
+    .actions-card { padding: 14px; }
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+    .action-btn {
+      min-height: 48px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--panel-2); color: var(--text); font-weight: 700; padding: 9px;
+    }
+    .action-btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .action-btn.danger { color: var(--danger); }
+    .helper { color: var(--muted); font-size: 12px; margin: 10px 2px 0; line-height: 1.55; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 7px;
+      padding: 0 14px 14px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+    .legend-color { width: 10px; height: 10px; border-radius: 3px; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(15, 23, 42, .56);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      width: min(100%, 520px);
+      background: var(--panel);
+      border-radius: 22px;
+      padding: 19px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.28);
+      margin-bottom: var(--safe-bottom);
+    }
+    .modal h3 { margin: 0 0 5px; font-size: 20px; }
+    .company-plan {
+      margin: 0 0 15px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .company-plan strong { color: var(--primary); }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 7px; }
+    .field select, .field textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px;
+      background: var(--panel-2); color: var(--text); padding: 12px;
+    }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1.2fr; gap: 9px; }
+    .modal-actions button, .clear-day-btn {
+      border: 0; border-radius: 12px; padding: 13px; font-weight: 800;
+    }
+    .cancel-btn { background: var(--panel-2); color: var(--text); border: 1px solid var(--line) !important; }
+    .save-btn { background: var(--primary); color: white; }
+    .clear-day-btn {
+      width: 100%; margin-top: 10px; background: transparent; color: var(--danger);
+      border: 1px solid var(--line);
+    }
+
+    .toast {
+      position: fixed; left: 50%; bottom: calc(20px + var(--safe-bottom));
+      transform: translate(-50%, 25px); z-index: 200;
+      background: #111827; color: white; padding: 11px 16px; border-radius: 999px;
+      font-size: 13px; font-weight: 700; opacity: 0; pointer-events: none;
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .hidden-file { display: none; }
+
+    @media (max-width: 760px) {
+      .grid-top { grid-template-columns: 1fr; }
+      .day { min-height: 80px; padding: 6px 4px; }
+      .day-number { width: 24px; height: 24px; font-size: 13px; }
+      .status-pill { margin-top: 5px; font-size: 9px; padding: 4px 2px; }
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 390px) {
+      .app { padding-left: 8px; padding-right: 8px; }
+      .day { min-height: 73px; }
+      .status-pill { font-size: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>会社の休み・代休管理</h1>
+        <p>1人用・16日〜翌月15日・端末内に自動保存</p>
+      </div>
+      <button class="icon-btn" id="themeBtn" aria-label="表示モードを切り替える">☾</button>
+    </header>
+
+    <div class="notice" id="storageNotice"></div>
+
+    <section class="card rule-card">
+      <strong>会社カレンダーを自動計算</strong>
+      <p>
+        <b>日曜・祝日・通常の土曜は休み</b>。ただし、<b>月〜金に祝日がある週の土曜は会社指定の出勤日</b>です。
+        休みの土曜日に追加で出勤した場合は、1日勤務で代休1日、半日勤務で代休0.5日として自動計算します。
+        夏季休暇（8/13〜15）、冬季休暇（12/30・12/31・1/4）、創立記念日（3/8）も反映します。
+      </p>
+    </section>
+
+    <section class="grid-top">
+      <div class="card calendar-card">
+        <div class="calendar-head">
+          <button class="nav-btn" id="prevMonth" aria-label="前の期間">‹</button>
+          <div class="month-title">
+            <strong id="monthLabel"></strong>
+            <small id="periodRange"></small>
+            <button id="todayBtn">今日の期間に戻る</button>
+          </div>
+          <button class="nav-btn" id="nextMonth" aria-label="次の期間">›</button>
+        </div>
+        <div class="weekdays">
+          <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <aside class="card side">
+        <h2>この期間の集計</h2>
+        <div class="stats">
+          <div class="stat"><span>会社出勤日</span><strong id="workCount">0</strong></div>
+          <div class="stat"><span>会社休日</span><strong id="offCount">0</strong></div>
+          <div class="stat"><span>有休使用</span><strong id="paidCount">0</strong></div>
+          <div class="stat"><span>追加の土曜出勤</span><strong id="satWorkedCount">0</strong></div>
+          <div class="stat"><span>代休使用</span><strong id="compUsedCount">0</strong></div>
+          <div class="stat"><span>手動登録</span><strong id="otherCount">0</strong></div>
+        </div>
+
+        <div class="annual-box">
+          <div class="annual-title" id="annualTitle">年間予定</div>
+          <div class="annual-main">
+            <span>労働 <strong id="annualWork">0</strong>日</span>
+            <span>休日 <strong id="annualOff">0</strong>日</span>
+          </div>
+          <div class="annual-detail" id="annualDetail"></div>
+        </div>
+
+        <div class="leave-box">
+          <div class="leave-row">
+            <label for="paidAllowance">有休の保有日数</label>
+            <input id="paidAllowance" type="number" min="0" step="0.5" inputmode="decimal" value="0" />
+          </div>
+          <div class="leave-remain">残り有休：<strong id="paidRemain">0</strong> 日</div>
+        </div>
+
+        <div class="leave-box">
+          <div class="annual-title" id="compTitle">表示中の年度の代休</div>
+          <div class="stats">
+            <div class="stat"><span>獲得</span><strong id="compEarned">0</strong></div>
+            <div class="stat"><span>使用</span><strong id="compUsed">0</strong></div>
+          </div>
+          <div class="leave-remain">平日に休める残り：<strong id="compRemain">0</strong> 日</div>
+          <div class="annual-detail" id="compDetail">
+            休みの土曜日に1日出勤すると1日、半日出勤すると0.5日加算されます。
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card actions-card">
+      <div class="action-grid">
+        <button class="action-btn primary" id="currentYearBtn">今年度の先頭へ</button>
+        <button class="action-btn" id="exportBtn">バックアップ保存</button>
+        <button class="action-btn" id="importBtn">バックアップ復元</button>
+        <button class="action-btn danger" id="clearAllBtn">個人記録を削除</button>
+      </div>
+      <p class="helper">
+        会社予定は自動計算されます。休みの土曜日を押して「土曜出勤（1日／半日）」を登録すると代休残数が増え、
+        平日の勤務日を押して「代休（1日／半日）」を登録すると残数から差し引かれます。
+        記録はIndexedDBとlocalStorageの両方へ保存するため、アプリ終了・タスクキル・端末再起動後も残ります。
+        Safariの「履歴とWebサイトデータを消去」やプライベートブラウズでは消える可能性があるため、定期的にバックアップしてください。
+      </p>
+      <input type="file" id="importFile" class="hidden-file" accept="application/json,.json" />
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h3 id="modalTitle">日付を編集</h3>
+      <p class="company-plan" id="companyPlan"></p>
+      <div class="field">
+        <label for="statusSelect">個人の登録</label>
+        <select id="statusSelect"></select>
+      </div>
+      <div class="field">
+        <label for="noteInput">メモ</label>
+        <textarea id="noteInput" placeholder="例：旅行、通院、休日出勤、振替など"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="cancel-btn" id="cancelBtn">キャンセル</button>
+        <button class="save-btn" id="saveDayBtn">保存</button>
+      </div>
+      <button class="clear-day-btn" id="clearDayBtn">手動登録を削除して会社予定に戻す</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    'use strict';
+
+    const APP_VERSION = 3;
+    const DB_NAME = 'companyHolidayManagerDB';
+    const DB_STORE = 'appState';
+    const DB_KEY = 'main';
+    const LS_KEY = 'companyHolidayManagerStateV1';
+
+    const STATUS = {
+      none:        { label: '会社予定のまま', color: '#94a3b8', bg: '#e2e8f0', text: '#334155' },
+      work:        { label: '出勤', color: '#16a34a', bg: '#dcfce7', text: '#166534' },
+      off:         { label: '公休', color: '#2563eb', bg: '#dbeafe', text: '#1e40af' },
+      paid:        { label: '有休', color: '#9333ea', bg: '#f3e8ff', text: '#6b21a8', paid: 1 },
+      halfPaid:    { label: '半休', color: '#c026d3', bg: '#fae8ff', text: '#86198f', paid: 0.5 },
+      satWorkFull: { label: '土曜出勤（1日）', color: '#ea580c', bg: '#ffedd5', text: '#9a3412', compEarned: 1 },
+      satWorkHalf: { label: '土曜出勤（半日）', color: '#f97316', bg: '#fff7ed', text: '#9a3412', compEarned: 0.5 },
+      comp:        { label: '代休（1日）', color: '#0891b2', bg: '#cffafe', text: '#155e75', compUsed: 1 },
+      halfComp:    { label: '代休（半日）', color: '#06b6d4', bg: '#ecfeff', text: '#155e75', compUsed: 0.5 },
+      holidayWork: { label: '休日出勤（記録のみ）', color: '#b45309', bg: '#fef3c7', text: '#92400e' },
+      absent:      { label: '欠勤', color: '#dc2626', bg: '#fee2e2', text: '#991b1b' },
+      special:     { label: '特別休暇', color: '#7c3aed', bg: '#ede9fe', text: '#5b21b6' },
+      other:       { label: 'その他', color: '#64748b', bg: '#e2e8f0', text: '#334155' }
+    };
+
+    const BASE_STYLE = {
+      work:         { bg: '#ecfdf5', text: '#166534', color: '#16a34a' },
+      saturdayWork: { bg: '#ffedd5', text: '#9a3412', color: '#ea580c' },
+      sunday:       { bg: '#fee2e2', text: '#991b1b', color: '#ef4444' },
+      holiday:      { bg: '#ffe4e6', text: '#9f1239', color: '#e11d48' },
+      saturdayOff:  { bg: '#dbeafe', text: '#1e40af', color: '#2563eb' },
+      summer:       { bg: '#cffafe', text: '#155e75', color: '#0891b2' },
+      winter:       { bg: '#e0e7ff', text: '#3730a3', color: '#4f46e5' },
+      founding:     { bg: '#f3e8ff', text: '#6b21a8', color: '#9333ea' }
+    };
+
+    const defaultState = () => ({
+      version: APP_VERSION,
+      entries: {},
+      settings: {
+        paidAllowance: 0,
+        theme: 'system'
+      },
+      updatedAt: new Date().toISOString()
+    });
+
+    let state = defaultState();
+    let viewDate = periodViewDateFor(new Date());
+    let selectedDateKey = null;
+    let db = null;
+    let saveTimer = null;
+    const holidayCache = new Map();
+
+    const $ = (id) => document.getElementById(id);
+    const monthLabel = $('monthLabel');
+    const calendarGrid = $('calendarGrid');
+    const modalBackdrop = $('modalBackdrop');
+    const statusSelect = $('statusSelect');
+    const noteInput = $('noteInput');
+    const toastEl = $('toast');
+
+    function makeDate(year, monthIndex, day) {
+      return new Date(year, monthIndex, day, 12, 0, 0, 0);
+    }
+
+    function cloneDate(date) {
+      return makeDate(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function addDays(date, amount) {
+      const copy = cloneDate(date);
+      copy.setDate(copy.getDate() + amount);
+      return copy;
+    }
+
+    function dateKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDateKey(key) {
+      const [y, m, d] = key.split('-').map(Number);
+      return makeDate(y, m - 1, d);
+    }
+
+    function isSameDate(a, b) {
+      return dateKey(a) === dateKey(b);
+    }
+
+    function isBetween(date, start, end) {
+      const key = dateKey(date);
+      return key >= dateKey(start) && key <= dateKey(end);
+    }
+
+    function daysInclusive(start, end) {
+      const result = [];
+      for (let date = cloneDate(start); dateKey(date) <= dateKey(end); date = addDays(date, 1)) {
+        result.push(date);
+      }
+      return result;
+    }
+
+    function periodViewDateFor(date) {
+      return date.getDate() <= 15
+        ? makeDate(date.getFullYear(), date.getMonth(), 1)
+        : makeDate(date.getFullYear(), date.getMonth() + 1, 1);
+    }
+
+    function getPeriod() {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      return {
+        start: makeDate(year, month - 1, 16),
+        end: makeDate(year, month, 15)
+      };
+    }
+
+    function getCompanyYearRange(referenceDate) {
+      const candidate = makeDate(referenceDate.getFullYear(), 2, 16);
+      const startYear = dateKey(referenceDate) >= dateKey(candidate)
+        ? referenceDate.getFullYear()
+        : referenceDate.getFullYear() - 1;
+      return {
+        start: makeDate(startYear, 2, 16),
+        end: makeDate(startYear + 1, 2, 15),
+        label: `${startYear}年度`
+      };
+    }
+
+    function nthWeekday(year, monthIndex, weekday, nth) {
+      const first = makeDate(year, monthIndex, 1);
+      const delta = (weekday - first.getDay() + 7) % 7;
+      return addDays(first, delta + (nth - 1) * 7);
+    }
+
+    function vernalEquinoxDay(year) {
+      return Math.floor(20.8431 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+    }
+
+    function autumnEquinoxDay(year) {
+      return Math.floor(23.2488 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+    }
+
+    function addHoliday(map, date, name) {
+      map.set(dateKey(date), name);
+    }
+
+    function getNationalHolidays(year) {
+      if (holidayCache.has(year)) return holidayCache.get(year);
+
+      const map = new Map();
+      addHoliday(map, makeDate(year, 0, 1), '元日');
+      addHoliday(map, nthWeekday(year, 0, 1, 2), '成人の日');
+      addHoliday(map, makeDate(year, 1, 11), '建国記念の日');
+      addHoliday(map, makeDate(year, 1, 23), '天皇誕生日');
+      addHoliday(map, makeDate(year, 2, vernalEquinoxDay(year)), '春分の日');
+      addHoliday(map, makeDate(year, 3, 29), '昭和の日');
+      addHoliday(map, makeDate(year, 4, 3), '憲法記念日');
+      addHoliday(map, makeDate(year, 4, 4), 'みどりの日');
+      addHoliday(map, makeDate(year, 4, 5), 'こどもの日');
+      addHoliday(map, nthWeekday(year, 6, 1, 3), '海の日');
+      addHoliday(map, makeDate(year, 7, 11), '山の日');
+      addHoliday(map, nthWeekday(year, 8, 1, 3), '敬老の日');
+      addHoliday(map, makeDate(year, 8, autumnEquinoxDay(year)), '秋分の日');
+      addHoliday(map, nthWeekday(year, 9, 1, 2), 'スポーツの日');
+      addHoliday(map, makeDate(year, 10, 3), '文化の日');
+      addHoliday(map, makeDate(year, 10, 23), '勤労感謝の日');
+
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (let date = makeDate(year, 0, 2); dateKey(date) <= `${year}-12-30`; date = addDays(date, 1)) {
+          const key = dateKey(date);
+          if (map.has(key) || date.getDay() === 0) continue;
+          if (map.has(dateKey(addDays(date, -1))) && map.has(dateKey(addDays(date, 1)))) {
+            map.set(key, '国民の休日');
+            changed = true;
+          }
+        }
+      }
+
+      const holidayEntries = Array.from(map.entries());
+      for (const [key] of holidayEntries) {
+        const holiday = parseDateKey(key);
+        if (holiday.getDay() !== 0) continue;
+        let substitute = addDays(holiday, 1);
+        while (map.has(dateKey(substitute))) substitute = addDays(substitute, 1);
+        if (substitute.getFullYear() === year) map.set(dateKey(substitute), '振替休日');
+      }
+
+      holidayCache.set(year, map);
+      return map;
+    }
+
+    function holidayName(date) {
+      return getNationalHolidays(date.getFullYear()).get(dateKey(date)) || '';
+    }
+
+    function getSpecialHoliday(date) {
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      if (month === 8 && [13, 14, 15].includes(day)) {
+        return { type: 'summer', label: '夏季休暇', reason: '夏季休暇' };
+      }
+      if ((month === 12 && [30, 31].includes(day)) || (month === 1 && day === 4)) {
+        return { type: 'winter', label: '冬季休暇', reason: '冬季休暇' };
+      }
+      if (month === 3 && day === 8) {
+        return { type: 'founding', label: '創立記念', reason: '創立記念日' };
+      }
+      return null;
+    }
+
+    function weekHasWeekdayHoliday(saturday) {
+      const monday = addDays(saturday, -5);
+      for (let i = 0; i < 5; i++) {
+        if (holidayName(addDays(monday, i))) return true;
+      }
+      return false;
+    }
+
+    function getCompanyPlan(date) {
+      const nationalHoliday = holidayName(date);
+      if (nationalHoliday) {
+        return {
+          status: 'off',
+          type: 'holiday',
+          label: '祝日',
+          reason: nationalHoliday,
+          isHoliday: true
+        };
+      }
+
+      if (date.getDay() === 0) {
+        return {
+          status: 'off',
+          type: 'sunday',
+          label: '日曜休み',
+          reason: '日曜日',
+          isHoliday: false
+        };
+      }
+
+      const special = getSpecialHoliday(date);
+      if (special) {
+        return {
+          status: 'off',
+          type: special.type,
+          label: special.label,
+          reason: special.reason,
+          isHoliday: false
+        };
+      }
+
+      if (date.getDay() === 6) {
+        if (weekHasWeekdayHoliday(date)) {
+          return {
+            status: 'work',
+            type: 'saturdayWork',
+            label: '土曜出勤',
+            reason: '月〜金に祝日がある週',
+            isHoliday: false
+          };
+        }
+        return {
+          status: 'off',
+          type: 'saturdayOff',
+          label: '土曜休み',
+          reason: '通常の土曜日',
+          isHoliday: false
+        };
+      }
+
+      return {
+        status: 'work',
+        type: 'work',
+        label: '出勤',
+        reason: '通常勤務日',
+        isHoliday: false
+      };
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) {
+          reject(new Error('IndexedDB非対応'));
+          return;
+        }
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = () => {
+          const database = request.result;
+          if (!database.objectStoreNames.contains(DB_STORE)) {
+            database.createObjectStore(DB_STORE);
+          }
+        };
+        request.onsuccess = () => {
+          db = request.result;
+          resolve(db);
+        };
+        request.onerror = () => reject(request.error || new Error('DBを開けませんでした'));
+      });
+    }
+
+    function dbGet() {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve(null);
+        const tx = db.transaction(DB_STORE, 'readonly');
+        const request = tx.objectStore(DB_STORE).get(DB_KEY);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function dbPut(data) {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve();
+        const tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put(data, DB_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function normalizeState(raw) {
+      const base = defaultState();
+      if (!raw || typeof raw !== 'object') return base;
+      return {
+        version: APP_VERSION,
+        entries: raw.entries && typeof raw.entries === 'object' ? raw.entries : {},
+        settings: {
+          paidAllowance: Number(raw.settings?.paidAllowance) || 0,
+          theme: ['system', 'light', 'dark'].includes(raw.settings?.theme) ? raw.settings.theme : 'system'
+        },
+        updatedAt: raw.updatedAt || new Date().toISOString()
+      };
+    }
+
+    async function loadState() {
+      let indexed = null;
+      let local = null;
+      try {
+        await openDB();
+        indexed = await dbGet();
+      } catch (err) {
+        console.warn(err);
+        showStorageNotice('IndexedDBが使えないため、localStorageだけで保存しています。');
+      }
+
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        local = raw ? JSON.parse(raw) : null;
+      } catch (err) {
+        console.warn(err);
+      }
+
+      const indexedTime = indexed?.updatedAt ? Date.parse(indexed.updatedAt) : 0;
+      const localTime = local?.updatedAt ? Date.parse(local.updatedAt) : 0;
+      state = normalizeState(indexedTime >= localTime ? indexed : local);
+      applyTheme();
+      $('paidAllowance').value = state.settings.paidAllowance;
+    }
+
+    function showStorageNotice(message) {
+      const el = $('storageNotice');
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function queueSave(showToast = false) {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveState(showToast), 120);
+    }
+
+    async function saveState(showSavedToast = false) {
+      state.updatedAt = new Date().toISOString();
+      const payload = JSON.parse(JSON.stringify(state));
+      let ok = false;
+
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(payload));
+        ok = true;
+      } catch (err) {
+        console.warn('localStorage save failed', err);
+      }
+
+      try {
+        if (db) {
+          await dbPut(payload);
+          ok = true;
+        }
+      } catch (err) {
+        console.warn('IndexedDB save failed', err);
+      }
+
+      if (!ok) showStorageNotice('保存に失敗しました。ブラウザの設定や空き容量を確認してください。');
+      if (showSavedToast && ok) toast('保存しました');
+    }
+
+    function render() {
+      renderCalendar();
+      renderStats();
+      renderLegend();
+    }
+
+    function renderCalendar() {
+      const { start, end } = getPeriod();
+      monthLabel.textContent = `${viewDate.getFullYear()}年 ${viewDate.getMonth() + 1}月`;
+      $('periodRange').textContent =
+        `（${start.getMonth() + 1}/${start.getDate()}〜${end.getMonth() + 1}/${end.getDate()}）`;
+      calendarGrid.innerHTML = '';
+
+      const gridStart = addDays(start, -start.getDay());
+      const gridEnd = addDays(end, 6 - end.getDay());
+      const today = new Date();
+
+      for (const date of daysInclusive(gridStart, gridEnd)) {
+        const key = dateKey(date);
+        const entry = state.entries[key];
+        const plan = getCompanyPlan(date);
+        const manualStatus = entry?.status && entry.status !== 'none' ? entry.status : null;
+        const shown = manualStatus ? STATUS[manualStatus] : {
+          label: plan.label,
+          ...BASE_STYLE[plan.type]
+        };
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'day';
+        if (!isBetween(date, start, end)) btn.classList.add('outside-period');
+        if (date.getDay() === 0) btn.classList.add('sunday');
+        if (date.getDay() === 6) btn.classList.add('saturday');
+        if (plan.type === 'saturdayWork') btn.classList.add('saturday-work');
+        if (plan.type === 'holiday') btn.classList.add('national-holiday');
+        if (manualStatus) btn.classList.add('manual');
+        if (isSameDate(date, today)) btn.classList.add('today');
+        btn.setAttribute('aria-label',
+          `${key} 会社予定:${plan.label} ${plan.reason}${manualStatus ? ` 個人登録:${STATUS[manualStatus].label}` : ''}`);
+
+        const num = document.createElement('span');
+        num.className = 'day-number';
+        num.textContent = date.getDate();
+        btn.appendChild(num);
+
+        if (entry?.note?.trim()) {
+          const dot = document.createElement('span');
+          dot.className = 'note-dot';
+          btn.appendChild(dot);
+        }
+
+        const pill = document.createElement('span');
+        pill.className = 'status-pill';
+        pill.textContent = shown.label;
+        pill.style.background = shown.bg;
+        pill.style.color = shown.text;
+        btn.appendChild(pill);
+
+        btn.addEventListener('click', () => openEditModal(key));
+        calendarGrid.appendChild(btn);
+      }
+    }
+
+    function getCompAmounts(date, entry) {
+      const result = { earned: 0, used: 0 };
+      if (!entry?.status) return result;
+
+      const plan = getCompanyPlan(date);
+      const status = STATUS[entry.status];
+
+      // 代休が増えるのは「会社休日になっている土曜日」へ追加出勤した場合だけ。
+      if (date.getDay() === 6 && plan.status === 'off') {
+        result.earned = Number(status?.compEarned || 0);
+      }
+
+      // 代休を使えるのは月〜金の会社勤務日だけ。
+      if (date.getDay() >= 1 && date.getDay() <= 5 && plan.status === 'work') {
+        result.used = Number(status?.compUsed || 0);
+      }
+      return result;
+    }
+
+    function getCompSummary(rangeStart, rangeEnd) {
+      let earned = 0;
+      let used = 0;
+      for (const date of daysInclusive(rangeStart, rangeEnd)) {
+        const amounts = getCompAmounts(date, state.entries[dateKey(date)]);
+        earned += amounts.earned;
+        used += amounts.used;
+      }
+      return { earned, used, remain: earned - used };
+    }
+
+    function renderStats() {
+      const { start, end } = getPeriod();
+      let work = 0;
+      let off = 0;
+      let paid = 0;
+      let manual = 0;
+      let satWorked = 0;
+      let compUsedInPeriod = 0;
+
+      for (const date of daysInclusive(start, end)) {
+        const plan = getCompanyPlan(date);
+        if (plan.status === 'work') work++;
+        else off++;
+
+        const entry = state.entries[dateKey(date)];
+        if (!entry?.status || entry.status === 'none') continue;
+        manual++;
+
+        if (entry.status === 'paid') paid += 1;
+        if (entry.status === 'halfPaid') paid += 0.5;
+
+        const amounts = getCompAmounts(date, entry);
+        satWorked += amounts.earned;
+        compUsedInPeriod += amounts.used;
+      }
+
+      $('workCount').textContent = formatNumber(work);
+      $('offCount').textContent = formatNumber(off);
+      $('paidCount').textContent = formatNumber(paid);
+      $('satWorkedCount').textContent = formatNumber(satWorked);
+      $('compUsedCount').textContent = formatNumber(compUsedInPeriod);
+      $('otherCount').textContent = formatNumber(manual);
+
+      let totalPaid = 0;
+      Object.values(state.entries).forEach(entry => {
+        if (entry.status === 'paid') totalPaid += 1;
+        if (entry.status === 'halfPaid') totalPaid += 0.5;
+      });
+      const remain = Math.max(0, Number(state.settings.paidAllowance || 0) - totalPaid);
+      $('paidRemain').textContent = formatNumber(remain);
+
+      renderAnnualStats();
+    }
+
+    function renderAnnualStats() {
+      const { start: periodStart } = getPeriod();
+      const range = getCompanyYearRange(periodStart);
+      const counts = {
+        work: 0,
+        off: 0,
+        sunday: 0,
+        holiday: 0,
+        saturdayOff: 0,
+        saturdayWork: 0,
+        summer: 0,
+        winter: 0,
+        founding: 0
+      };
+
+      for (const date of daysInclusive(range.start, range.end)) {
+        const plan = getCompanyPlan(date);
+        if (plan.status === 'work') counts.work++;
+        else counts.off++;
+
+        if (counts[plan.type] !== undefined) counts[plan.type]++;
+      }
+
+      $('annualTitle').textContent =
+        `${range.label}（${range.start.getMonth() + 1}/${range.start.getDate()}〜翌${range.end.getMonth() + 1}/${range.end.getDate()}）`;
+      $('annualWork').textContent = counts.work;
+      $('annualOff').textContent = counts.off;
+      $('annualDetail').textContent =
+        `日曜 ${counts.sunday}日・祝日 ${counts.holiday}日・土曜休み ${counts.saturdayOff}日・` +
+        `夏季 ${counts.summer}日・冬季 ${counts.winter}日・創立 ${counts.founding}日・土曜出勤 ${counts.saturdayWork}日`;
+
+      const comp = getCompSummary(range.start, range.end);
+      $('compTitle').textContent = `${range.label}の代休（${range.start.getMonth() + 1}/${range.start.getDate()}〜翌${range.end.getMonth() + 1}/${range.end.getDate()}）`;
+      $('compEarned').textContent = formatNumber(comp.earned);
+      $('compUsed').textContent = formatNumber(comp.used);
+      $('compRemain').textContent = formatNumber(comp.remain);
+      $('compDetail').textContent = comp.remain < 0
+        ? `代休を${formatNumber(Math.abs(comp.remain))}日分多く使っています。記録を確認してください。`
+        : `休みの土曜出勤で${formatNumber(comp.earned)}日分獲得し、平日に${formatNumber(comp.used)}日分使用しています。`;
+      $('compRemain').style.color = comp.remain < 0 ? 'var(--danger)' : 'var(--primary)';
+    }
+
+    function formatNumber(value) {
+      return Number.isInteger(value) ? String(value) : value.toFixed(1);
+    }
+
+    function renderLegend() {
+      const items = [
+        { label: '通常出勤', color: BASE_STYLE.work.color },
+        { label: '土曜出勤', color: BASE_STYLE.saturdayWork.color },
+        { label: '会社休日', color: BASE_STYLE.saturdayOff.color },
+        { label: '祝日', color: BASE_STYLE.holiday.color },
+        { label: '追加土曜出勤', color: STATUS.satWorkFull.color },
+        { label: '代休', color: STATUS.comp.color }
+      ];
+      $('legend').innerHTML = items.map(item =>
+        `<span class="legend-item"><span class="legend-color" style="background:${item.color}"></span>${item.label}</span>`
+      ).join('');
+    }
+
+    function setupStatusOptions() {
+      const groups = [
+        ['基本', ['none', 'work', 'off']],
+        ['有休', ['paid', 'halfPaid']],
+        ['土曜出勤・代休', ['satWorkFull', 'satWorkHalf', 'comp', 'halfComp']],
+        ['その他', ['holidayWork', 'absent', 'special', 'other']]
+      ];
+
+      statusSelect.innerHTML = groups.map(([label, keys]) =>
+        `<optgroup label="${label}">` +
+        keys.map(key => `<option value="${key}">${STATUS[key].label}</option>`).join('') +
+        `</optgroup>`
+      ).join('');
+    }
+
+    function openEditModal(key) {
+      selectedDateKey = key;
+      const date = parseDateKey(key);
+      const plan = getCompanyPlan(date);
+      $('modalTitle').textContent = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+      let guidance = '';
+      if (date.getDay() === 6 && plan.status === 'off') {
+        guidance = '<br><span>この日は追加の土曜出勤を1日・半日で登録できます。</span>';
+      } else if (date.getDay() >= 1 && date.getDay() <= 5 && plan.status === 'work') {
+        guidance = '<br><span>この日は代休を1日・半日で登録できます。</span>';
+      } else if (date.getDay() === 6 && plan.status === 'work') {
+        guidance = '<br><span>会社指定の土曜出勤なので、代休の獲得対象にはなりません。</span>';
+      }
+
+      $('companyPlan').innerHTML =
+        `会社予定：<strong>${plan.label}</strong><br><span>${plan.reason}</span>${guidance}`;
+
+      const entry = state.entries[key] || { status: 'none', note: '' };
+      statusSelect.value = entry.status || 'none';
+      noteInput.value = entry.note || '';
+      modalBackdrop.classList.add('show');
+      setTimeout(() => statusSelect.focus(), 50);
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove('show');
+      selectedDateKey = null;
+    }
+
+    function saveSelectedDay() {
+      if (!selectedDateKey) return;
+      const status = statusSelect.value;
+      const note = noteInput.value.trim();
+      const date = parseDateKey(selectedDateKey);
+      const plan = getCompanyPlan(date);
+
+      if (['satWorkFull', 'satWorkHalf'].includes(status) &&
+          !(date.getDay() === 6 && plan.status === 'off')) {
+        alert('「土曜出勤」は、会社予定が休みになっている土曜日だけ登録できます。祝日週の会社指定土曜出勤は代休の獲得対象外です。');
+        return;
+      }
+
+      if (['comp', 'halfComp'].includes(status) &&
+          !(date.getDay() >= 1 && date.getDay() <= 5 && plan.status === 'work')) {
+        alert('「代休」は、月〜金の会社勤務日に登録してください。');
+        return;
+      }
+      if (status === 'none' && !note) {
+        delete state.entries[selectedDateKey];
+      } else {
+        state.entries[selectedDateKey] = {
+          status,
+          note,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      queueSave(true);
+      closeModal();
+      render();
+    }
+
+    function clearSelectedDay() {
+      if (!selectedDateKey) return;
+      delete state.entries[selectedDateKey];
+      queueSave(true);
+      closeModal();
+      render();
+    }
+
+    function exportBackup() {
+      const payload = {
+        app: '会社の休み管理',
+        version: APP_VERSION,
+        exportedAt: new Date().toISOString(),
+        state
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ymd = dateKey(new Date()).replaceAll('-', '');
+      a.href = url;
+      a.download = `休み管理バックアップ_${ymd}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast('バックアップを書き出しました');
+    }
+
+    async function importBackup(file) {
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const imported = parsed.state || parsed;
+        if (!imported || typeof imported !== 'object' || !imported.entries) {
+          throw new Error('形式が違います');
+        }
+        state = normalizeState(imported);
+        $('paidAllowance').value = state.settings.paidAllowance;
+        applyTheme();
+        await saveState();
+        render();
+        toast('バックアップを復元しました');
+      } catch (err) {
+        console.error(err);
+        alert('バックアップを読み込めませんでした。正しいJSONファイルを選んでください。');
+      } finally {
+        $('importFile').value = '';
+      }
+    }
+
+    async function clearAllData() {
+      const ok = confirm('有休・メモなどの個人登録をすべて削除します。会社カレンダーは残ります。元に戻せません。');
+      if (!ok) return;
+      const theme = state.settings.theme;
+      state = defaultState();
+      state.settings.theme = theme;
+      $('paidAllowance').value = 0;
+      await saveState();
+      applyTheme();
+      render();
+      toast('個人記録を削除しました');
+    }
+
+    function jumpToCurrentCompanyYear() {
+      const range = getCompanyYearRange(new Date());
+      viewDate = makeDate(range.start.getFullYear(), 3, 1);
+      render();
+    }
+
+    function applyTheme() {
+      const saved = state.settings.theme;
+      const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+      const isDark = saved === 'dark' || (saved === 'system' && systemDark);
+      document.body.classList.toggle('dark', isDark);
+      $('themeBtn').textContent = isDark ? '☀' : '☾';
+      document.querySelector('meta[name="theme-color"]')
+        .setAttribute('content', isDark ? '#172033' : '#2563eb');
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark');
+      state.settings.theme = isDark ? 'light' : 'dark';
+      applyTheme();
+      queueSave();
+    }
+
+    function toast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._timer);
+      toastEl._timer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+    }
+
+    function bindEvents() {
+      $('prevMonth').addEventListener('click', () => {
+        viewDate = makeDate(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+        render();
+      });
+      $('nextMonth').addEventListener('click', () => {
+        viewDate = makeDate(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+        render();
+      });
+      $('todayBtn').addEventListener('click', () => {
+        viewDate = periodViewDateFor(new Date());
+        render();
+      });
+      $('currentYearBtn').addEventListener('click', jumpToCurrentCompanyYear);
+      $('saveDayBtn').addEventListener('click', saveSelectedDay);
+      $('clearDayBtn').addEventListener('click', clearSelectedDay);
+      $('cancelBtn').addEventListener('click', closeModal);
+      modalBackdrop.addEventListener('click', (event) => {
+        if (event.target === modalBackdrop) closeModal();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modalBackdrop.classList.contains('show')) closeModal();
+      });
+      $('exportBtn').addEventListener('click', exportBackup);
+      $('importBtn').addEventListener('click', () => $('importFile').click());
+      $('importFile').addEventListener('change', (event) => {
+        const file = event.target.files?.[0];
+        if (file) importBackup(file);
+      });
+      $('clearAllBtn').addEventListener('click', clearAllData);
+      $('themeBtn').addEventListener('click', toggleTheme);
+      $('paidAllowance').addEventListener('change', (event) => {
+        const value = Math.max(0, Number(event.target.value) || 0);
+        state.settings.paidAllowance = Math.round(value * 2) / 2;
+        event.target.value = state.settings.paidAllowance;
+        queueSave(true);
+        renderStats();
+      });
+      window.addEventListener('pagehide', () => saveState(false));
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') saveState(false);
+      });
+      window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+        if (state.settings.theme === 'system') applyTheme();
+      });
+    }
+
+    async function init() {
+      setupStatusOptions();
+      bindEvents();
+      await loadState();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
