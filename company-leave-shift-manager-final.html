@@ -89,11 +89,11 @@ table{border-collapse:collapse;width:100%;min-width:760px;font-size:11px}th,td{b
 
   <section class="hero">
     <div class="card balance-card">
-      <div class="balance-title">会社休 あと</div>
+      <div class="balance-title">会社休あと（確定）</div>
       <div class="balance-main"><strong id="companyRemaining">0.5</strong><span>日</span></div>
       <div class="balance-sub">
         <div class="mini"><span>申請中</span><strong id="companyPending">0日</strong></div>
-        <div class="mini"><span>今期枠を含む見込み</span><strong id="companyProjected">0.5日</strong></div>
+        <div class="mini"><span>今期の扱い</span><strong id="companyProjected">期間終了後に確定</strong></div>
       </div>
     </div>
     <div class="card paid-card"><div><div class="balance-title">有休 あと</div><strong id="paidRemaining">2日</strong></div><small id="balanceBasis">残数基準日まで反映済み</small></div>
@@ -164,7 +164,7 @@ table{border-collapse:collapse;width:100%;min-width:760px;font-size:11px}th,td{b
     <div class="field"><label for="paidBase">3/16時点の有休付与数</label><input id="paidBase" type="number" step="0.5" min="0" max="999"></div>
   </div>
   <input id="companyBase" type="hidden" value="0"><input id="balanceThrough" type="hidden" value="2026-03-15">
-  <div class="help">会社休の確定残数は、完了した16日〜翌15日の期間だけで計算します。進行中の期間の会社休は「見込み」にだけ反映し、確定残数を途中でマイナスにしません。</div>
+  <div class="help">会社休の確定残数は、完了した16日〜翌15日の期間だけで計算します。進行中の期間は、会社暦の労働日数・休日数と実績が確定するまで残数へ加算しません。</div>
   <div class="section-label">初回用データ</div>
   <div class="tool-grid"><button id="loadKnownBtn">確認済み履歴を追加</button><button id="legacyBtn">旧アプリから再取込</button></div>
   <div class="modal-actions"><button class="cancel" id="closeSettings">閉じる</button><button class="save" id="saveSettings">設定を保存</button></div>
@@ -188,11 +188,11 @@ table{border-collapse:collapse;width:100%;min-width:760px;font-size:11px}th,td{b
 <script>
 "use strict";
 
-const APP_VERSION=6;
-const STORAGE_KEY="companyLeaveShiftManager2026V6";
-const PREVIOUS_STORAGE_KEY="companyLeaveShiftManager2026V5";
-const HISTORY_KEY="companyLeaveShiftManager2026V6History";
-const DB_NAME="companyLeaveShiftManager2026V6DB";
+const APP_VERSION=7;
+const STORAGE_KEY="companyLeaveShiftManager2026V7";
+const PREVIOUS_STORAGE_KEY="companyLeaveShiftManager2026V6";
+const HISTORY_KEY="companyLeaveShiftManager2026V7History";
+const DB_NAME="companyLeaveShiftManager2026V7DB";
 const DB_STORE="state";
 const DB_KEY="main";
 const YEAR_START="2026-03-16";
@@ -374,10 +374,12 @@ function balances(){
   const currentPending=currentCfg?entryUnitsInRange("company","pending",dateKey(currentStart),currentEnd):0;
   const currentAllowance=currentCfg?companyLeaveAllowance(currentCfg):0;
   const companyPending=completedCompanyPending+currentPending;
-  const companyProjected=company+currentAllowance-currentApproved-currentPending;
+  // 進行中の期間は、期間終了まで会社休枠を確定残数へ加算しない。
+  // 「今期枠を先に足して4.5日」と表示すると、現在すぐ使える残数と誤認するため数値予測もしない。
+  const companyProjected=null;
   const paid=Number(state.settings.paidBase||0)-approvedAfter("paid");
   const paidPending=pendingAfter("paid");
-  return {company,companyPending,companyProjected,paid,paidPending,paidProjected:paid-paidPending,allowance,cutoff,currentAllowance,currentApproved};
+  return {company,companyPending,companyProjected,paid,paidPending,paidProjected:paid-paidPending,allowance,cutoff,currentAllowance,currentApproved,currentPending};
 }
 
 function statusSummary(e){
@@ -406,7 +408,11 @@ function renderPeriod(){
 function setNum(id,value,suffix=""){$(id).textContent=`${formatNum(value)}${suffix}`;$(id).classList.toggle("warn-value",Number(value)<0)}
 function renderBalances(){
   const b=balances();
-  setNum("companyRemaining",b.company);setNum("companyPending",b.companyPending,"日");setNum("companyProjected",b.companyProjected,"日");setNum("paidRemaining",b.paid,"日");
+  setNum("companyRemaining",b.company);
+  setNum("companyPending",b.companyPending,"日");
+  $("companyProjected").textContent="期間終了後に確定";
+  $("companyProjected").classList.remove("warn-value");
+  setNum("paidRemaining",b.paid,"日");
   $("balanceBasis").textContent=`${b.cutoff.slice(5).replace("-","/")}まで確定：会社休枠 ${formatNum(b.allowance)}日`;
 }
 function renderSummary(){
@@ -568,7 +574,7 @@ function exportCsv(){
   download(`会社休勤務管理_${YEAR_START}_${YEAR_END}.csv`,`\ufeff${rows.map(r=>r.map(csvCell).join(",")).join("\n")}`,"text/csv;charset=utf-8");toast("CSVを書き出しました")
 }
 function currentSummaryText(){
-  const p=periodFor(),t=totalsForRange(p.start,p.end),b=balances();return `${view.getFullYear()}年${view.getMonth()+1}月度（${dateKey(p.start)}〜${dateKey(p.end)}）\n会社休あと ${formatNum(b.company)}日／申請中 ${formatNum(b.companyPending)}日／承認後 ${formatNum(b.companyProjected)}日\n有休あと ${formatNum(b.paid)}日\n勤務差 ${formatNum(t.work-t.officialWork)}日、実出勤 ${formatNum(t.work)}日、会社休 ${formatNum(t.companyApproved)}日、有休 ${formatNum(t.paidApproved)}日、欠勤 ${formatNum(t.absence)}日`;
+  const p=periodFor(),t=totalsForRange(p.start,p.end),b=balances();return `${view.getFullYear()}年${view.getMonth()+1}月度（${dateKey(p.start)}〜${dateKey(p.end)}）\n会社休あと（確定） ${formatNum(b.company)}日／申請中 ${formatNum(b.companyPending)}日／今期分は期間終了後に確定\n有休あと ${formatNum(b.paid)}日\n勤務差 ${formatNum(t.work-t.officialWork)}日、実出勤 ${formatNum(t.work)}日、会社休 ${formatNum(t.companyApproved)}日、有休 ${formatNum(t.paidApproved)}日、欠勤 ${formatNum(t.absence)}日`;
 }
 async function copySummary(){try{await navigator.clipboard.writeText(currentSummaryText());toast("今期集計をコピーしました")}catch{toast("コピーできませんでした")}}
 function resetAll(){
