@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101713" />
+  <title>検体数カウンター</title>
+  <style>
+    :root {
+      --bg: #0b0f0d;
+      --panel: #111713;
+      --panel-2: #18211c;
+      --line: #344039;
+      --text: #f2f6f3;
+      --muted: #a6b0aa;
+      --accent: #55d18b;
+      --accent-2: #1f6d45;
+      --danger: #ff6b6b;
+      --warn: #f6c85f;
+      --cell-width: 84px;
+      --item-width: 118px;
+      --total-width: 78px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+    }
+
+    body {
+      padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(100%, 1100px);
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(11, 15, 13, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      padding: 12px 14px 10px;
+    }
+
+    .title-row,
+    .toolbar,
+    .summary-grid,
+    .quick-actions,
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-row {
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      letter-spacing: .02em;
+    }
+
+    .save-status {
+      color: var(--accent);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .toolbar::-webkit-scrollbar { display: none; }
+
+    .date-box,
+    .toolbar button,
+    .toolbar select,
+    .mode-button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    .date-box {
+      padding: 0 10px;
+      min-width: 155px;
+    }
+
+    .toolbar button,
+    .mode-button {
+      padding: 0 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .toolbar button:active,
+    .mode-button:active,
+    .quick-button:active { transform: scale(.97); }
+
+    .danger { color: #ffd6d6 !important; border-color: #6b3333 !important; }
+
+    main { padding: 12px 0 20px; }
+
+    .summary-wrap { padding: 0 12px 12px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(105px, 1fr));
+      overflow-x: auto;
+      gap: 8px;
+      scrollbar-width: none;
+    }
+
+    .summary-grid::-webkit-scrollbar { display: none; }
+
+    .summary-card {
+      background: linear-gradient(180deg, #17231c, #111813);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 112px;
+    }
+
+    .summary-card .label {
+      color: var(--muted);
+      font-size: 11px;
+      min-height: 30px;
+      line-height: 1.35;
+    }
+
+    .summary-card .value {
+      font-weight: 800;
+      font-size: 23px;
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-card.primary .value { color: var(--accent); }
+
+    .sheet-wrap {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      overflow: auto;
+      max-height: 58vh;
+      background: #080b09;
+      position: relative;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
+      min-width: 100%;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      height: 48px;
+      background: #090c0a;
+      padding: 4px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      background: #18251e;
+      color: #ecfff4;
+      font-size: 13px;
+      line-height: 1.2;
+      height: 50px;
+    }
+
+    th.item,
+    td.item {
+      position: sticky;
+      left: 0;
+      z-index: 7;
+      width: var(--item-width);
+      min-width: var(--item-width);
+      max-width: var(--item-width);
+      text-align: left;
+      padding-left: 12px;
+      background: #111713;
+      font-weight: 700;
+    }
+
+    thead th.item { z-index: 12; background: #203126; }
+
+    th.number-col,
+    td.number-col {
+      width: var(--cell-width);
+      min-width: var(--cell-width);
+      max-width: var(--cell-width);
+    }
+
+    th.total,
+    td.total {
+      position: sticky;
+      right: 0;
+      z-index: 7;
+      width: var(--total-width);
+      min-width: var(--total-width);
+      max-width: var(--total-width);
+      background: #111713;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    thead th.total { z-index: 12; background: #203126; }
+
+    .count-input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      text-align: center;
+      font-size: 18px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+      padding: 0 3px;
+    }
+
+    .count-input:not(:placeholder-shown) { color: #ff6f6f; }
+
+    .count-input:focus,
+    .count-input.selected {
+      border-color: var(--accent);
+      background: #13281c;
+      box-shadow: 0 0 0 2px rgba(85, 209, 139, .15);
+      color: #fff;
+    }
+
+    .condition-select {
+      width: 96px;
+      min-width: 96px;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      background: var(--panel-2);
+      padding: 0 6px;
+    }
+
+    .condition-col { width: 104px; min-width: 104px; }
+
+    tfoot td,
+    tfoot th {
+      background: #131a16;
+      font-weight: 800;
+    }
+
+    tfoot th.item { background: #18221c; }
+
+    .column-total { color: var(--accent); }
+
+    .section {
+      padding: 14px 12px 0;
+    }
+
+    .section-title {
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .section-title h2 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .section-title small { color: var(--muted); }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .check-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .check-card label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .check-card input {
+      width: 100%;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #0a0f0c;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 800;
+      text-align: center;
+      outline: none;
+    }
+
+    .check-card input:focus { border-color: var(--accent); }
+
+    .computed-note {
+      color: var(--accent);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 40px;
+      text-align: center;
+    }
+
+    .memo {
+      width: 100%;
+      min-height: 88px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      padding: 11px;
+      outline: none;
+    }
+
+    .memo:focus { border-color: var(--accent); }
+
+    .quick-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      background: rgba(17, 23, 19, .97);
+      border-top: 1px solid var(--line);
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      backdrop-filter: blur(14px);
+    }
+
+    .quick-inner {
+      width: min(100%, 1100px);
+      margin: 0 auto;
+    }
+
+    .selected-label {
+      min-height: 18px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+
+    .quick-button {
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .quick-button.add { color: #b8ffd2; border-color: #2b704a; }
+    .quick-button.clear { color: #ffd1d1; border-color: #6f3434; }
+
+    .dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(0,0,0,.66);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .dialog-backdrop.open { display: flex; }
+
+    .dialog {
+      width: min(100%, 520px);
+      background: #151c18;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.55);
+    }
+
+    .dialog h3 { margin: 0 0 8px; font-size: 18px; }
+    .dialog p { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+    .dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .dialog-actions button {
+      height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .dialog-actions .confirm { background: #6d2929; border-color: #a53c3c; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(92px + env(safe-area-inset-bottom));
+      transform: translateX(-50%) translateY(20px);
+      z-index: 80;
+      max-width: calc(100% - 32px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #edf8f1;
+      color: #101713;
+      font-size: 13px;
+      font-weight: 750;
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 640px) {
+      :root { --item-width: 108px; --cell-width: 76px; --total-width: 64px; }
+      .check-grid { grid-template-columns: 1fr 1fr; }
+      .check-card:last-child { grid-column: 1 / -1; }
+      .quick-actions { grid-template-columns: repeat(6, minmax(48px, 1fr)); }
+      .quick-button { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-row">
+        <h1>検体数カウンター</h1>
+        <div id="saveStatus" class="save-status">自動保存</div>
+      </div>
+      <div class="toolbar">
+        <input id="workDate" class="date-box" type="date" aria-label="集計日" />
+        <button id="todayButton" type="button">今日</button>
+        <button id="csvButton" type="button">CSV出力</button>
+        <button id="resetButton" class="danger" type="button">この日をリセット</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="summary-wrap">
+        <div class="summary-grid">
+          <div class="summary-card primary"><div class="label">血清合計</div><div id="serumTotal" class="value">0</div></div>
+          <div class="summary-card"><div class="label">血清合計 − PCR本数</div><div id="serumMinusPcr" class="value">0</div></div>
+          <div class="summary-card"><div class="label">PCR本数</div><div id="pcrTotal" class="value">0</div></div>
+          <div class="summary-card"><div class="label">冷蔵合計</div><div id="coldTotal" class="value">0</div></div>
+          <div class="summary-card"><div class="label">常温合計</div><div id="roomTotal" class="value">0</div></div>
+          <div class="summary-card primary"><div class="label">総合計（検体）</div><div id="grandTotal" class="value">0</div></div>
+        </div>
+      </div>
+
+      <div class="sheet-wrap" aria-label="検体数入力表">
+        <table>
+          <thead>
+            <tr>
+              <th class="item">検体項目</th>
+              <th class="number-col">所内</th>
+              <th class="number-col">外来</th>
+              <th class="number-col">出張</th>
+              <th class="number-col">出張②</th>
+              <th class="number-col">日曜</th>
+              <th class="number-col">日曜外来</th>
+              <th class="condition-col">保存条件</th>
+              <th class="total">合計</th>
+            </tr>
+          </thead>
+          <tbody id="specimenBody"></tbody>
+          <tfoot>
+            <tr>
+              <th class="item">列合計</th>
+              <td class="number-col column-total" data-column-total="inside">0</td>
+              <td class="number-col column-total" data-column-total="outpatient">0</td>
+              <td class="number-col column-total" data-column-total="trip1">0</td>
+              <td class="number-col column-total" data-column-total="trip2">0</td>
+              <td class="number-col column-total" data-column-total="sunday">0</td>
+              <td class="number-col column-total" data-column-total="sundayOutpatient">0</td>
+              <td class="condition-col">—</td>
+              <td id="footerGrandTotal" class="total">0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>確認項目</h2>
+          <small>必要なものだけ入力</small>
+        </div>
+        <div class="check-grid">
+          <div class="check-card">
+            <label for="noSerum">血清なし</label>
+            <input id="noSerum" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
+          </div>
+          <div class="check-card">
+            <label for="notThree">3本以外</label>
+            <input id="notThree" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
+          </div>
+          <div class="check-card">
+            <label>PCR（表から自動集計）</label>
+            <div id="pcrCheck" class="computed-note">0</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><h2>メモ</h2></div>
+        <textarea id="memo" class="memo" placeholder="引継ぎ・注意点など"></textarea>
+      </section>
+    </main>
+  </div>
+
+  <div class="quick-bar">
+    <div class="quick-inner">
+      <div id="selectedLabel" class="selected-label">セルを選ぶと、ここから増減できます</div>
+      <div class="quick-actions">
+        <button class="quick-button" type="button" data-delta="-10">−10</button>
+        <button class="quick-button" type="button" data-delta="-1">−1</button>
+        <button class="quick-button add" type="button" data-delta="1">＋1</button>
+        <button class="quick-button add" type="button" data-delta="5">＋5</button>
+        <button class="quick-button add" type="button" data-delta="10">＋10</button>
+        <button id="clearCellButton" class="quick-button clear" type="button">クリア</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resetDialog" class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+    <div class="dialog">
+      <h3 id="resetTitle">この日の入力をリセットしますか？</h3>
+      <p>選択中の日付の検体数・確認項目・メモだけを削除します。ほかの日の記録は残ります。</p>
+      <div class="dialog-actions">
+        <button id="cancelResetButton" type="button">キャンセル</button>
+        <button id="confirmResetButton" class="confirm" type="button">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    'use strict';
+
+    const columns = [
+      { key: 'inside', label: '所内' },
+      { key: 'outpatient', label: '外来' },
+      { key: 'trip1', label: '出張' },
+      { key: 'trip2', label: '出張②' },
+      { key: 'sunday', label: '日曜' },
+      { key: 'sundayOutpatient', label: '日曜外来' }
+    ];
+
+    const specimens = [
+      { key: 'serum', label: '血清' },
+      { key: 'glucose', label: '血糖' },
+      { key: 'bloodCells', label: '血球' },
+      { key: 'stool', label: '便' },
+      { key: 'urine', label: '尿' },
+      { key: 'pathology', label: '病理' },
+      { key: 'renin', label: 'レニン' },
+      { key: 'breathBag', label: '呼気バッグ' },
+      { key: 'sputum', label: '喀痰' },
+      { key: 'lead', label: '鉛' },
+      { key: 'coagulation', label: '凝固' },
+      { key: 'esr', label: '血沈' },
+      { key: 'freshStool', label: '生便' },
+      { key: 'pcr', label: 'PCR' },
+      { key: 'lox', label: 'LOX' },
+      { key: 'amino', label: 'アミノ' }
+    ];
+
+    const STORAGE_PREFIX = 'kentai-counter-v1:';
+    const CONDITION_KEY = 'kentai-counter-v1:conditions';
+
+    const els = {
+      body: document.getElementById('specimenBody'),
+      workDate: document.getElementById('workDate'),
+      saveStatus: document.getElementById('saveStatus'),
+      selectedLabel: document.getElementById('selectedLabel'),
+      serumTotal: document.getElementById('serumTotal'),
+      serumMinusPcr: document.getElementById('serumMinusPcr'),
+      pcrTotal: document.getElementById('pcrTotal'),
+      coldTotal: document.getElementById('coldTotal'),
+      roomTotal: document.getElementById('roomTotal'),
+      grandTotal: document.getElementById('grandTotal'),
+      footerGrandTotal: document.getElementById('footerGrandTotal'),
+      noSerum: document.getElementById('noSerum'),
+      notThree: document.getElementById('notThree'),
+      pcrCheck: document.getElementById('pcrCheck'),
+      memo: document.getElementById('memo'),
+      resetDialog: document.getElementById('resetDialog'),
+      toast: document.getElementById('toast')
+    };
+
+    let selectedInput = null;
+    let saveTimer = null;
+
+    function localDateString(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function emptyRecord() {
+      const counts = {};
+      for (const specimen of specimens) {
+        counts[specimen.key] = {};
+        for (const column of columns) counts[specimen.key][column.key] = 0;
+      }
+      return { counts, noSerum: 0, notThree: 0, memo: '' };
+    }
+
+    function getConditions() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(CONDITION_KEY) || '{}');
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveConditions(conditions) {
+      localStorage.setItem(CONDITION_KEY, JSON.stringify(conditions));
+    }
+
+    function getRecord(date) {
+      const fallback = emptyRecord();
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_PREFIX + date) || 'null');
+        if (!parsed || typeof parsed !== 'object') return fallback;
+
+        for (const specimen of specimens) {
+          for (const column of columns) {
+            const value = Number(parsed.counts?.[specimen.key]?.[column.key] ?? 0);
+            fallback.counts[specimen.key][column.key] = Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+          }
+        }
+
+        fallback.noSerum = normalizeNumber(parsed.noSerum);
+        fallback.notThree = normalizeNumber(parsed.notThree);
+        fallback.memo = typeof parsed.memo === 'string' ? parsed.memo : '';
+        return fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function normalizeNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+    }
+
+    function buildTable() {
+      const conditions = getConditions();
+      els.body.innerHTML = '';
+
+      for (const specimen of specimens) {
+        const tr = document.createElement('tr');
+
+        const itemCell = document.createElement('td');
+        itemCell.className = 'item';
+        itemCell.textContent = specimen.label;
+        tr.appendChild(itemCell);
+
+        for (const column of columns) {
+          const td = document.createElement('td');
+          td.className = 'number-col';
+
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = '0';
+          input.step = '1';
+          input.inputMode = 'numeric';
+          input.placeholder = '';
+          input.className = 'count-input';
+          input.dataset.specimen = specimen.key;
+          input.dataset.column = column.key;
+          input.dataset.specimenLabel = specimen.label;
+          input.dataset.columnLabel = column.label;
+          input.setAttribute('aria-label', `${specimen.label} ${column.label}`);
+
+          input.addEventListener('focus', () => selectInput(input));
+          input.addEventListener('click', () => selectInput(input));
+          input.addEventListener('input', () => {
+            sanitizeInput(input);
+            calculateAll();
+            scheduleSave();
+          });
+          input.addEventListener('blur', () => {
+            sanitizeInput(input, true);
+            calculateAll();
+            scheduleSave();
+          });
+
+          td.appendChild(input);
+          tr.appendChild(td);
+        }
+
+        const conditionCell = document.createElement('td');
+        conditionCell.className = 'condition-col';
+        const select = document.createElement('select');
+        select.className = 'condition-select';
+        select.dataset.conditionFor = specimen.key;
+        select.setAttribute('aria-label', `${specimen.label}の保存条件`);
+        select.innerHTML = `
+          <option value="">未設定</option>
+          <option value="cold">冷蔵</option>
+          <option value="room">常温</option>
+          <option value="frozen">凍結</option>
+          <option value="other">その他</option>
+        `;
+        select.value = conditions[specimen.key] || '';
+        select.addEventListener('change', () => {
+          const next = getConditions();
+          next[specimen.key] = select.value;
+          saveConditions(next);
+          calculateAll();
+          showToast('保存条件を保存しました');
+        });
+        conditionCell.appendChild(select);
+        tr.appendChild(conditionCell);
+
+        const totalCell = document.createElement('td');
+        totalCell.className = 'total';
+        totalCell.dataset.rowTotal = specimen.key;
+        totalCell.textContent = '0';
+        tr.appendChild(totalCell);
+
+        els.body.appendChild(tr);
+      }
+    }
+
+    function sanitizeInput(input, blankZero = false) {
+      let value = normalizeNumber(input.value);
+      if (value > 99999) value = 99999;
+      input.value = blankZero && value === 0 ? '' : String(value || '');
+    }
+
+    function selectInput(input) {
+      if (selectedInput) selectedInput.classList.remove('selected');
+      selectedInput = input;
+      selectedInput.classList.add('selected');
+      const value = normalizeNumber(input.value);
+      els.selectedLabel.textContent = `${input.dataset.specimenLabel} ／ ${input.dataset.columnLabel}：${value}`;
+    }
+
+    function applyDelta(delta) {
+      if (!selectedInput) {
+        showToast('先に表のセルを選んでください');
+        return;
+      }
+      const current = normalizeNumber(selectedInput.value);
+      const next = Math.max(0, Math.min(99999, current + delta));
+      selectedInput.value = next === 0 ? '' : String(next);
+      selectInput(selectedInput);
+      calculateAll();
+      scheduleSave();
+    }
+
+    function clearSelectedCell() {
+      if (!selectedInput) {
+        showToast('先に表のセルを選んでください');
+        return;
+      }
+      selectedInput.value = '';
+      selectInput(selectedInput);
+      calculateAll();
+      scheduleSave();
+    }
+
+    function inputValue(specimenKey, columnKey) {
+      const input = document.querySelector(`.count-input[data-specimen="${specimenKey}"][data-column="${columnKey}"]`);
+      return normalizeNumber(input?.value);
+    }
+
+    function specimenTotal(specimenKey) {
+      return columns.reduce((sum, column) => sum + inputValue(specimenKey, column.key), 0);
+    }
+
+    function calculateAll() {
+      let grandTotal = 0;
+      const columnTotals = Object.fromEntries(columns.map(column => [column.key, 0]));
+      const conditionTotals = { cold: 0, room: 0, frozen: 0, other: 0, unset: 0 };
+      const conditions = getConditions();
+
+      for (const specimen of specimens) {
+        let rowTotal = 0;
+        for (const column of columns) {
+          const value = inputValue(specimen.key, column.key);
+          rowTotal += value;
+          columnTotals[column.key] += value;
+        }
+
+        const rowTotalCell = document.querySelector(`[data-row-total="${specimen.key}"]`);
+        if (rowTotalCell) rowTotalCell.textContent = String(rowTotal);
+
+        const condition = conditions[specimen.key] || 'unset';
+        conditionTotals[condition] = (conditionTotals[condition] || 0) + rowTotal;
+        grandTotal += rowTotal;
+      }
+
+      for (const column of columns) {
+        const cell = document.querySelector(`[data-column-total="${column.key}"]`);
+        if (cell) cell.textContent = String(columnTotals[column.key]);
+      }
+
+      const serum = specimenTotal('serum');
+      const pcr = specimenTotal('pcr');
+
+      els.serumTotal.textContent = String(serum);
+      els.serumMinusPcr.textContent = String(serum - pcr);
+      els.pcrTotal.textContent = String(pcr);
+      els.pcrCheck.textContent = String(pcr);
+      els.coldTotal.textContent = String(conditionTotals.cold || 0);
+      els.roomTotal.textContent = String(conditionTotals.room || 0);
+      els.grandTotal.textContent = String(grandTotal);
+      els.footerGrandTotal.textContent = String(grandTotal);
+
+      if (selectedInput) selectInput(selectedInput);
+    }
+
+    function collectRecord() {
+      const record = emptyRecord();
+      for (const specimen of specimens) {
+        for (const column of columns) {
+          record.counts[specimen.key][column.key] = inputValue(specimen.key, column.key);
+        }
+      }
+      record.noSerum = normalizeNumber(els.noSerum.value);
+      record.notThree = normalizeNumber(els.notThree.value);
+      record.memo = els.memo.value;
+      return record;
+    }
+
+    function scheduleSave() {
+      els.saveStatus.textContent = '保存中…';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveCurrentRecord, 220);
+    }
+
+    function saveCurrentRecord() {
+      const date = els.workDate.value;
+      if (!date) return;
+      localStorage.setItem(STORAGE_PREFIX + date, JSON.stringify(collectRecord()));
+      els.saveStatus.textContent = '保存済み';
+    }
+
+    function loadDate(date) {
+      const record = getRecord(date);
+      for (const specimen of specimens) {
+        for (const column of columns) {
+          const input = document.querySelector(`.count-input[data-specimen="${specimen.key}"][data-column="${column.key}"]`);
+          const value = record.counts[specimen.key][column.key];
+          input.value = value === 0 ? '' : String(value);
+        }
+      }
+      els.noSerum.value = record.noSerum === 0 ? '' : String(record.noSerum);
+      els.notThree.value = record.notThree === 0 ? '' : String(record.notThree);
+      els.memo.value = record.memo;
+      if (selectedInput) {
+        selectedInput.classList.remove('selected');
+        selectedInput = null;
+      }
+      els.selectedLabel.textContent = 'セルを選ぶと、ここから増減できます';
+      calculateAll();
+      els.saveStatus.textContent = '保存済み';
+    }
+
+    function resetCurrentDate() {
+      const date = els.workDate.value;
+      localStorage.removeItem(STORAGE_PREFIX + date);
+      loadDate(date);
+      closeResetDialog();
+      showToast(`${date} の入力をリセットしました`);
+    }
+
+    function openResetDialog() {
+      els.resetDialog.classList.add('open');
+    }
+
+    function closeResetDialog() {
+      els.resetDialog.classList.remove('open');
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? '');
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    function exportCsv() {
+      const date = els.workDate.value;
+      const conditions = getConditions();
+      const conditionLabels = { cold: '冷蔵', room: '常温', frozen: '凍結', other: 'その他', '': '未設定' };
+      const rows = [];
+      rows.push(['集計日', date]);
+      rows.push([]);
+      rows.push(['検体項目', ...columns.map(column => column.label), '保存条件', '合計']);
+
+      for (const specimen of specimens) {
+        rows.push([
+          specimen.label,
+          ...columns.map(column => inputValue(specimen.key, column.key)),
+          conditionLabels[conditions[specimen.key] || ''] || '未設定',
+          specimenTotal(specimen.key)
+        ]);
+      }
+
+      rows.push([]);
+      rows.push(['血清合計', Number(els.serumTotal.textContent)]);
+      rows.push(['血清合計-PCR本数', Number(els.serumMinusPcr.textContent)]);
+      rows.push(['PCR本数', Number(els.pcrTotal.textContent)]);
+      rows.push(['冷蔵合計', Number(els.coldTotal.textContent)]);
+      rows.push(['常温合計', Number(els.roomTotal.textContent)]);
+      rows.push(['総合計', Number(els.grandTotal.textContent)]);
+      rows.push(['血清なし', normalizeNumber(els.noSerum.value)]);
+      rows.push(['3本以外', normalizeNumber(els.notThree.value)]);
+      rows.push(['メモ', els.memo.value]);
+
+      const csv = '\uFEFF' + rows.map(row => row.map(csvEscape).join(',')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `検体数_${date}.csv`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('CSVを出力しました');
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
+    }
+
+    buildTable();
+    els.workDate.value = localDateString();
+    loadDate(els.workDate.value);
+
+    els.workDate.addEventListener('change', () => loadDate(els.workDate.value));
+    document.getElementById('todayButton').addEventListener('click', () => {
+      els.workDate.value = localDateString();
+      loadDate(els.workDate.value);
+    });
+    document.getElementById('csvButton').addEventListener('click', exportCsv);
+    document.getElementById('resetButton').addEventListener('click', openResetDialog);
+    document.getElementById('cancelResetButton').addEventListener('click', closeResetDialog);
+    document.getElementById('confirmResetButton').addEventListener('click', resetCurrentDate);
+    document.getElementById('clearCellButton').addEventListener('click', clearSelectedCell);
+
+    els.resetDialog.addEventListener('click', event => {
+      if (event.target === els.resetDialog) closeResetDialog();
+    });
+
+    document.querySelectorAll('[data-delta]').forEach(button => {
+      button.addEventListener('click', () => applyDelta(Number(button.dataset.delta)));
+    });
+
+    [els.noSerum, els.notThree].forEach(input => {
+      input.addEventListener('input', () => {
+        sanitizeInput(input);
+        scheduleSave();
+      });
+      input.addEventListener('blur', () => {
+        sanitizeInput(input, true);
+        scheduleSave();
+      });
+    });
+
+    els.memo.addEventListener('input', scheduleSave);
+
+    window.addEventListener('beforeunload', saveCurrentRecord);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveCurrentRecord();
+    });
+  </script>
+</body>
+</html>
