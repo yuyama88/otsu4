@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>乙四 間違え問題特訓</title>
+<style>
+:root{
+ --bg:#0b0f14;--card:#121923;--card2:#18212d;--text:#f5f7fa;--muted:#9ca8b7;
+ --line:#2b3848;--accent:#e8eef6;--ok:#0d6b3e;--ok2:#123f2b;--ng:#9c2626;--ng2:#401b1d;
+ --btn:#18212d;--shadow:0 10px 28px rgba(0,0,0,.22);
+}
+body.light{
+ --bg:#f4f6f8;--card:#fff;--card2:#f7f9fb;--text:#141a22;--muted:#687485;
+ --line:#d9e0e8;--accent:#111827;--ok:#15803d;--ok2:#eaf8ef;--ng:#c62828;--ng2:#fff0f0;
+ --btn:#fff;--shadow:0 8px 24px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif}
+body{padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 90px)}
+button{font:inherit}
+#app{max-width:780px;margin:0 auto;padding:18px 18px 36px}
+.top{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:14px}
+.brand{font-weight:900;font-size:22px;line-height:1.25}
+.sub{color:var(--muted);font-size:13px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.hero h1{font-size:26px;margin:0 0 8px}
+.hero p{margin:6px 0;color:var(--muted);line-height:1.65}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 0}
+.badge{display:inline-flex;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;font-weight:800;background:var(--card2)}
+.badge.ok{color:#8cf0b5;border-color:#245c3f}
+body.light .badge.ok{color:#166534;background:#effcf3}
+.mode{width:100%;border:1px solid var(--line);background:var(--btn);color:var(--text);border-radius:18px;padding:16px;text-align:left;font-weight:900;font-size:19px;margin:8px 0;box-shadow:none}
+.mode small{display:block;color:var(--muted);font-weight:700;font-size:12px;margin-top:7px;line-height:1.45}
+.mode:active,.opt:active,.btn:active{transform:scale(.992)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.btn{border:1px solid var(--line);background:var(--btn);color:var(--text);font-weight:900;border-radius:16px;padding:13px 16px}
+.btn.secondary{background:transparent}
+.btn.danger{color:#ff9f9f;border-color:#6a2a2a}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:10px 0 18px}
+.progress>div{height:100%;background:var(--accent);transition:width .2s}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+.qmeta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.qtitle{font-size:23px;font-weight:900;line-height:1.65;white-space:pre-wrap;margin-bottom:14px}
+.source{font-size:12px;color:var(--muted);font-weight:700;margin:8px 0 15px}
+.opt{width:100%;display:flex;align-items:flex-start;gap:16px;text-align:left;border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:18px;padding:16px 15px;margin:10px 0;font-weight:800;font-size:18px;line-height:1.5}
+.opt .n{flex:0 0 30px;font-size:20px;font-weight:950}
+.opt.correct{background:var(--ok2);border-color:var(--ok)}
+.opt.wrong{background:var(--ng2);border-color:var(--ng)}
+.opt:disabled{opacity:1}
+.result{margin-top:14px;padding:15px;border-radius:16px;border:1px solid var(--line);line-height:1.65}
+.result.ok{background:var(--ok2);border-color:var(--ok)}
+.result.ng{background:var(--ng2);border-color:var(--ng)}
+.explain{margin-top:8px;font-size:14px}
+.next{width:100%;margin-top:14px;padding:15px;border-radius:17px;border:0;background:var(--accent);color:var(--bg);font-weight:950;font-size:18px}
+body.light .next{color:white;background:#111827}
+.theme{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);z-index:50;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:11px 15px;font-weight:900;box-shadow:var(--shadow)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stat{background:var(--card2);border:1px solid var(--line);border-radius:16px;text-align:center;padding:12px 6px}
+.stat b{font-size:22px;display:block}.stat span{font-size:11px;color:var(--muted);font-weight:800}
+.tiny{font-size:12px;color:var(--muted);line-height:1.5}
+.finishScore{font-size:48px;font-weight:950;margin:4px 0}
+.resume{margin-bottom:14px}
+.list{margin-top:10px}
+.listitem{display:flex;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.listitem:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<button id="themeBtn" class="theme" onclick="toggleTheme()">☀️ ライト</button>
+<script>
+const QUESTIONS=[{"id":"法令-law3-010","subject":"法令","category":"予防規程対象施設","difficulty":"2","type":"正しい組み合わせを選べ","question":"法令上、次のA〜Eに掲げる製造所等のうち、指定数量の倍数により予防規程を定めなければならないものの組み合わせはどれか。\n\nA. 製造所\nB. 地下タンク貯蔵所\nC. 移動タンク貯蔵所\nD. 販売取扱所\nE. 屋外タンク貯蔵所","options":["AとB","BとC","CとD","DとE","AとE"],"correct":[4],"explanation":"正解は5（AとE）。この設問では、指定数量の倍数に応じて予防規程の作成義務が生じるものとして、製造所（A）と屋外タンク貯蔵所（E）が該当します。","source":"法令3.pdf p.4","render":"text","verified":"audited-2026-08-13","drillNo":1,"mistakePdfPage":1},{"id":"reinforce-law-169","subject":"法令","category":"強化｜消火設備の種類②誤り","difficulty":"2","type":"誤っているものを選べ","question":"法令上、製造所等に設置する消火設備の区分について、次のうち誤っているものはどれか。","options":["水バケツは、第５種の消火設備である。","粉末消火設備は、第４種の消火設備である。","泡消火設備は、第３種の消火設備である。","スプリンクラー設備は、第２種の消火設備である。","屋内消火栓設備は、第１種の消火設備である。"],"correct":[1],"explanation":"正解は2。粉末消火設備（固定式の設備）は第3種の消火設備です。第4種は大型消火器にあたります。水バケツは第5種、泡消火設備は第3種、スプリンクラーは第2種、屋内消火栓は第1種です。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":2,"mistakePdfPage":2},{"id":"reinforce-law-170","subject":"法令","category":"強化｜消火設備の種類③第３種","difficulty":"2","type":"該当しないものを選べ","question":"法令上、製造所等に設置する消火設備の区分について、次のうち第３種の消火設備に該当しないものはどれか。","options":["水噴霧消火設備","粉末消火設備","不活性ガス消火設備","水蒸気消火設備","屋内消火栓設備"],"correct":[4],"explanation":"正解は5。屋内消火栓設備は第1種です。水噴霧、粉末、不活性ガス、水蒸気の各消火設備は第3種に含まれます。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":3,"mistakePdfPage":3},{"id":"法令-law3-002","subject":"法令","category":"危険物保安統括管理者","difficulty":"2","type":"正しい組み合わせを選べ","question":"法令上、次のA〜Dの危険物保安統括管理者に関する記述のうち、正しいもののみをすべて掲げているものはどれか。\n\nA. 危険物保安統括管理者は、免状の交付を受けていなくても、製造所等において、危険物取扱者の立会いなしに危険物を取り扱うことができる。\nB. 危険物施設保安員が50人を超える事業所にあっては、危険物保安統括管理者を選任しなければならない。\nC. 危険物保安統括管理者を定めなければならない製造所等において、危険物保安統括管理者を定めていない場合は、市町村長等から施設の使用停止命令を受けることがある。\nD. 危険物保安統括管理者は、事業所においてその事業の実施を統括管理する者をもって充てなければならない。","options":["A","A、B","C、D","A、C、D","B、C、D"],"correct":[2],"explanation":"正解は3（C、D）。Aは誤りで、保安統括管理者の選任資格と、免状なしで危険物を単独取扱いできることは別です。Bも選任義務は危険物施設保安員の人数で決まりません。CとDが正しい記述です。","source":"法令3.pdf p.1","render":"text","verified":"audited-2026-08-13","drillNo":4,"mistakePdfPage":4},{"id":"reinforce-law-184","subject":"法令","category":"強化｜警報設備③設置義務がある施設","difficulty":"2","type":"正しい組み合わせを選べ","question":"法令上、警報設備を設置しなければならない製造所等として、次のうち正しいものの組み合わせはどれか。\n\nＡ．指定数量の倍数が５の製造所\nＢ．指定数量の倍数が５の一般取扱所\nＣ．指定数量の倍数が20の屋内タンク貯蔵所\nＤ．指定数量の倍数が20の給油取扱所\nＥ．指定数量の倍数が20の移動タンク貯蔵所","options":["ＡとＢ","ＡとＣ","ＢとＥ","ＣとＤ","ＤとＥ"],"correct":[3],"explanation":"正解は4（CとD）。倍数20の屋内タンク貯蔵所（C）と給油取扱所（D）が該当します。A・Bは倍数5、Eの移動タンク貯蔵所はこの警報設備義務の対象から除かれます。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":5,"mistakePdfPage":8},{"id":"法令-law2-015","subject":"法令","category":"仮貯蔵の基準","difficulty":"2","type":"正しい組み合わせを選べ","question":"法令上、製造所等以外の場所において、指定数量以上の危険物を仮に貯蔵する場合の基準について、次のA〜Dのうち正しいものの組合せはどれか。\n\nA. 貯蔵する場合、所轄消防長または消防署長の承認を得なければならない。\nB. 貯蔵する危険物の量は、指定数量の10倍以下としなければならない。\nC. 危険物保安監督者を定めなければならない。\nD. 貯蔵する期間は10日以内としなければならない。","options":["AとB","AとC","AとD","BとC","CとD"],"correct":[2],"explanation":"正解は3（AとD）。指定数量以上の危険物を製造所等以外で仮貯蔵・仮取扱いするには所轄消防長または消防署長の承認が必要で、期間は10日以内です。指定数量の10倍以下という制限や保安監督者選任義務ではありません。","source":"法令2.pdf p.9","render":"text","verified":"audited-2026-08-13","drillNo":6,"mistakePdfPage":9},{"id":"reinforce-law-141","subject":"法令","category":"強化｜販売取扱所⑤取扱基準の誤り","difficulty":"2","type":"誤っているものの組み合わせを選べ","question":"法令上、販売取扱所における危険物の取扱いの技術上の基準について、次のＡ〜Ｄのうち誤っているものの組み合わせはどれか。\n\nＡ．第一種販売取扱所では、危険物の配合を行うことはできない。\nＢ．配合することができるのは第１類と第３類の危険物である。\nＣ．販売する量にかかわらず、法令で定める容器等に危険物を収納し、かつ、容器入りのままで販売しなければならない。\nＤ．危険物を配合する室以外の場所で詰替えを行ってはならない。","options":["ＡとＢ","ＡとＤ","ＢとＣ","ＢとＤ","ＣとＤ"],"correct":[0],"explanation":"正解は1（AとB）。第一種販売取扱所でも基準に従った配合は可能なのでAは誤りです。配合できる危険物を第1類と第3類だけに限定する規定でもないためBも誤りです。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":7,"mistakePdfPage":11},{"id":"物理・化学-pc-039","subject":"物理・化学","category":"抑制効果の消火剤","difficulty":"1","type":"正しいものを選べ","question":"次のＡ〜Ｅの消火剤のうち、主な消火作用が抑制効果であるものの組み合わせはどれか。\n\nＡ．水蒸気　Ｂ．たん白泡消火剤　Ｃ．二酸化炭素消火剤\nＤ．ハロゲン化物消火剤　Ｅ．粉末消火剤（炭酸水素ナトリウム）","options":["ＡとＢ","ＡとＤ","ＢとＣ","ＣとＥ","ＤとＥ"],"correct":[4],"explanation":"正解は5（DとE）。ハロゲン化物消火剤と炭酸水素ナトリウム系の粉末消火剤は、燃焼の連鎖反応を抑える抑制（負触媒）作用が主です。","source":"物理化学2 / 基礎化学②","render":"text","verified":"audited-2026-08-13","drillNo":8,"mistakePdfPage":14},{"id":"物理・化学-pc-046","subject":"物理・化学","category":"電気火災に適応する消火器の組み合わせ","difficulty":"2","type":"正しいものを選べ","question":"次のＡ〜Ｅの消火器のうち、電気設備の火災に適応するもののみの組み合わせはどれか。\n\nＡ．棒状の水を放射する消火器\nＢ．棒状の強化液を放射する消火器\nＣ．ハロゲン化物を放射する消火器\nＤ．二酸化炭素を放射する消火器\nＥ．泡を放射する消火器","options":["ＡとＢ","ＡとＣ","ＢとＥ","ＣとＤ","ＤとＥ"],"correct":[3],"explanation":"正解は4（CとD）。ハロゲン化物と二酸化炭素は電気絶縁性があり電気火災に適応します。棒状の水・棒状強化液・泡は感電の危険があるため不適です。","source":"物理化学2 / 基礎化学②","render":"text","verified":"audited-2026-08-13","drillNo":9,"mistakePdfPage":15},{"id":"物理・化学-pc-058","subject":"物理・化学","category":"静電気⑥災害予防対策の正しい組み合わせ","difficulty":"1","type":"正しいものを選べ","question":"静電気による災害を予防する一般的な対策として、次のＡ〜Ｅのうち、正しいものの組み合わせはどれか。\n\nＡ．床面へ散水する。\nＢ．作業服、靴、手袋は絶縁性材料のものを使用する。\nＣ．可燃性蒸気が滞留するおそれのある場所で、作業服等の着脱を行わない。\nＤ．絶縁性材料のパイプやホースを使用する。\nＥ．パイプ内の液体の流速を大きくする。","options":["ＡとＢ","ＡとＣ","ＢとＤ","ＣとＥ","ＤとＥ"],"correct":[1],"explanation":"正解は2（AとC）。床面への散水は湿度を上げて帯電を逃がしやすくします。また可燃性蒸気が滞留する場所では、衣服の着脱による摩擦帯電を避けます。絶縁性材料の使用や流速増加は逆効果です。","source":"物理化学2 / 基礎化学②","render":"text","verified":"audited-2026-08-13","drillNo":10,"mistakePdfPage":16},{"id":"物理・化学-pc-063","subject":"物理・化学","category":"静電気⑪電気のしくみ・誤りの組合せ","difficulty":"2","type":"誤っているものの組合せを選べ","question":"電気のしくみについて、次の文の下線部分Ａ〜Ｅのうち、誤っているもののみの組合せはどれか。\n\n「原子は（Ａ）陽子を放出したり取り込んだりすることで、電気を帯びることがある。このように電気を帯びることを帯電といい、帯電した粒子を（Ｂ）イオンという。（Ａ）陽子を放出し、正に帯電した粒子を（Ｃ）陽イオンといい、（Ａ）陽子を取り込んで、負に帯電した粒子を（Ｄ）陰イオンという。2つの物体が電子をやりとりした後、電気量の総和は（Ｅ）増加する。」","options":["ＡとＢ","ＡとＥ","ＢとＣ","ＣとＥ","ＤとＥ"],"correct":[1],"explanation":"正解は2（AとE）。原子がイオンになるときに出入りするのは陽子ではなく電子です。また電荷保存の法則により、電子をやり取りした前後で電気量の総和は増加せず一定です。","source":"物理化学3 / 基礎化学③","render":"text","verified":"audited-2026-08-13","drillNo":11,"mistakePdfPage":18},{"id":"chem-gas-p331-q3","subject":"物理・化学","category":"主な気体の性質","difficulty":"","type":"選択問題","question":"次の文の（　）内のA〜Dに当てはまる語句の組合せとして、正しいものはどれか。\n「二酸化炭素は、炭素または（A）の（B）燃焼の他、生物の呼吸や糖類の発酵によっても生成する。二酸化炭素は、空気より（C）気体で、水に溶け、弱い（D）性を示す。」","options":["A：無機化合物／B：不完全／C：重い／D：アルカリ","A：炭素化合物／B：完全／C：重い／D：酸","A：酸素化合物／B：不完全／C：軽い／D：アルカリ","A：無機化合物／B：完全／C：軽い／D：酸","A：炭素化合物／B：不完全／C：軽い／D：アルカリ"],"correct":[1],"explanation":"正解は2。二酸化炭素は炭素化合物の完全燃焼などで生じ、空気より重く、水に溶けると弱い酸性を示します。","source":"化学4.pdf 書籍p.331","render":"text","verified":"audited-2026-08-13","drillNo":12,"mistakePdfPage":20},{"id":"chem-gas-p332-q6","subject":"物理・化学","category":"主な気体の性質","difficulty":"","type":"選択問題","question":"一酸化炭素の性状について、次のうち誤っているものはどれか。","options":["無色無臭の気体である。","毒性がある。","青白い炎をあげて燃焼する。","炭化水素の完全燃焼により発生する。","還元作用がある。"],"correct":[3],"explanation":"正解は4。炭化水素の完全燃焼で主に生じるのは二酸化炭素です。一酸化炭素は酸素不足による不完全燃焼などで生じます。","source":"化学4.pdf 書籍p.332","render":"text","verified":"audited-2026-08-13","drillNo":13,"mistakePdfPage":21},{"id":"chem-gas-p331-q5","subject":"物理・化学","category":"主な気体の性質","difficulty":"","type":"選択問題","question":"一酸化炭素と二酸化炭素の性質について述べた次のA〜Eのうち、一酸化炭素にのみ該当する組合せはどれか。\n\nA. 無色、無臭である。\nB. 人体に極めて有毒である。\nC. 石灰水を通すと白濁する。\nD. 空気中で青白い炎をあげて燃焼する。\nE. 生物の呼吸で生成する。","options":["AとD","AとE","BとC","BとD","CとE"],"correct":[3],"explanation":"正解は4（BとD）。人体に極めて有毒で、空気中で青白い炎をあげて燃えるのは一酸化炭素の特徴です。無色・無臭はCO₂にも当てはまります。","source":"化学4.pdf 書籍p.331","render":"text","verified":"audited-2026-08-13","drillNo":14,"mistakePdfPage":22},{"id":"nature-a-p344-q4","subject":"性質・消火","category":"第4類の一般性状","difficulty":"","type":"選択問題","question":"第4類の危険物の一般的性状について、次の文の（　）内のA〜Dに当てはまる語句の組合せとして、正しいものはどれか。\n「第4類の危険物は、引火点を有する（A）であり、その比重は1より（B）ものが多く、蒸気比重は1より（C）ものが多い。また、電気の（D）であるものが多く、静電気が蓄積されやすい。」","options":["A：液体／B：大きい／C：小さい／D：不導体","A：液体または固体／B：大きい／C：小さい／D：不導体","A：液体／B：小さい／C：大きい／D：不導体","A：液体または固体／B：小さい／C：大きい／D：導体","A：液体／B：小さい／C：大きい／D：導体"],"correct":[2],"explanation":"正解は3。第4類は引火点をもつ液体で、水より軽い（比重1未満）ものが多い一方、蒸気は空気より重い（蒸気比重1超）ものが多く、電気の不導体が多いため静電気が蓄積しやすいです。","source":"性質火災消火.pdf 書籍p.344","render":"text","verified":"audited-2026-08-13","drillNo":15,"mistakePdfPage":23},{"id":"nature-a-p343-q1","subject":"性質・消火","category":"第4類の一般性状","difficulty":"","type":"選択問題","question":"第4類の危険物の一般的な性状として、次のA〜Eのうち妥当でないものはどれか。\n\nA. 比重が1より大きいものが多い。\nB. 流動性が高く、火災がおきたとき拡大する危険がある。\nC. 蒸気比重が1より小さい。\nD. 引火点が高い物質ほど引火の危険性が大きい。\nE. 可燃性蒸気は低所に滞留しやすく、また遠方まで流れることがある。","options":["A","B、D","B、E","C、E","A、C、D"],"correct":[4],"explanation":"正解は5（A、C、D）。第4類は水より軽いものが多く、蒸気は空気より重いものが多いです。また引火点は低いほど引火しやすいため、A・C・Dが妥当でありません。","source":"性質火災消火.pdf 書籍p.343","render":"text","verified":"audited-2026-08-13","drillNo":16,"mistakePdfPage":25},{"id":"nature-a-p356-q9","subject":"性質・消火","category":"貯蔵・取扱い","difficulty":"","type":"選択問題","question":"静電気により引火するおそれのある危険物を取り扱う場合の火災予防対策として、次のA〜Dのうち妥当なものはどれか。\n\nA. 作業者は、絶縁性の高い手袋や靴を着用する。\nB. 危険物を取り扱う機器を接地する。\nC. 取り扱う危険物の流速を大きくして、短時間で作業を終わらせる。\nD. 床への散水等により湿度を高める。","options":["AとB","AとC","BとC","BとD","CとD"],"correct":[3],"explanation":"正解は4（BとD）。機器の接地と、床への散水などによる加湿は静電気対策として有効です。絶縁性の高い靴・手袋や流速増加は帯電を助長します。","source":"性質火災消火.pdf 書籍p.356","render":"text","verified":"audited-2026-08-13","drillNo":17,"mistakePdfPage":26},{"id":"nature-b-p397-q3","subject":"性質・消火","category":"第3石油類","difficulty":"","type":"選択問題","question":"次の記述の下線部分A〜Eのうち、適切でないものはどれか。\n「C重油は、（A）褐色または暗褐色の液体で、（B）引火点は70℃以上と高く、（C）20℃で取り扱う場合は引火の危険は少ないが、いったん燃え始めると（D）液温が高くなるので消火が困難になる場合がある。大量に燃えている火災の消火には（E）棒状注水が適する。」","options":["A","B","C","D","E"],"correct":[4],"explanation":"正解は5（E）。C重油のような油火災に棒状の水を直接注水すると、燃焼油を拡散させる危険があるため不適切です。","source":"性質火災消火2.pdf 書籍p.397","render":"text","verified":"audited-2026-08-13","drillNo":18,"mistakePdfPage":27},{"id":"nature-b-p397-q5","subject":"性質・消火","category":"第3石油類","difficulty":"","type":"選択問題","question":"灯油、軽油および重油について、次のA〜Eのうち誤っているもののみを掲げているものはどれか。\n\nA. いずれも引火点は20℃より高い。\nB. いずれも原油から分留されたもので、種々の炭化水素の混合物である。\nC. いずれも静電気の発生のおそれはない。\nD. いずれも霧状になると火がつきやすくなる。\nE. いずれも水に不溶であり、灯油と軽油は水より軽いが、重油は水より重い。","options":["AとB","CとE","DとE","AとC","BとE"],"correct":[1],"explanation":"正解は2（CとE）。灯油・軽油・重油にも静電気発生のおそれがあるのでCは誤りです。また重油も一般に水より軽く、Eの『重油は水より重い』が誤りです。","source":"性質火災消火2.pdf 書籍p.397","render":"text","verified":"audited-2026-08-13","drillNo":19,"mistakePdfPage":28},{"id":"nature-a-p368-q9","subject":"性質・消火","category":"特殊引火物","difficulty":"","type":"選択問題","question":"二硫化炭素の性状について、次のA〜Eのうち妥当なものの組み合わせはどれか。\n\nA. 発火点は90℃と低く、高温の配管等との接触により、容易に発火する。\nB. 青色の炎をあげて燃える。\nC. 比重は1より小さい。\nD. 水によく溶ける。\nE. 純品は無色であるが、市販品はオレンジ色に着色している。","options":["AとB","AとE","BとC","CとD","DとE"],"correct":[0],"explanation":"正解は1（AとB）。二硫化炭素は発火点が非常に低く、高温物体で着火しやすく、燃焼時は青色の炎を示します。比重は1より大きく、水には溶けにくいです。","source":"性質火災消火.pdf 書籍p.368","render":"text","verified":"audited-2026-08-13","drillNo":20,"mistakePdfPage":30},{"id":"nature-b-p383-q6","subject":"性質・消火","category":"アルコール類","difficulty":"","type":"選択問題","question":"エタノールの性状等について、次のA〜Eのうち、正しいもののみをすべて掲げているものはどれか。\n\nA. 凝固点は5.5℃である。\nB. 工業用のものには、飲料用に転用するのを防ぐために、毒性の強いメタノールが混入されているものがある。\nC. 燃焼範囲は3.3〜19.0vol％である。\nD. ナトリウムと反応して酸素を発生する。\nE. 酸化によりアセトアルデヒドを経て酢酸となる。","options":["A、C","A、D","B、C、E","B、D、E","B、C、D、E"],"correct":[2],"explanation":"正解は3（B、C、E）。エタノールの凝固点は5.5℃ではありません。ナトリウムとの反応で発生するのは酸素ではなく水素です。B・C・Eが正しい記述です。","source":"性質火災消火2.pdf 書籍p.383","render":"text","verified":"audited-2026-08-13","drillNo":21,"mistakePdfPage":32},{"id":"nature-a-p354-q1","subject":"性質・消火","category":"貯蔵・取扱い","difficulty":"","type":"選択問題","question":"第4類の危険物の貯蔵、取扱いの方法として、次のA〜Dのうち、誤っているものの組み合わせはどれか。\n\nA. 貯蔵し、または取り扱う場所は、必ずその危険物の引火点以下の温度に保つ。\nB. 可燃性蒸気の排出はできるだけ低所で、かつ地表に向けて行う。\nC. 引火点の低いものを屋内で取り扱う場合には、特に換気に注意する。\nD. 蒸気が滞留するおそれのある場所で使用する電気設備は防爆構造のものとする。","options":["AとB","AとC","BとC","BとD","CとD"],"correct":[0],"explanation":"正解は1（AとB）。危険物を常に必ず引火点以下に保つという表現は不適切です。また可燃性蒸気の排出を地表に向けると低所に滞留する危険があるためBも不適切です。C・Dは適切です。","source":"性質火災消火.pdf 書籍p.354","render":"text","verified":"audited-2026-08-13","drillNo":22,"mistakePdfPage":34},{"id":"nature-a-p350-q11","subject":"性質・消火","category":"第4類の消火","difficulty":"","type":"選択問題","question":"泡消火剤の中には、水溶性液体用泡消火剤とその他一般の泡消火剤がある。次の危険物が火災になった場合、水溶性液体用泡消火剤でなければ効果的に消火できないものの組み合わせとして正しいものは次のうちどれか。\n\nA. アクリル酸、アセトン\nB. 酢酸、メタノール\nC. アセトアルデヒド、ガソリン\nD. エタノール、トルエン\nE. キシレン、酸化プロピレン","options":["AとB","AとC","BとD","CとE","DとE"],"correct":[0],"explanation":"正解は1（AとB）。アクリル酸・アセトン、酢酸・メタノールはいずれも水溶性で、一般の泡が壊れやすいため水溶性液体用泡消火剤が必要です。","source":"性質火災消火.pdf 書籍p.350","render":"text","verified":"audited-2026-08-13","drillNo":23,"mistakePdfPage":36},{"id":"reinforce-law-046","subject":"法令","category":"強化｜保安講習②","difficulty":"2","type":"正しいものを選べ","question":"法令上、危険物の取扱作業の保安に関する講習について、次のうち正しいものはどれか。","options":["危険物保安監督者に選任された者のみが受講しなければならない。","現に製造所等で取扱作業に従事している危険物取扱者は3年に1回受講し、それ以外は10年に1回免状の書換えのときに受講しなければならない。","危険物取扱者のうち法令に違反した者が、この講習を受けなければならない。","受講義務のある危険物取扱者が期間を経過しても受講していない場合、免状の返納命令を受けることがある。","現に製造所等で取扱作業に従事している、すべての危険物取扱者及び危険物施設保安員は講習を受けなければならない。"],"correct":[3],"explanation":"正解は4。受講義務のある危険物取扱者が所定期間を過ぎても保安講習を受けない場合、免状返納命令の対象となることがあります。危険物施設保安員そのものに受講義務があるわけではありません。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":24,"mistakePdfPage":41},{"id":"法令-law3-009","subject":"法令","category":"予防規程対象施設","difficulty":"2","type":"正しいものを選べ","question":"法令上、予防規程を定めなければならない製造所等として、定められているものは次のうちどれか。ただし、鉱山保安法による保安規程又は火薬類取締法による危害予防規程を定めているものを除く。","options":["指定数量の倍数が100の屋内貯蔵所","指定数量の倍数が100の屋外貯蔵所","指定数量の倍数が100の屋外タンク貯蔵所","指定数量の倍数が5の製造所","屋外の自家用の給油取扱所"],"correct":[1],"explanation":"正解は2。指定数量の倍数が100の屋外貯蔵所は、予防規程を定めなければならない対象に該当します。","source":"法令3.pdf p.4","render":"text","verified":"audited-2026-08-13","drillNo":25,"mistakePdfPage":42},{"id":"reinforce-law-157","subject":"法令","category":"強化｜運搬容器の基準","difficulty":"2","type":"正しいものの組み合わせを選べ","question":"法令上、危険物を運搬する運搬容器の技術上の基準として、次のＡ〜Ｄのうち正しいもののみの組合せはどれか。\n\nＡ．運搬容器の材質は、ガラス製は認められていない。\nＢ．運搬容器の性能は、原則として落下試験等の基準に適合したものでなければならない。\nＣ．運搬容器の外部には、収納する危険物に応じた注意事項を表示しなければならない。\nＤ．危険物を収納した運搬容器を積み重ねる場合は、高さ４m以下としなければならない。","options":["Ａ、Ｂ","Ａ、Ｃ","Ａ、Ｄ","Ｂ、Ｃ","Ｂ、Ｄ"],"correct":[3],"explanation":"正解は4（B、C）。運搬容器は原則として落下試験等の基準に適合し、外部に危険物に応じた注意事項を表示します。ガラス製容器も条件付きで認められ、積重ね高さは4mではありません。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":26,"mistakePdfPage":43},{"id":"法令-law1-005","subject":"法令","category":"複数性状物品","difficulty":"2","type":"正しいものを選べ","question":"法令上、次の文の（　）内に当てはまる語句として、正しいものはどれか。\n\n「法別表第1の性質欄に掲げる性状の2以上を有する物品（複数性状物品）の属する品名は、規則で定められている。複数性状物品が、酸化性固体の性状及び自己反応性物質の性状を有する場合は、法別表第1（　）の項第11号に掲げる品名とされる。」","options":["第1類","第2類","第3類","第5類","第6類"],"correct":[3],"explanation":"正解は4（第5類）。酸化性固体の性状と自己反応性物質の性状を併せ持つ複数性状物品は、規則上、第5類の該当品名として扱われます。","source":"法令1.pdf p.3","render":"text","verified":"audited-2026-08-13","drillNo":27,"mistakePdfPage":45},{"id":"reinforce-law-185","subject":"法令","category":"強化｜警報設備④自動火災報知設備","difficulty":"2","type":"正しい組み合わせを選べ","question":"法令上、貯蔵し、又は取り扱う危険物の指定数量の倍数が10の製造所等で、警報設備のうち自動火災報知設備を設置しなければならないものとして、次のＡ〜Ｄのうち正しいもののみを組み合わせたものはどれか。\n\nＡ．延べ面積が500㎡以上の製造所\nＢ．移動タンク貯蔵所\nＣ．タンク専用室を平家建以外の建築物等に設ける屋内タンク貯蔵所で、著しく消火が困難と認められるもの\nＤ．屋内給油取扱所以外の給油取扱所","options":["ＡとＢ","ＡとＣ","ＡとＤ","ＢとＤ","ＣとＤ"],"correct":[1],"explanation":"正解は2（AとC）。延べ面積500㎡以上の製造所（A）と、所定の屋内タンク貯蔵所（C）が自動火災報知設備の対象です。移動タンク貯蔵所（B）や本問のDは該当しません。","source":"法令強化1〜3（重複監査済み）","render":"text","verified":"reinforcement-audit-2026-08-21","drillNo":28,"mistakePdfPage":46}];
+const KEY='otsu4_mistake_drill_28q_v1';
+const BLOCKS={
+ '1-15':{label:'1〜15問',start:1,end:15},
+ '16-28':{label:'16〜28問',start:16,end:28},
+ 'all':{label:'全28問',start:1,end:28}
+};
+function defaults(){return {version:1,laps:{'1-15':0,'16-28':0,all:0},last:{},stats:{},history:[],session:null,theme:'dark'}}
+let db=load();
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return Object.assign(defaults(),x||{}, {laps:Object.assign(defaults().laps,x?.laps||{}),last:x?.last||{},stats:x?.stats||{},history:x?.history||[]})}catch(e){return defaults()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function qByNo(n){return QUESTIONS.find(q=>q.drillNo===n)}
+function subjectShort(s){return s==='物理・化学'?'物理・化学':s==='性質・消火'?'性質・消火':'法令'}
+function applyTheme(){
+ document.body.classList.toggle('light',db.theme==='light');
+ document.getElementById('themeBtn').textContent=db.theme==='light'?'🌙 ナイト':'☀️ ライト';
+ document.querySelector('meta[name="theme-color"]').setAttribute('content',db.theme==='light'?'#f4f6f8':'#0b0f14');
+}
+function toggleTheme(){db.theme=db.theme==='light'?'dark':'light';save();applyTheme()}
+function home(){
+ const s=db.session;
+ const resume=s?`<button class="mode resume" onclick="renderQuestion()">▶ 続きから<small>${esc(BLOCKS[s.block].label)}｜${s.pos+1}/${s.order.length}問</small></button>`:'';
+ document.getElementById('app').innerHTML=`
+ <div class="top"><div><div class="brand">乙四 間違え問題特訓</div><div class="sub">間違えすぎる問題だけを反復</div></div></div>
+ <section class="card hero">
+   <h1>28問だけ集中周回</h1>
+   <p>スクショPDFの同一問題・続きページを統合して、28問に整理。1〜15問、16〜28問の固定ブロックで周回できます。</p>
+   <div class="badges"><span class="badge ok">✓ 正答28問 再確認済み</span><span class="badge">1周＝ブロック全問</span><span class="badge">周回ごとにシャッフル</span></div>
+   <div class="stats">
+    <div class="stat"><b>${db.laps['1-15']||0}</b><span>1〜15 周</span></div>
+    <div class="stat"><b>${db.laps['16-28']||0}</b><span>16〜28 周</span></div>
+    <div class="stat"><b>${QUESTIONS.length}</b><span>厳選問題</span></div>
+   </div>
+ </section>
+ ${resume}
+ <section class="card">
+   <div class="grid">
+    ${blockButton('1-15')}
+    ${blockButton('16-28')}
+   </div>
+   <button class="mode" onclick="startBlock('all')">🎯 全28問 通し<small>${db.laps.all||0}周完了${lastText('all')}</small></button>
+ </section>
+ <section class="card">
+   <div class="row"><button class="btn secondary" onclick="records()">学習記録</button><button class="btn danger" onclick="resetData()">記録リセット</button></div>
+   <p class="tiny" style="margin-bottom:0">途中で閉じても続きから再開できます。選択肢をタップすると即判定します。</p>
+ </section>`;
+}
+function lastText(id){const x=db.last[id];return x?` / 前回 ${x.score}/${x.total}（${Math.round(x.score/x.total*100)}%）`:''}
+function blockButton(id){
+ const b=BLOCKS[id];
+ return `<button class="mode" onclick="startBlock('${id}')">📚 ${b.label}<small>${db.laps[id]||0}周完了${lastText(id)}</small></button>`;
+}
+function startBlock(id){
+ const b=BLOCKS[id];
+ const nos=[];for(let n=b.start;n<=b.end;n++)nos.push(n);
+ db.session={block:id,order:shuffle(nos),pos:0,score:0,pending:null,started:Date.now()};
+ save();renderQuestion();
+}
+function renderQuestion(){
+ const s=db.session;if(!s)return home();
+ const q=qByNo(s.order[s.pos]);if(!q){db.session=null;save();return home()}
+ const answered=!!s.pending;
+ const progress=Math.round((s.pos+(answered?1:0))/s.order.length*100);
+ document.getElementById('app').innerHTML=`
+ <div class="top">
+   <button class="btn secondary" onclick="home()">← ホーム</button>
+   <div style="text-align:right"><div class="brand" style="font-size:17px">${esc(BLOCKS[s.block].label)} ${db.laps[s.block]+1}周目</div><div class="sub">${s.pos+1}/${s.order.length}</div></div>
+ </div>
+ <div class="progress"><div style="width:${progress}%"></div></div>
+ <section class="qcard">
+   <div class="qmeta"><span class="badge">${esc(subjectShort(q.subject))}</span><span class="badge">${esc(q.category||'')}</span><span class="badge">No.${q.drillNo}</span></div>
+   <div class="qtitle">${esc(q.question)}</div>
+   <div class="source">元出典：${esc(q.source)} ｜ 選抜PDF p.${q.mistakePdfPage}</div>
+   ${q.options.map((o,i)=>`<button id="opt${i}" class="opt" onclick="answer(${i})" ${answered?'disabled':''}><span class="n">${i+1}</span><span>${esc(o)}</span></button>`).join('')}
+   <div id="resultbox"></div>
+ </section>`;
+ if(answered)paintResult(q,s.pending);
+}
+function answer(i){
+ const s=db.session;if(!s||s.pending)return;
+ const q=qByNo(s.order[s.pos]);
+ const ok=q.correct.includes(i);
+ const st=db.stats[q.id]||{attempts:0,correct:0,wrong:0};
+ st.attempts++;if(ok)st.correct++;else st.wrong++;
+ db.stats[q.id]=st;
+ if(ok)s.score++;
+ s.pending={selected:i,ok};
+ save();renderQuestion();
+}
+function paintResult(q,p){
+ q.options.forEach((_,i)=>{
+   const el=document.getElementById('opt'+i);
+   if(q.correct.includes(i))el.classList.add('correct');
+   if(i===p.selected&&!q.correct.includes(i))el.classList.add('wrong');
+ });
+ const correctNo=q.correct[0]+1;
+ document.getElementById('resultbox').innerHTML=`
+ <div class="result ${p.ok?'ok':'ng'}">
+  <b>${p.ok?'○ 正解':'× 不正解'}　正解：${correctNo}</b>
+  <div class="explain">${esc(q.explanation)}</div>
+ </div>
+ <button class="next" onclick="nextQuestion()">${db.session.pos+1>=db.session.order.length?'結果を見る':'次の問題へ'}</button>`;
+}
+function nextQuestion(){
+ const s=db.session;if(!s)return home();
+ s.pos++;s.pending=null;save();
+ if(s.pos>=s.order.length)finish();else renderQuestion();
+}
+function finish(){
+ const s=db.session;if(!s)return home();
+ const id=s.block,total=s.order.length,score=s.score;
+ db.laps[id]=(db.laps[id]||0)+1;
+ db.last[id]={score,total,date:Date.now()};
+ db.history.unshift({block:id,score,total,date:Date.now()});
+ db.history=db.history.slice(0,50);
+ db.session=null;save();
+ document.getElementById('app').innerHTML=`
+ <div class="top"><div class="brand">${esc(BLOCKS[id].label)} ${db.laps[id]}周完了！</div></div>
+ <section class="card hero">
+  <div class="finishScore">${score}/${total}</div>
+  <p>正答率 ${Math.round(score/total*100)}%</p>
+  <div class="stats">
+   <div class="stat"><b>${db.laps[id]}</b><span>周回数</span></div>
+   <div class="stat"><b>${total-score}</b><span>今回ミス</span></div>
+   <div class="stat"><b>${Math.round(score/total*100)}%</b><span>正答率</span></div>
+  </div>
+ </section>
+ <div class="row"><button class="btn secondary" onclick="home()">ホーム</button><button class="btn" onclick="startBlock('${id}')">もう1周</button></div>`;
+}
+function records(){
+ const qrows=QUESTIONS.map(q=>{
+  const s=db.stats[q.id]||{attempts:0,correct:0,wrong:0};
+  return `<div class="listitem"><div><b>No.${q.drillNo} ${esc(q.subject)}</b><div class="tiny">${esc(q.category||'')}</div></div><div style="text-align:right"><b>${s.wrong||0}ミス</b><div class="tiny">${s.attempts||0}回答</div></div></div>`;
+ }).join('');
+ const h=db.history.slice(0,10).map(x=>`<div class="listitem"><div>${esc(BLOCKS[x.block].label)}<div class="tiny">${new Date(x.date).toLocaleString()}</div></div><b>${x.score}/${x.total}</b></div>`).join('');
+ document.getElementById('app').innerHTML=`
+ <div class="top"><button class="btn secondary" onclick="home()">← ホーム</button><div class="brand">学習記録</div></div>
+ <section class="card"><h3>周回数</h3>
+   <div class="listitem"><span>1〜15問</span><b>${db.laps['1-15']||0}周</b></div>
+   <div class="listitem"><span>16〜28問</span><b>${db.laps['16-28']||0}周</b></div>
+   <div class="listitem"><span>全28問</span><b>${db.laps.all||0}周</b></div>
+ </section>
+ <section class="card"><h3>問題別ミス回数</h3>${qrows}</section>
+ <section class="card"><h3>最近の結果</h3>${h||'<p class="tiny">まだ記録がありません。</p>'}</section>`;
+}
+function resetData(){
+ if(!confirm('周回数・回答記録をすべてリセットしますか？'))return;
+ const theme=db.theme;db=defaults();db.theme=theme;save();home();
+}
+applyTheme();home();
+</script>
+</body>
+</html>
