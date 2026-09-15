@@ -1,0 +1,613 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>8週間トレーニング — 腹筋30秒30回 / シャトルラン100回</title>
+<meta name="theme-color" content="#16323F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="8週間">
+<meta name="description" content="腹筋30秒30回とシャトルラン100回を目標にした8週間トレーニング。週7ジム、高強度は週3まで。">
+<style>
+  :root{
+    --paper:#F3F5F3;
+    --grid:rgba(22,50,63,.06);
+    --ink:#16323F;
+    --ink2:#5A7481;
+    --ink3:#96A8B1;
+    --red:#B23A2B;
+    --redsoft:rgba(178,58,43,.09);
+    --rule:rgba(22,50,63,.14);
+    --sheet:#FBFCFB;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 28px);
+    color:var(--ink);
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+    font-size:15px;line-height:1.7;
+    -webkit-text-size-adjust:100%;
+    padding-bottom:150px;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:22px 18px 0}
+  h1{font-size:19px;line-height:1.45;margin:0 0 2px;font-weight:700;letter-spacing:.01em}
+  .sub{color:var(--ink2);font-size:13px;margin:0 0 20px}
+
+  /* 週セレクタ */
+  .weeks{display:flex;gap:0;border:1px solid var(--rule);background:var(--sheet);border-radius:2px;overflow:hidden;margin-bottom:6px}
+  .weeks button{flex:1;appearance:none;border:0;border-right:1px solid var(--rule);background:transparent;
+    font:inherit;font-weight:700;font-size:13px;color:var(--ink3);padding:9px 0;cursor:pointer;
+    font-variant-numeric:tabular-nums;position:relative}
+  .weeks button:last-child{border-right:0}
+  .weeks button[data-meas="1"]::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--ink3)}
+  .weeks button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .weeks button[aria-pressed="true"][data-meas="1"]::after{background:#fff}
+  .weeknote{font-size:12.5px;color:var(--ink2);margin:0 0 18px;display:flex;gap:8px;align-items:baseline}
+  .weeknote b{color:var(--red);font-weight:700}
+
+  /* 曜日 */
+  .days{display:flex;gap:6px;margin-bottom:14px}
+  .days button{flex:1;appearance:none;background:var(--sheet);border:1px solid var(--rule);border-radius:2px;
+    font:inherit;font-size:14px;font-weight:700;color:var(--ink2);padding:8px 0 6px;cursor:pointer;
+    border-bottom:3px solid transparent}
+  .days button[data-hard="1"]{border-bottom-color:rgba(178,58,43,.35)}
+  .days button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .days button[aria-pressed="true"][data-hard="1"]{border-bottom-color:var(--red)}
+  .today-dot{display:block;width:3px;height:3px;border-radius:50%;background:currentColor;margin:2px auto 0;opacity:0}
+  .days button[data-today="1"] .today-dot{opacity:.7}
+
+  /* カード */
+  .card{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:16px 16px 6px;margin-bottom:14px}
+  .card.hard{border-left:3px solid var(--red)}
+  .card-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:2px}
+  .card-head h2{font-size:16px;margin:0;font-weight:700}
+  .tag{font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:2px;background:rgba(22,50,63,.07);color:var(--ink2);white-space:nowrap}
+  .tag.hard{background:var(--redsoft);color:var(--red)}
+  .desc{font-size:13px;color:var(--ink2);margin:0 0 12px}
+
+  .sect{border-top:1px solid var(--rule);padding-top:11px;margin-top:2px}
+  .sect:first-of-type{border-top:0;padding-top:0}
+  .sect h3{font-size:13px;margin:0 0 7px;font-weight:700;color:var(--ink2)}
+  ul{list-style:none;margin:0;padding:0 0 10px}
+  li{padding:3px 0;font-size:14.5px}
+  li.plain{color:var(--ink);padding-left:13px;position:relative}
+  li.plain::before{content:"";position:absolute;left:2px;top:.85em;width:5px;height:1px;background:var(--ink3)}
+  .run-item{width:100%;text-align:left;appearance:none;background:transparent;border:1px solid var(--rule);
+    border-radius:2px;font:inherit;font-size:14.5px;color:var(--ink);padding:9px 11px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0}
+  .run-item:hover{border-color:var(--ink3)}
+  .run-item:active{background:rgba(22,50,63,.05)}
+  .run-item .go{font-size:12px;font-weight:700;color:var(--red);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .note{font-size:12.5px;color:var(--ink2);border-top:1px dashed var(--rule);padding:9px 0 10px;margin-top:4px}
+
+  /* 設定 */
+  .speed{display:flex;align-items:center;gap:10px;background:var(--sheet);border:1px solid var(--rule);
+    border-radius:2px;padding:11px 14px;margin-bottom:14px;font-size:13.5px}
+  .speed label{color:var(--ink2);flex:1}
+  .speed input{width:64px;font:inherit;font-weight:700;font-size:16px;text-align:right;
+    border:0;border-bottom:2px solid var(--rule);background:transparent;color:var(--ink);padding:1px 2px;
+    font-variant-numeric:tabular-nums}
+  .speed input:focus{outline:none;border-bottom-color:var(--red)}
+  .speed span{font-size:13px;color:var(--ink2)}
+
+  /* 記録 */
+  .rec-row{display:flex;gap:8px;margin-bottom:10px}
+  .rec-row input{flex:1;min-width:0;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--rule);
+    border-radius:2px;background:#fff;color:var(--ink);font-variant-numeric:tabular-nums}
+  .rec-row input:focus{outline:none;border-color:var(--ink)}
+  .rec-row button{appearance:none;border:0;background:var(--ink);color:#fff;font:inherit;font-weight:700;
+    font-size:14px;padding:0 15px;border-radius:2px;cursor:pointer;white-space:nowrap}
+  .log{list-style:none;padding:0;margin:0}
+  .log li{display:grid;grid-template-columns:62px 1fr 46px;align-items:center;gap:9px;
+    padding:7px 0;border-top:1px solid var(--rule);font-size:13px;color:var(--ink2)}
+  .log li .bar{height:7px;background:rgba(22,50,63,.10);border-radius:1px;overflow:hidden}
+  .log li .bar i{display:block;height:100%;background:var(--ink)}
+  .log li.best .bar i{background:var(--red)}
+  .log li .v{text-align:right;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;font-size:15px}
+  .log li.best .v{color:var(--red)}
+  .empty{font-size:13px;color:var(--ink3);padding:8px 0 12px;margin:0}
+  .tabs2{display:flex;gap:6px;margin-bottom:11px}
+  .tabs2 button{flex:1;appearance:none;background:transparent;border:1px solid var(--rule);border-radius:2px;
+    font:inherit;font-size:13px;font-weight:700;color:var(--ink2);padding:6px 0;cursor:pointer}
+  .tabs2 button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  .wchart{position:relative;margin:2px 0 10px}
+  .wchart svg{display:block;width:100%;height:96px;overflow:visible}
+  .wchart .axis{font-size:10px;fill:var(--ink3)}
+  .wmeta{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    border-top:1px solid var(--rule);padding-top:9px;margin-top:2px;font-size:12.5px;color:var(--ink2)}
+  .wmeta b{font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .wmeta small{font-size:12px;font-weight:400;color:var(--ink2);margin-left:2px}
+
+  .io{display:flex;gap:8px;border-top:1px solid var(--rule);padding-top:11px;margin-top:4px}
+  .io button{flex:1;appearance:none;background:transparent;border:1px solid var(--rule);border-radius:2px;
+    font:inherit;font-size:12.5px;font-weight:700;color:var(--ink2);padding:8px 0;cursor:pointer}
+  .io button:hover{border-color:var(--ink3);color:var(--ink)}
+  .iomsg{font-size:12px;color:var(--ink2);margin:8px 0 6px;min-height:1.2em}
+
+  footer{font-size:12px;color:var(--ink3);line-height:1.8;padding:4px 2px 30px}
+  footer b{color:var(--ink2);font-weight:700}
+
+  /* タイマー */
+  #timer{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;
+    padding:14px 18px calc(16px + env(safe-area-inset-bottom));transform:translateY(102%);
+    transition:transform .22s ease;z-index:50}
+  #timer.on{transform:none}
+  .t-wrap{max-width:560px;margin:0 auto}
+  .t-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12.5px;
+    color:rgba(255,255,255,.62);margin-bottom:3px}
+  .t-top b{color:#fff;font-weight:700}
+  .t-main{display:flex;align-items:baseline;gap:14px}
+  .t-num{font-size:62px;font-weight:700;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .t-num.rest{color:rgba(255,255,255,.55)}
+  .t-side{font-size:13px;color:rgba(255,255,255,.62);line-height:1.5;flex:1}
+  .t-side b{display:block;color:#fff;font-size:15px;font-weight:700}
+  .t-btns{display:flex;gap:8px;margin-top:11px}
+  .t-btns button{flex:1;appearance:none;border:1px solid rgba(255,255,255,.3);background:transparent;
+    color:#fff;font:inherit;font-weight:700;font-size:14px;padding:9px 0;border-radius:2px;cursor:pointer}
+  .t-btns button.stop{background:#fff;color:var(--ink);border-color:#fff}
+  .beat{height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin-top:10px;overflow:hidden}
+  .beat i{display:block;height:100%;width:0%;background:#fff;opacity:.85}
+  @media (prefers-reduced-motion:reduce){#timer{transition:none}}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <h1>腹筋30秒30回／シャトルラン100回</h1>
+  <p class="sub">8週間・週7ジム。高強度は週3まで、2週に1回だけ測定する。</p>
+
+  <div class="weeks" id="weeks" role="group" aria-label="週を選ぶ"></div>
+  <p class="weeknote" id="weeknote"></p>
+
+  <div class="speed">
+    <label for="spd">4分×4本の基準速度</label>
+    <input id="spd" type="number" step="0.1" min="6" max="20" value="11.5" inputmode="decimal">
+    <span>km/h</span>
+  </div>
+
+  <div class="days" id="days" role="group" aria-label="曜日を選ぶ"></div>
+  <div id="plan"></div>
+
+  <div class="card">
+    <div class="card-head"><h2>体重</h2><span class="tag" id="wTrend"></span></div>
+    <p class="desc">毎日、同じ条件で測る。起床後・トイレ後・朝食前が一番ブレません。</p>
+    <div class="rec-row">
+      <input id="wval" type="number" step="0.1" inputmode="decimal" min="20" max="200" placeholder="kg">
+      <button id="wadd">記録する</button>
+    </div>
+    <div id="wchart"></div>
+    <p class="empty" id="wempty">まだ記録がありません。1日単位の増減は水分でほとんど決まるので、見るのは7日平均の動きです。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>記録</h2></div>
+    <p class="desc">測定は2週に1回。腹筋は水曜、握力は木曜、シャトルランは土曜。3つを同じ日に重ねない。</p>
+    <div class="tabs2" id="rtabs">
+      <button data-k="abs" aria-pressed="true">腹筋 30秒</button>
+      <button data-k="shuttle" aria-pressed="false">シャトルラン</button>
+      <button data-k="grip" aria-pressed="false">握力</button>
+    </div>
+    <div class="rec-row">
+      <input id="rval" type="number" inputmode="numeric" min="0" placeholder="回数">
+      <button id="radd">記録する</button>
+    </div>
+    <ul class="log" id="log"></ul>
+    <p class="empty" id="rempty">まだ記録がありません。最初の測定値を入れると、目標までの伸びが見えます。</p>
+    <div class="io">
+      <button id="expBtn">JSONに書き出す</button>
+      <button id="impBtn">JSONを読み込む</button>
+      <input type="file" id="impFile" accept="application/json,.json" hidden>
+    </div>
+    <p class="iomsg" id="ioMsg" role="status" aria-live="polite"></p>
+  </div>
+
+  <footer>
+    <b>フォーム</b>　上体起こしは要項の判定に合わせる。判定がある試験では、反動で速くするより規定内で最短距離・最速テンポを狙う。<br>
+    <b>直前</b>　試験10日前からは総量を6〜7割に。不安でも追い込まない。<br>
+    <b>ペース</b>　8週で100回が届くのは現在70回台から。60回前後なら10〜12週、50回前後なら12〜16週で組み直す。<br>
+    <b>握力</b>　週2回（火・土）で十分伸びる。前腕は回復が早いが、測定日の前日は追い込まない。<br>
+    <b>記録の保存</b>　このブラウザの中だけに保存されます。別の端末には引き継がれず、閲覧データを消すと一緒に消えます。JSONに書き出しておけば復元できます。
+  </footer>
+</div>
+
+<div id="timer" role="status" aria-live="polite">
+  <div class="t-wrap">
+    <div class="t-top"><b id="tName">—</b><span id="tSet"></span></div>
+    <div class="t-main">
+      <div class="t-num" id="tNum">0</div>
+      <div class="t-side"><b id="tPhase">—</b><span id="tHint"></span></div>
+    </div>
+    <div class="beat"><i id="tBar"></i></div>
+    <div class="t-btns">
+      <button id="tSound">音 ON</button>
+      <button id="tSkip">次へ</button>
+      <button id="tStop" class="stop">終了</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- 保存（localStorage） ---------- */
+const KEY="fire8";
+let canSave=true;
+const mem={};
+const store={
+  get(k){
+    try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }
+    catch(e){ canSave=false; return k in mem?mem[k]:null; }
+  },
+  set(k,v){
+    mem[k]=v;
+    try{ localStorage.setItem(k,JSON.stringify(v)); }
+    catch(e){ canSave=false; }
+  }
+};
+
+/* ---------- 状態 ---------- */
+let S={week:1,day:new Date().getDay(),speed:11.5,logs:{abs:[],shuttle:[],grip:[]},weights:[],rtab:"abs",sound:true};
+const DOW=["日","月","火","水","木","金","土"];
+const ORDER=[1,2,3,4,5,6,0];
+const MEAS=w=>w%2===0;
+const OFF={1:0,2:0,3:.3,4:.3,5:.6,6:.6,7:.8,8:.6};
+const TARGET={2:{abs:24,sh:60,gr:42},4:{abs:26,sh:70,gr:45},6:{abs:28,sh:85,gr:48},8:{abs:30,sh:100,gr:50}};
+const UNIT={abs:"回",shuttle:"回",grip:"kg"};
+const GOAL={abs:32,shuttle:110,grip:55};
+const f=v=>(Math.round(v*10)/10).toFixed(1);
+
+/* ---------- メニュー ---------- */
+function plan(d,w,V){
+  const v=+(V+OFF[w]).toFixed(1), taper=w===8, meas=MEAS(w);
+  const easy={hard:false,tag:"回復"};
+  const P={
+    1:{name:"月曜",hard:!taper,tag:taper?"調整":"高強度",desc:taper?"刺激だけ残して本数を落とす。":"4分×4本。4本とも同じ速度で走り切れる強度に置く。",
+      run:{title:"走",items:[
+        {l:"ウォームアップ 6〜8km/h",s:600},
+        ...(taper?[{l:`4分走 ${f(v)}km/h`,s:240,sets:2,rest:180,restLabel:"歩行 5〜6km/h"}]
+                :[{l:`4分走 ${f(v)}km/h`,s:240,sets:4,rest:180,restLabel:"歩行 5〜6km/h"}]),
+        {l:"クールダウン",s:300}]},
+      abs:{title:"腹筋 — スピード",items:taper
+        ?[{l:"15秒で15回",s:15,reps:15,sets:3,rest:60,tempo:true}]
+        :[{l:"15秒で15回",s:15,reps:15,sets:5,rest:60,tempo:true}]},
+      note:taper?"4本すべて完遂できていた速度のまま、本数だけ減らす。速度は上げない。"
+                :"4本目が一番きつい程度が正解。1本目から全開にすると後半の質が落ちる。"},
+    2:{name:"火曜",hard:false,tag:"有酸素",desc:"会話できる強度で流す。ここで追い込まない。",
+      run:{title:"走",items:[{l:"傾斜1〜2%・7〜9km/h",s:2100}]},
+      abs:{title:"腹筋 — 筋力",items:[{l:"ケーブルクランチ 10〜15回×3"},{l:"アブローラー 6〜12回×3"}],plain:true},
+      grip:{title:"握力 — メイン",items:[
+        {l:"ファーマーズウォーク 30〜40秒×3（持てる最大重量）"},
+        {l:"ハンドグリッパー 8〜12回×3（左右）"},
+        {l:"リストカール 12〜15回×3"}],plain:true},
+      note:"上体起こしは腰と股関節屈筋の負担が大きいので週3回まで。今日はマシンで筋力の余裕を作る日。"},
+    3:{name:"水曜",hard:!taper,tag:taper?"調整":"閾値",
+      desc:meas?"腹筋30秒MAXを測る日。走りは短く抑える。":"ややキツい一定ペースを15〜20分。",
+      run:{title:"走",items:taper||meas
+        ?[{l:"軽い有酸素 7〜9km/h",s:1200}]
+        :[{l:"ウォームアップ",s:600},{l:`閾値走 ${f(Math.max(6,v-1.5))}km/h`,s:1020},{l:"クールダウン",s:300}]},
+      abs:meas
+        ?{title:"腹筋 — 測定",items:[{l:"30秒 全力測定",s:30,reps:30,sets:1,tempo:true}],
+          goal:TARGET[w]?`今回の目安 ${TARGET[w].abs}回`:""}
+        :{title:"腹筋 — テンポ",items:[{l:"20秒で20回",s:20,reps:20,sets:3,rest:90,tempo:true}]},
+      note:meas?"測定前に腹筋の追い込みを入れない。数字が出ないと不安になって量を足したくなるが、そこが崩れる入口。"
+               :"20秒の中でテンポを崩さないことが目的。回数を稼ぐ日ではない。"},
+    4:{name:"木曜",hard:false,tag:meas?"測定":"回復",
+      desc:meas?"握力を測る日。走りは軽く済ませる。":"楽な強度で20〜30分。バイクでもいい。",
+      run:{title:"走",items:[{l:meas?"軽い有酸素／バイク":"回復ジョグ／バイク",s:meas?1200:1500}]},
+      abs:{title:"腹筋",items:[{l:"休み"}],plain:true},
+      grip:meas
+        ?{title:"握力 — 測定",items:[
+            {l:"左右2回ずつ、最大値を採用"},
+            {l:"測定前に前腕を追い込まない"}],plain:true,
+          goal:TARGET[w]?`今回の目安 ${TARGET[w].gr}kg`:""}
+        :{title:"握力 — 軽め",items:[{l:"デッドハング 20〜30秒×3"}],plain:true},
+      note:meas?"肘を伸ばして体から離し、人差し指の第二関節が直角になる幅に握りを調整する。息を止めず一気に握る。"
+               :"きつく感じる日は完全休養に振り替えていい。握力も軽く握るだけで十分。"},
+    5:{name:"金曜",hard:!meas&&!taper,tag:meas||taper?"回復":"高強度",
+      desc:meas?"土曜の測定に向けて落とす日。":"30秒速い＋30秒ゆっくりを15本。本番の呼吸リズムに近い。",
+      run:{title:"走",items:meas||taper
+        ?[{l:"軽い有酸素 7〜9km/h",s:1500}]
+        :[{l:"ウォームアップ",s:600},
+          {l:`速い30秒 ${f(v+1.7)}km/h`,s:30,sets:15,rest:30,restLabel:"ゆっくり 8km/h"},
+          {l:"クールダウン",s:300}]},
+      abs:meas?{title:"腹筋",items:[{l:"休み"}],plain:true}
+              :{title:"腹筋 — スピード",items:[{l:"10秒で10回",s:10,reps:10,sets:3,rest:45,tempo:true},{l:"15秒で15回",s:15,reps:15,sets:2,rest:60,tempo:true}]},
+      note:meas?"明日が測定。今日の疲労を残さないことが最優先。"
+               :"ベルトの反応が遅いジムなら、1分速い＋1分軽いを8〜10本に替える。走行中にベルトを跨ぐのは危険なのでやらない。"},
+    6:{name:"土曜",hard:false,tag:meas?"測定":"技術",
+      desc:meas?"20mシャトルラン実戦。ここだけ限界まで。":"20mのターン練習。心肺を追い込まず、切り返しだけを上手くする。",
+      run:{title:"走",items:meas
+        ?[{l:"ウォームアップ＋流し",s:600},{l:"20mシャトルラン 本番形式",goal:TARGET[w]?`目安 ${TARGET[w].sh}回`:""}]
+        :[{l:"20m×10往復（8割速度）",sets:3,rest:60,restLabel:"休憩",s:120}]},
+      abs:{title:"腹筋",items:[{l:"プランク 45〜60秒×2"}],plain:true},
+      grip:{title:"握力 — 補強",items:[
+        {l:"プレートピンチ 20〜30秒×3"},
+        {l:"デッドハング 30〜45秒×2"}],plain:true},
+      note:meas?"減速→ライン到達→切り返し→再加速。ここのロスが回数に直結する。":"目的は心肺ではなく動作。片足でしっかり止めて、すぐ加速する感覚を入れる。"},
+    0:{name:"日曜",hard:false,tag:"回復",desc:"軽い有酸素か完全休養。どちらでもいい。",
+      run:{title:"走",items:[{l:"ウォーキング／バイク",s:1800}]},
+      abs:{title:"腹筋",items:[{l:"休み"}],plain:true},
+      note:"毎日ジムに行く＝毎日鍛え倒す、ではない。行って軽く動いて帰る日があっていい。"}
+  };
+  return P[d];
+}
+
+/* ---------- 描画 ---------- */
+const $=id=>document.getElementById(id);
+
+function drawWeeks(){
+  $("weeks").innerHTML=[1,2,3,4,5,6,7,8].map(w=>
+    `<button data-w="${w}" data-meas="${MEAS(w)?1:0}" aria-pressed="${S.week===w}">${w}</button>`).join("");
+  const w=S.week;
+  const phase=w<=2?"完遂を優先。全メニューを余裕を残して終える。"
+    :w<=4?"インターバルの速度を上げる。":w<=6?"100回付近の高速域に慣れる。"
+    :w===7?"最後の強い刺激を入れる週。":"疲労を抜いて測定する週。";
+  $("weeknote").innerHTML=`<b>第${w}週</b><span>${phase}${MEAS(w)?" 測定週（●）。":""}</span>`;
+}
+function drawDays(){
+  const V=S.speed;
+  $("days").innerHTML=ORDER.map(d=>{
+    const p=plan(d,S.week,V);
+    return `<button data-d="${d}" data-hard="${p.hard?1:0}" data-today="${d===new Date().getDay()?1:0}"
+      aria-pressed="${S.day===d}">${DOW[d]}<span class="today-dot"></span></button>`;
+  }).join("");
+}
+function itemHTML(it,i,kind){
+  if(!it.s) return `<li class="plain">${it.l}${it.goal?` <b style="color:var(--red)">${it.goal}</b>`:""}</li>`;
+  const total=(it.sets||1);
+  const right=it.tempo?`${it.reps}回 / ${it.s}秒`:fmt(it.s);
+  return `<button class="run-item" data-kind="${kind}" data-i="${i}">
+    <span>${it.l}${total>1?` ×${total}`:""}</span><span class="go">${right} ▸</span></button>`;
+}
+function drawPlan(){
+  const p=plan(S.day,S.week,S.speed);
+  const li=(sec)=>sec;
+  const runList=p.run.items.map((it,i)=>itemHTML(it,i,"run")).join("");
+  const absList=p.abs.plain
+    ? p.abs.items.map(it=>`<li class="plain">${it.l}</li>`).join("")
+    : p.abs.items.map((it,i)=>itemHTML(it,i,"abs")).join("");
+  const gripSect=p.grip?`<div class="sect"><h3>${p.grip.title}${p.grip.goal?` — <span style="color:var(--red)">${p.grip.goal}</span>`:""}</h3><ul>${
+      p.grip.plain
+        ? p.grip.items.map(it=>`<li class="plain">${it.l}</li>`).join("")
+        : p.grip.items.map((it,i)=>itemHTML(it,i,"grip")).join("")
+    }</ul></div>`:"";
+  $("plan").innerHTML=`
+    <div class="card ${p.hard?"hard":""}">
+      <div class="card-head"><h2>${p.name}</h2><span class="tag ${p.hard?"hard":""}">${p.tag}</span></div>
+      <p class="desc">${p.desc}</p>
+      <div class="sect"><h3>${p.run.title}</h3><ul>${runList}</ul></div>
+      <div class="sect"><h3>${p.abs.title}${p.abs.goal?` — <span style="color:var(--red)">${p.abs.goal}</span>`:""}</h3><ul>${absList}</ul></div>
+      ${gripSect}
+      <p class="note">${p.note}</p>
+    </div>`;
+  document.querySelectorAll(".run-item").forEach(b=>b.onclick=()=>{
+    const p2=plan(S.day,S.week,S.speed);
+    start(p2[b.dataset.kind].items[+b.dataset.i]);
+  });
+}
+function drawLog(){
+  const k=S.rtab, arr=S.logs[k]||[];
+  document.querySelectorAll("#rtabs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));
+  $("rval").placeholder=k==="abs"?"30秒の回数":k==="shuttle"?"シャトルランの回数":"左右の平均 kg";
+  $("rval").step=k==="grip"?"0.1":"1";
+  if(!arr.length){$("log").innerHTML="";$("rempty").style.display="block";return;}
+  $("rempty").style.display="none";
+  const goal=GOAL[k], best=Math.max(...arr.map(x=>x.v)), u=UNIT[k];
+  $("log").innerHTML=arr.slice(-8).map(x=>
+    `<li class="${x.v===best?"best":""}"><span>${x.d}</span>
+      <span class="bar"><i style="width:${Math.min(100,x.v/goal*100)}%"></i></span>
+      <span class="v">${x.v}<small style="font-size:11px;font-weight:400;margin-left:1px">${u}</small></span></li>`).reverse().join("");
+}
+
+/* ---------- 体重 ---------- */
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const md=s=>{const p=s.split("-");return `${+p[1]}/${+p[2]}`;};
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+
+function drawWeight(){
+  const all=[...S.weights].sort((a,b)=>a.d<b.d?-1:1);
+  const box=$("wchart");
+  if(!all.length){box.innerHTML="";$("wempty").style.display="block";$("wTrend").textContent="";return;}
+  $("wempty").style.display="none";
+
+  const a=all.slice(-42);
+  const vals=a.map(x=>x.v);
+  let lo=Math.min(...vals), hi=Math.max(...vals);
+  if(hi-lo<1){const c=(hi+lo)/2;lo=c-.5;hi=c+.5;}
+  const pad=(hi-lo)*.18; lo-=pad; hi+=pad;
+  const W=300,H=70,L=30;
+  const x=i=>L+(a.length<2?(W-L)/2:i*(W-L)/(a.length-1));
+  const y=v=>H-((v-lo)/(hi-lo))*H;
+
+  const line=a.map((p,i)=>`${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
+  const area=`${L},${H} ${line} ${x(a.length-1).toFixed(1)},${H}`;
+  const dots=a.length<=14?a.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.2" fill="var(--ink)"/>`).join(""):
+    `<circle cx="${x(a.length-1).toFixed(1)}" cy="${y(a[a.length-1].v).toFixed(1)}" r="2.8" fill="var(--red)"/>`;
+
+  const last7=vals.slice(-7), prev7=vals.slice(-14,-7);
+  const m7=avg(last7), mp=avg(prev7);
+
+  box.className="wchart";
+  box.innerHTML=`
+    <svg viewBox="0 -6 ${W} ${H+22}" preserveAspectRatio="none" role="img" aria-label="体重の推移">
+      <line x1="${L}" y1="0" x2="${W}" y2="0" stroke="var(--rule)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <line x1="${L}" y1="${H}" x2="${W}" y2="${H}" stroke="var(--rule)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="${area}" fill="rgba(22,50,63,.06)"/>
+      <polyline points="${line}" fill="none" stroke="var(--ink)" stroke-width="1.6"
+        stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      ${dots}
+      <text class="axis" x="0" y="4">${hi.toFixed(1)}</text>
+      <text class="axis" x="0" y="${H+3}">${lo.toFixed(1)}</text>
+      <text class="axis" x="${L}" y="${H+15}">${md(a[0].d)}</text>
+      <text class="axis" x="${W}" y="${H+15}" text-anchor="end">${md(a[a.length-1].d)}</text>
+    </svg>
+    <div class="wmeta">
+      <span>最新 <b>${all[all.length-1].v.toFixed(1)}</b><small>kg</small></span>
+      <span>${m7!==null?`7日平均 ${m7.toFixed(1)}kg`:""}</span>
+      <span>${all.length}日ぶん</span>
+    </div>`;
+
+  if(m7!==null&&mp!==null){
+    const d=m7-mp, s=d>0?"+":"";
+    $("wTrend").textContent=`7日平均 ${s}${d.toFixed(1)}kg`;
+  }else{
+    $("wTrend").textContent=`あと${Math.max(0,14-all.length)}日で傾向が出ます`;
+  }
+}
+
+/* ---------- タイマー ---------- */
+let T=null,raf=null,ac=null;
+const fmt=s=>s>=60?`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`:`${s}秒`;
+
+function beep(hi){
+  if(!S.sound)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.frequency.value=hi?1320:760;o.type="square";
+    g.gain.setValueAtTime(.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(hi?.28:.16,ac.currentTime+.005);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.09);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.1);
+  }catch(e){}
+}
+function start(it){
+  if(!it||!it.s)return;
+  T={it,set:1,phase:"work",t0:performance.now(),beat:-1};
+  $("timer").classList.add("on");
+  beep(true);tick();
+}
+function stop(){
+  T=null;cancelAnimationFrame(raf);$("timer").classList.remove("on");
+}
+function nextPhase(){
+  const it=T.it,sets=it.sets||1;
+  if(T.phase==="work"){
+    if(T.set>=sets){beep(true);setTimeout(()=>beep(true),160);stop();return;}
+    if(it.rest){T.phase="rest";T.t0=performance.now();T.beat=-1;beep(false);return;}
+    T.set++;T.t0=performance.now();T.beat=-1;beep(true);return;
+  }
+  T.phase="work";T.set++;T.t0=performance.now();T.beat=-1;beep(true);
+}
+function tick(){
+  if(!T)return;
+  const it=T.it,dur=T.phase==="work"?it.s:it.rest,sets=it.sets||1;
+  const el=(performance.now()-T.t0)/1000, left=Math.max(0,dur-el);
+  const num=$("tNum");
+  if(T.phase==="work"&&it.tempo){
+    const b=Math.min(it.reps,Math.floor(el)+1);
+    if(b!==T.beat&&el<it.s){T.beat=b;beep(b===1||b%5===0);}
+    num.textContent=Math.max(0,b);num.classList.remove("rest");
+    $("tPhase").textContent=`${Math.ceil(left)}秒のこり`;
+    $("tHint").textContent="1秒に1回。フォームは崩さない。";
+  }else if(T.phase==="work"){
+    num.textContent=left>=60?fmt(Math.ceil(left)):Math.ceil(left);
+    num.classList.remove("rest");
+    $("tPhase").textContent=it.tempo?"":"走";
+    $("tHint").textContent=it.l;
+  }else{
+    num.textContent=left>=60?fmt(Math.ceil(left)):Math.ceil(left);
+    num.classList.add("rest");
+    $("tPhase").textContent="レスト";
+    $("tHint").textContent=it.restLabel||"休憩";
+  }
+  $("tName").textContent=it.l;
+  $("tSet").textContent=sets>1?`${T.set} / ${sets}セット`:"";
+  $("tBar").style.width=Math.min(100,el/dur*100)+"%";
+  if(el>=dur)nextPhase();
+  raf=requestAnimationFrame(tick);
+}
+
+/* ---------- イベント ---------- */
+$("weeks").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.week=+b.dataset.w;save();drawWeeks();drawDays();drawPlan();};
+$("days").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.day=+b.dataset.d;drawDays();drawPlan();};
+$("spd").oninput=e=>{const v=parseFloat(e.target.value);if(!isNaN(v)){S.speed=v;save();drawPlan();}};
+$("rtabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.rtab=b.dataset.k;drawLog();};
+$("radd").onclick=()=>{
+  const v=parseFloat($("rval").value);
+  if(isNaN(v)||v<=0){$("rval").focus();return;}
+  const val=S.rtab==="grip"?Math.round(v*10)/10:Math.round(v);
+  const n=new Date();
+  S.logs[S.rtab].push({d:`${n.getMonth()+1}/${n.getDate()}`,v:val});
+  $("rval").value="";save();drawLog();
+};
+$("wadd").onclick=()=>{
+  const v=parseFloat($("wval").value);
+  if(isNaN(v)||v<20||v>200){$("wval").focus();return;}
+  const key=iso(new Date()), val=Math.round(v*10)/10;
+  const i=S.weights.findIndex(x=>x.d===key);
+  if(i>=0)S.weights[i].v=val; else S.weights.push({d:key,v:val});
+  $("wval").value="";save();drawWeight();
+};
+$("wval").onkeydown=e=>{if(e.key==="Enter")$("wadd").click();};
+$("rval").onkeydown=e=>{if(e.key==="Enter")$("radd").click();};
+$("tStop").onclick=stop;
+$("tSkip").onclick=()=>{if(T)nextPhase();};
+$("tSound").onclick=()=>{S.sound=!S.sound;$("tSound").textContent=S.sound?"音 ON":"音 OFF";save();};
+
+function save(){store.set(KEY,{week:S.week,speed:S.speed,logs:S.logs,weights:S.weights,sound:S.sound});}
+
+/* 書き出し */
+$("expBtn").onclick=()=>{
+  const data=JSON.stringify({v:2,week:S.week,speed:S.speed,logs:S.logs,weights:S.weights},null,2);
+  const n=new Date(), pad=x=>String(x).padStart(2,"0");
+  const name=`training-${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}.json`;
+  const url=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  const a=document.createElement("a");a.href=url;a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  msg(`${name} を保存しました`);
+};
+/* 読み込み（既存の記録に追加。同じ日付・同じ回数は重複させない） */
+$("impBtn").onclick=()=>$("impFile").click();
+$("impFile").onchange=e=>{
+  const file=e.target.files&&e.target.files[0];
+  if(!file)return;
+  const fr=new FileReader();
+  fr.onload=()=>{
+    let d;
+    try{ d=JSON.parse(fr.result); }
+    catch(err){ msg("読み込めませんでした。このアプリで書き出したJSONを選んでください。",true); return; }
+    if(!d||!d.logs||!d.logs.abs||!d.logs.shuttle){
+      msg("記録が入っていないファイルです。",true); return;
+    }
+    let added=0;
+    ["abs","shuttle","grip"].forEach(k=>{
+      (d.logs[k]||[]).forEach(x=>{
+        if(typeof x.v!=="number"||!x.d)return;
+        if(S.logs[k].some(y=>y.d===x.d&&y.v===x.v))return;
+        S.logs[k].push(x);added++;
+      });
+    });
+    (d.weights||[]).forEach(x=>{
+      if(typeof x.v!=="number"||!x.d)return;
+      const i=S.weights.findIndex(y=>y.d===x.d);
+      if(i>=0){ if(S.weights[i].v!==x.v){S.weights[i].v=x.v;added++;} }
+      else {S.weights.push(x);added++;}
+    });
+    if(typeof d.speed==="number")S.speed=d.speed;
+    if(typeof d.week==="number")S.week=d.week;
+    $("spd").value=S.speed;
+    save();drawWeeks();drawDays();drawPlan();drawLog();drawWeight();
+    msg(added?`${added}件を追加しました`:"新しい記録はありませんでした");
+  };
+  fr.onerror=()=>msg("ファイルを開けませんでした。",true);
+  fr.readAsText(file);
+  e.target.value="";
+};
+let msgT=null;
+function msg(t,warn){
+  const el=$("ioMsg");el.textContent=t;el.style.color=warn?"var(--red)":"var(--ink2)";
+  clearTimeout(msgT);msgT=setTimeout(()=>{el.textContent="";},4000);
+}
+
+/* 起動 */
+(function(){
+  const d=store.get(KEY);
+  if(d){S.week=d.week??1;S.speed=d.speed??11.5;S.logs=d.logs??S.logs;S.weights=d.weights??[];S.sound=d.sound??true;}
+  ["abs","shuttle","grip"].forEach(k=>{ if(!Array.isArray(S.logs[k])) S.logs[k]=[]; });
+  if(!Array.isArray(S.weights))S.weights=[];
+  $("spd").value=S.speed;$("tSound").textContent=S.sound?"音 ON":"音 OFF";
+  drawWeeks();drawDays();drawPlan();drawLog();drawWeight();
+  if(!canSave)msg("このブラウザでは記録を保存できません。プライベートブラウジングを解除するか、書き出したJSONで管理してください。",true);
+})();
+</script>
