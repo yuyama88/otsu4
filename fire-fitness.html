@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>大阪市消防 体力試験プロジェクト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8e1cc; --surface:#f4efe0; --ink:#1f241d; --muted:#5d6253; --line:#cbc2a8;
+  --tape:#cfdf2e; --silver:#b3b9bd; --red:#b3311e; --ok:#2e6a39; --btn:#1f241d; --btnInk:#f4efe0;
+  --disp:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#191c17; --surface:#23271f; --ink:#ebe5d1; --muted:#a3a48e; --line:#3b4034;
+    --tape:#cde13a; --silver:#848b90; --red:#e5583f; --ok:#86c47f; --btn:#ebe5d1; --btnInk:#191c17;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#191c17; --surface:#23271f; --ink:#ebe5d1; --muted:#a3a48e; --line:#3b4034;
+  --tape:#cde13a; --silver:#848b90; --red:#e5583f; --ok:#86c47f; --btn:#ebe5d1; --btnInk:#191c17;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+main{max-width:560px;margin:0 auto;padding:16px 16px 110px}
+h1,h2,.num{font-family:var(--disp);font-weight:400;letter-spacing:.02em}
+h1{font-size:1.05rem;margin:0}
+h2{font-size:1.25rem;margin:28px 0 10px}
+p{margin:.4em 0}
+.muted{color:var(--muted);font-size:.9rem}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--tape);outline-offset:2px}
+
+/* header */
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:8px 0 14px;border-bottom:2px solid var(--ink)}
+.count{text-align:right;line-height:1}
+.count .num{font-size:2.6rem}
+.count small{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.phase{margin-top:10px;font-size:.92rem;color:var(--muted)}
+
+/* reflective tape gauge — the signature element */
+.gauge{margin-top:18px}
+.gauge .row{display:flex;justify-content:space-between;align-items:baseline}
+.gauge .row .num{font-size:1.9rem}
+.gauge .row .num span{font-size:1rem;color:var(--muted)}
+.track{position:relative;height:26px;background:var(--surface);border:2px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:6px}
+.fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(to bottom,var(--tape) 0 33%,var(--silver) 33% 67%,var(--tape) 67%);transition:width .6s ease}
+.tick{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.55}
+.tick b{position:absolute;top:28px;left:-10px;font-size:.7rem;font-weight:500;color:var(--muted)}
+.gmeta{display:flex;gap:16px;flex-wrap:wrap;margin-top:22px;font-size:.88rem;color:var(--muted)}
+.gmeta strong{color:var(--ink)}
+.next{display:inline-block;margin-top:6px;padding:2px 10px;border:2px solid var(--ink);border-radius:3px;font-weight:700;font-size:.9rem}
+
+/* today card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;margin-top:12px}
+.card h3{font-family:var(--disp);font-weight:400;font-size:1.35rem;margin:0 0 6px}
+.card ul{margin:8px 0 0;padding-left:1.2em}
+.card li{margin:4px 0}
+.alert{border:2px solid var(--red);background:transparent}
+.alert strong{color:var(--red)}
+.pill{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:99px;border:1px solid var(--muted);color:var(--muted);margin-right:6px}
+.pill.tape{background:var(--tape);color:#1f241d;border-color:transparent}
+.pill.red{border-color:var(--red);color:var(--red)}
+
+/* forms */
+.q{margin-top:14px}
+.q > span{display:block;font-weight:700;font-size:.92rem;margin-bottom:6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-width:44px;min-height:44px;padding:6px 12px;border:1.5px solid var(--line);background:transparent;border-radius:4px}
+.seg button[aria-pressed="true"]{background:var(--btn);color:var(--btnInk);border-color:var(--btn)}
+.rpe button{min-width:40px;padding:6px 0}
+input[type=number],input[type=date]{width:100%;min-height:44px;padding:8px 10px;border:1.5px solid var(--line);border-radius:4px;background:var(--bg)}
+.primary{width:100%;min-height:52px;margin-top:16px;border:0;border-radius:4px;background:var(--btn);color:var(--btnInk);font-weight:700;font-size:1.05rem}
+.ghost{min-height:44px;padding:8px 14px;border:1.5px solid var(--ink);border-radius:4px;background:transparent;font-weight:700}
+.result{margin-top:12px;padding:10px 12px;border-left:4px solid var(--tape);background:var(--bg);font-size:.95rem}
+
+/* schedule */
+.week{border-top:1px solid var(--line)}
+.week > button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 2px;background:none;border:0;text-align:left}
+.week.cur > button{font-weight:700}
+.week.cur > button .wk{background:var(--tape);color:#1f241d}
+.wk{font-family:var(--disp);font-size:.95rem;padding:0 6px;border-radius:3px}
+.days{padding:0 2px 12px;font-size:.92rem}
+.days div{display:grid;grid-template-columns:4.2em 1fr;gap:6px;padding:3px 0}
+.days .today{font-weight:700}
+
+/* timers & player */
+.big{font-family:var(--disp);font-size:5.2rem;line-height:1;text-align:center;margin:14px 0 4px;font-variant-numeric:tabular-nums}
+.sub{text-align:center;color:var(--muted)}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center}
+.stat div{border:1px solid var(--line);border-radius:4px;padding:8px 4px}
+.stat b{display:block;font-family:var(--disp);font-weight:400;font-size:1.5rem}
+.stat span{font-size:.78rem;color:var(--muted)}
+.beepbar{height:10px;border:1.5px solid var(--ink);border-radius:2px;margin-top:12px;overflow:hidden}
+.beepbar i{display:block;height:100%;width:0;background:var(--ink)}
+.line-note{text-align:center;font-weight:700;margin-top:10px}
+
+/* records */
+.chart{width:100%;height:auto;display:block;margin-top:6px}
+.log{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
+.log button{border:0;background:none;color:var(--muted);min-width:36px}
+.set{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.set label{font-size:.85rem;color:var(--muted)}
+
+/* tab bar */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav button{min-height:58px;border:0;background:none;font-size:.82rem;font-weight:700;color:var(--muted)}
+nav button[aria-current="page"]{color:var(--ink);box-shadow:inset 0 4px 0 var(--tape)}
+section[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <h1>大阪市消防<br>体力試験プロジェクト</h1>
+    <div class="count"><small>試験まで</small><span class="num" id="daysLeft">—</span><small style="margin:4px 0 0">日</small></div>
+  </header>
+  <p class="phase" id="phaseLine"></p>
+
+  <section id="tab-today">
+    <div class="gauge" id="gSitup"></div>
+    <div class="gauge" id="gShuttle"></div>
+    <h2>今日</h2>
+    <div id="todayBox"></div>
+  </section>
+
+  <section id="tab-plan" hidden>
+    <h2>全体スケジュール</h2>
+    <p class="muted">週をタップすると7日分のメニューが開く。4週ごとに軽い週。</p>
+    <div id="planList"></div>
+  </section>
+
+  <section id="tab-timer" hidden>
+    <h2>腹筋タイマー</h2>
+    <p class="muted">試験フォーム：腕を胸の前で組み、膝90°、足を固定。肘を太ももに当てて1回、背中は床まで戻す。</p>
+    <div class="seg" id="suDur" style="margin-top:10px">
+      <button data-d="15" aria-pressed="true">15秒</button>
+      <button data-d="20" aria-pressed="false">20秒</button>
+      <button data-d="30" aria-pressed="false">30秒 測定</button>
+    </div>
+    <div class="seg" style="margin-top:8px"><button id="metro" aria-pressed="true">1秒1回ガイド音</button></div>
+    <div class="big" id="suBig">15.0</div>
+    <p class="sub" id="suSub">スタートで3秒カウント</p>
+    <button class="primary" id="suStart">スタート</button>
+    <div id="suAfter"></div>
+  </section>
+
+  <section id="tab-shuttle" hidden>
+    <h2>シャトルラン プレイヤー</h2>
+    <p class="muted">iPhoneはマナーモード（消音）だと音が出ない。スイッチを戻して音量を上げてから使う。</p>
+    <div class="seg" id="shMode" style="margin-top:10px">
+      <button data-m="75" aria-pressed="false">75まで</button>
+      <button data-m="90" aria-pressed="false">90まで</button>
+      <button data-m="100" aria-pressed="false">100まで</button>
+      <button data-m="0" aria-pressed="true">測定モード</button>
+    </div>
+    <div class="q"><span>練習メニューの回数で止める（任意）</span>
+      <input type="number" id="shCustom" inputmode="numeric" min="5" max="150" placeholder="例：40">
+    </div>
+    <div class="big" id="shBig">0</div>
+    <p class="sub" id="shSub">回</p>
+    <div class="stat">
+      <div><b id="shLv">1</b><span>LEVEL</span></div>
+      <div><b id="shNext">—</b><span>NEXT目標</span></div>
+      <div><b id="shRemain">—</b><span>あと</span></div>
+    </div>
+    <div class="beepbar"><i id="shBar"></i></div>
+    <p class="sub" id="shBeep">次のビープまで —</p>
+    <p class="line-note">ライン到着はビープと同時</p>
+    <button class="primary" id="shStart">スタート</button>
+    <div id="shAfter"></div>
+    <p class="muted" style="margin-top:14px">音の間隔は20mシャトルランの標準的な進行（開始 時速8.5km、1分ごとに0.5km上昇）を再現した練習用。公式音源とわずかに差がある場合がある。</p>
+  </section>
+
+  <section id="tab-log" hidden>
+    <h2>腹筋 30秒 測定</h2>
+    <div id="chSitup"></div>
+    <h2>シャトルラン 測定</h2>
+    <div id="chShuttle"></div>
+    <h2>4種目の記録</h2>
+    <div id="miscBest"></div>
+    <div class="set" style="margin-top:10px">
+      <label>長座体前屈 cm<input type="number" id="mFlex" inputmode="decimal"></label>
+      <label>立ち幅とび cm<input type="number" id="mJump" inputmode="decimal"></label>
+      <label>反復横とび 回<input type="number" id="mSide" inputmode="numeric"></label>
+      <label>握力 kg（左右平均）<input type="number" id="mGrip" inputmode="decimal"></label>
+    </div>
+    <button class="primary" id="mSave">4種目を記録（入力した項目だけ）</button>
+    <h2>設定</h2>
+    <div class="set">
+      <label>試験日<input type="date" id="sExam"></label>
+      <label>開始日<input type="date" id="sStart"></label>
+      <label>腹筋 初期値<input type="number" id="sSu" inputmode="numeric"></label>
+      <label>シャトル 初期値<input type="number" id="sSh" inputmode="numeric"></label>
+    </div>
+    <button class="primary" id="saveSet">設定を保存</button>
+    <p class="muted" id="adjLine" style="margin-top:12px"></p>
+    <h2>記録一覧</h2>
+    <div id="logList"></div>
+    <h2>バックアップ</h2>
+    <p class="muted">機種変更やブラウザのデータ削除に備えて、ときどきコピーしてメモ帳などに保存しておく。</p>
+    <button class="ghost" id="bkCopy">バックアップをコピー</button>
+    <textarea id="bkText" rows="4" style="width:100%;margin-top:10px;padding:8px;border:1.5px solid var(--line);border-radius:4px;background:var(--bg);font:inherit;font-size:.8rem" placeholder="復元するときは、ここにバックアップを貼り付ける"></textarea>
+    <button class="ghost" id="bkLoad" style="margin-top:8px">貼り付けたデータで復元</button>
+    <p class="muted" id="bkMsg"></p>
+    <button class="ghost" id="resetAll" style="margin-top:20px">すべての記録を消去</button>
+  </section>
+</main>
+
+<nav><div>
+  <button data-tab="today" aria-current="page">今日</button>
+  <button data-tab="plan">予定</button>
+  <button data-tab="timer">腹筋</button>
+  <button data-tab="shuttle">シャトル</button>
+  <button data-tab="log">記録</button>
+</div></nav>
+
+<script>
+(function(){
+const KEY='osaka-fire-fit-v1';
+const PH=['','基礎期','強化期','特化期','100突破期','仕上げ期'];
+const MS_SH=[75,90,100], MS_SU=[24,27,30];
+const LAPS=[7,8,8,9,9,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16];
+const DOW=['日','月','火','水','木','金','土'];
+
+/* ---------- dates ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const todayS=()=>iso(new Date());
+const mondayOf=s=>{const d=parse(s);const k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return iso(d)};
+const md=s=>{const d=parse(s);return (d.getMonth()+1)+'/'+d.getDate()};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------- state ---------- */
+function defState(){return{v:1,settings:{exam:'2027-07-22',start:mondayOf(todayS()),initSitup:21,initShuttle:60},
+  logs:[],adj:{run:0,situp:0},streak:{run:{good:0,bad:0},situp:{good:0,bad:0}},stopHigh:false,updatedAt:0}}
+let state=defState();
+try{const raw=localStorage.getItem(KEY);if(raw){const s=JSON.parse(raw);if(s&&s.settings)state=Object.assign(defState(),s)}}catch(e){}
+let docRef=null;
+function save(){
+  state.updatedAt=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
+  if(docRef){docRef.set({state:JSON.parse(JSON.stringify(state))}).catch(()=>{})}
+}
+async function initRemote(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+    if(!db||!user)return;
+    const uid=await user.id(); if(!uid)return;
+    docRef=db.doc('data/users/'+uid+'/profile');
+    const snap=await docRef.get();
+    if(snap.exists){const r=snap.data();
+      if(r&&r.state&&(r.state.updatedAt||0)>(state.updatedAt||0)){state=Object.assign(defState(),r.state);try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}renderAll()}
+      else if((state.updatedAt||0)>((r&&r.state&&r.state.updatedAt)||0)){save()}
+    }else if(state.updatedAt){save()}
+  }catch(e){docRef=null}
+}
+const S=()=>state.settings;
+
+/* ---------- plan engine ---------- */
+const totalWeeks=()=>Math.max(8,Math.ceil(diff(S().start,S().exam)/7));
+const weekOf=s=>Math.max(1,Math.floor(diff(S().start,s)/7)+1);
+function bounds(){const k=totalWeeks()/40;return [8,16,28,36].map(x=>Math.max(1,Math.round(x*k)))}
+function phaseOf(w){const b=bounds();return w<=b[0]?1:w<=b[1]?2:w<=b[2]?3:w<=b[3]?4:5}
+function phaseFrac(w){const b=[0,...bounds(),totalWeeks()],p=phaseOf(w);const s=b[p-1]+1,e=b[p];return e>s?(w-s)/(e-s):1}
+const isDeload=w=>w%4===0&&phaseOf(w)<5;
+function isShuttleTestWeek(w){
+  const b=bounds(),p=phaseOf(w),T=totalWeeks();
+  if(w>=T)return false;
+  if(p===1)return w%4===0;
+  if(p===2)return (w-b[0])%3===0;
+  if(p===3)return (w-b[1])%2===0;
+  if(p===4)return (w-b[2])%2===0;
+  return w===T-2;
+}
+function eligible(){
+  const hi=state.logs.filter(l=>l.kind==='shuttleTest'&&l.value>=90).length>=2;
+  const t=todayS();
+  const pain=state.logs.some(l=>l.pain&&diff(l.date,t)<=14&&diff(l.date,t)>=0);
+  return{ok:hi&&!pain,hi,pain};
+}
+
+function masFrom(laps){let cum=0,l=1;while(l<60){cum+=lapsIn(l);if(laps<=cum)break;l++}return 8.5+.5*(l-1)}
+function speeds(){
+  const t=tests('shuttleTest'),laps=t.length?t[t.length-1].value:S().initShuttle,mas=masFrom(laps),a=state.adj.run*.2;
+  const r=(x,y)=>'時速'+x.toFixed(1)+'〜'+y.toFixed(1)+'km';
+  return{laps,mas,easy:r(mas*.68,mas*.75),walk:'時速5〜6km',rec:'時速6〜7km',
+    f1:r(mas*.95+a,mas+a),f2:r(mas*.9+a,mas*.95+a),f3:r(mas*.87+a,mas*.92+a),warm:r(mas*.62,mas*.68)};
+}
+function legs(w,p,dl){
+  const s=dl?2:3;
+  if(p===5)return ['ランジ 左右8回 × 2','カーフレイズ15回 × 2'];
+  if(w<=2)return ['スクワット15回 × 2','カーフレイズ（両脚）15回 × 2'];
+  if(p===1)return ['ランジ 左右10回 × '+(dl?1:2),'カーフレイズ（両脚）15回 × '+s];
+  const r=p===2?8:p===3?10:12;
+  return ['ブルガリアンスクワット 左右'+r+'回 × '+s,'片脚カーフレイズ 左右12回 × '+s];
+}
+function menuFor(ds){
+  const w=weekOf(ds),p=phaseOf(w),dl=isDeload(w),dow=parse(ds).getDay(),fr=phaseFrac(w);
+  const toExam=diff(ds,S().exam),A=state.adj;
+  const m={date:ds,w,p,dl,track:'rest',high:false,title:'',items:[],test:null,rpe:''};const V=speeds();
+  if(toExam<0){m.title='試験終了';m.items=['おつかれさま。'];return m}
+  if(toExam===0){m.title='本番';m.items=['アップ：ジョグ5分＋動的ストレッチ','腹筋は1秒1回のテンポ','シャトルは音と同時にライン']; return m}
+  if(toExam===1){m.title='完全休養';m.items=['よく寝る。受験票・持ち物・会場を確認'];return m}
+  if(toExam<=7){
+    if(dow===1||dow===3||dow===5){m.track='run';m.title='調整ラン';m.rpe='4〜5';
+      m.items=['ジョグ15〜20分（'+V.easy+'）','音源に合わせて20m×10往復（楽に）'];if(dow===3)m.items.push('腹筋 15秒×2（本番テンポ確認）','反復横とび 20秒×1・立ち幅とび2本（軽く）');return m}
+    m.title='休養';m.items=['ウォーキング程度でOK'];return m;
+  }
+  if(dow===1){ // interval
+    m.track='run';
+    if(w<=2){m.title='ジョグ';m.rpe='4〜5';m.items=[(w===1?'ジョグ20〜25分':'ジョグ25分')+'（'+V.easy+'・会話できるペース）']}
+    else{
+      let a,r,n;const b=bounds();
+      if(p===1){a='1分速め（'+V.f1+'）';r='2分ゆっくり（'+V.rec+'）';n=5+(w>=6?1:0)}
+      else if(p===2){const early=w<=b[0]+4;a=early?'2分速め（'+V.f2+'）':'3分速め（'+V.f3+'）';r=(early?'2分':'3分')+'ゆっくり（'+V.rec+'）';n=early?5:4}
+      else if(p===5){a='3分速め（'+V.f3+'）';r='3分ゆっくり（'+V.rec+'）';n=3}
+      else{a='3分速め（'+V.f3+'）';r='2〜3分ゆっくり（'+V.rec+'）';n=p===4?5:4}
+      n=clamp(n+A.run,3,8);if(dl)n=Math.max(2,Math.round(n*.6));
+      m.title='インターバル';m.high=true;m.rpe='7';
+      m.items=['アップ：ジョグ10分（'+V.warm+'）',a+'＋'+r+' × '+n+'本','ダウン：ジョグ5分'];
+    }
+  }else if(dow===2){ // situp A
+    m.track='situp';m.title='腹筋A スピード';m.rpe='6〜7';
+    let t=p===1?11+(fr>.5?1:0):p===2?13:p===3?14+(fr>.5?1:0):15;t=clamp(t+A.situp,8,17);
+    const test=w%2===0;
+    if(test){m.test='situp';m.items=['アップ：ジョグ5分＋体幹ストレッチ','【測定】30秒上体起こし ×1（試験フォーム・腹筋タブの30秒）','15秒 × 3（目標'+t+'回/セット、休憩60秒）']}
+    else m.items=['アップ：体幹ストレッチ5分','15秒 × '+(dl?3:5)+'（目標'+t+'回/セット、休憩60秒）'];
+    m.items.push('プランク'+(p===1?30:45)+'秒 × 3');
+    if(p>=2&&p<5)m.items.push('カーフレイズ（両脚）20回 × 2');
+    m.items.push('握力：ハンドグリップ 左右15回 × 2（またはぶら下がり20秒 × 2）');
+    if(test&&w%4===2){m.video=true;m.items.push('【フォーム動画】30秒測定を横から撮影 → 背中が床まで戻っているか／肘が太ももに当たっているかを確認')}
+  }else if(dow===4){ // shuttle specific
+    m.track='run';
+    if(w===1){m.title='ウォーク＋ジョグ';m.rpe='4〜5';m.items=['ジョグ3分（'+V.easy+'）→ウォーク1分（'+V.walk+'）を繰り返して25分']}
+    else if(w<=3){m.title='切り返し慣らし';m.rpe='4〜5';
+      m.items=['ジョグ20分（'+V.easy+'）',w===2?'20mゆっくり往復 5本 × 2（全力禁止）':'20mゆっくり10往復 × 2＋折り返しフォーム練習','反復横とび ゆっくりフォーム練習 20秒 × 2','膝・すね・アキレス腱に痛みが出たら即中止']}
+    else{
+      let cap,sets=2,extra='';
+      if(p===1)cap=40+(w-4)*2;
+      else if(p===2)cap=50+Math.round(fr*15);
+      else if(p===3){cap=70+Math.round(fr*15);sets=1;extra='＋「40回まで」× 1'}
+      else if(p===4){cap=90;sets=1;extra='＋「30回まで」× 1'}
+      else cap=60;
+      cap=clamp(cap+A.run*5,30,95);if(dl){sets=1;cap-=10;extra=''}
+      m.title='シャトル特化';m.high=true;m.rpe='7〜8';m.cap=cap;
+      m.items=['アップ：ジョグ10分（'+V.warm+'）','反復横とび 20秒 × '+(dl?2:3)+'（休憩60秒。重心は真ん中、足だけ線を越える）','シャトル音源「'+cap+'回まで」× '+sets+'（休憩3〜4分）'+extra,'早着き・オーバーランしない。片足でラインを踏んで折り返す'];
+    }
+  }else if(dow===5){ // situp B
+    m.track='situp';m.rpe='6〜7';
+    if(p===1){const reps=w===1?15:Math.min(20,15+Math.floor((w-1)/2));m.title='腹筋フォーム＋脚';
+      m.items=['試験フォームで'+reps+'回 × 3（ゆっくり正確に）','サイドプランク'+(w===1?20:30)+'秒 × 左右2'].concat(legs(w,p,dl))}
+    else{let t=p===2?16+(fr>.5?1:0):p===3?18+Math.round(fr*2):20;t=clamp(t+A.situp,10,22);
+      m.title='腹筋B 失速対策＋脚';m.items=['20秒 × '+(dl?2:3)+'（目標'+t+'回/セット、休憩90秒）','デッドバグ10回 × 2'].concat(legs(w,p,dl))}
+    if(w>=3&&p<5)m.items.push(dl?'立ち幅とび 3本（腕振り＋両足踏切）':'立ち幅とび 5本（腕振り＋両足踏切、最後の1本だけ全力）');
+    if(p<5)m.items.push('握力：ハンドグリップ 左右15回 × 2（またはぶら下がり20秒 × 2）');
+    if(w%4===3){m.check=true;m.items.push('【4種目チェック】立ち幅とび・反復横とび（20秒）・長座体前屈・握力を測る → 記録タブへ')}
+  }else if(dow===6){ // test or easy
+    m.track='run';
+    if(isShuttleTestWeek(w)){
+      m.test='shuttle';m.high=true;m.rpe='9〜10';
+      const base=['アップ：ジョグ10分（'+V.warm+'）＋20m流し×3'];
+      if(p>=4){const e=eligible();
+        if(e.ok){m.title='100回チャレンジ';m.items=base.concat(['【測定】シャトル 測定モードで100回以上を狙う','ダウン：ジョグ5分'])}
+        else{m.title='シャトル測定（100回挑戦は延期）';m.postponed=true;
+          m.items=base.concat(['【測定】シャトル 測定モード（90回前後が目標）','延期理由：'+[!e.hi?'90回以上の記録がまだ2回未満':'',e.pain?'直近2週間に痛みの記録あり':''].filter(Boolean).join('／'),'ダウン：ジョグ5分'])}
+      }else{m.title='シャトル測定';m.items=base.concat(['【測定】シャトル 測定モード（限界まで）','ふくらはぎ・アキレス腱に違和感が出たら回数に関係なく終了','ダウン：ジョグ5分'])}
+    }else{
+      let mins=p===1?30+Math.floor(fr*5):p===2?35+Math.round(fr*5):p===5?30:40+Math.round(fr*5);
+      if(dl)mins=Math.round(mins*.7);
+      m.title='イージーラン';m.rpe='5〜6';m.items=['ジョグ'+mins+'分（'+V.easy+'・楽〜ややきつい）'];
+    }
+  }else if(dow===3){m.title='休養';m.items=['ウォーキング20分はOK']}
+  else{m.title='完全休養';m.items=['何もしない日。よく寝る']}
+  if(state.stopHigh&&m.high){m.replaced=m.title;m.title='痛み対応：高強度は中止';m.test=null;
+    m.items=['ウォーキング20〜30分、または休養','痛みが続く・腫れがある場合は整形外科を受診'];m.rpe='3〜4'}
+  if(dow!==0)m.items.push('柔軟（長座体前屈）8分：ハム・お尻・ふくらはぎ 各30秒×2、最後に長座で前屈30秒');
+  return m;
+}
+
+/* ---------- stats ---------- */
+function tests(kind){return state.logs.filter(l=>l.kind===kind&&typeof l.value==='number').sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts)}
+function suStats(){const t=tests('situpTest');const last3=t.slice(-3);
+  const avg=last3.length?last3.reduce((s,l)=>s+l.value,0)/last3.length:S().initSitup;
+  const best=t.length?Math.max(...t.map(l=>l.value)):S().initSitup;
+  const done=last3.filter(l=>l.value>=30).length>=2;
+  return{avg,best,n:t.length,done,list:t}}
+function shStats(){const t=tests('shuttleTest');const cur=t.length?t[t.length-1].value:S().initShuttle;
+  const best=t.length?Math.max(...t.map(l=>l.value)):S().initShuttle;return{cur,best,list:t}}
+const nextOf=(v,ms)=>ms.find(x=>x>v);
+
+/* ---------- render: today ---------- */
+function gauge(el,label,cur,goal,max,ms,meta,nextTxt){
+  const pct=clamp(cur/max*100,0,100);
+  el.innerHTML='<div class="row"><strong>'+label+'</strong><span class="num">'+(Math.round(cur*10)/10)+' <span>/ '+goal+'</span></span></div>'+
+   '<div class="track" role="img" aria-label="'+label+' '+cur+' / '+goal+'"><div class="fill" style="width:'+pct+'%"></div>'+
+   ms.map(x=>'<div class="tick" style="left:'+(x/max*100)+'%"></div>').join('')+'</div>'+
+   '<div class="gmeta">'+meta+'</div>'+(nextTxt?'<span class="next">'+nextTxt+'</span>':'');
+}
+function renderHeader(){
+  const t=todayS(),left=diff(t,S().exam);
+  document.getElementById('daysLeft').textContent=left>=0?left:'—';
+  const w=weekOf(t);
+  document.getElementById('phaseLine').textContent='Week '+w+' / '+totalWeeks()+'　'+PH[phaseOf(w)]+(isDeload(w)?'（軽い週）':'');
+}
+let form={done:null,rpe:null,pain:null,value:''};
+function renderToday(){
+  const su=suStats(),sh=shStats();
+  const nsu=nextOf(Math.floor(su.avg),MS_SU),nsh=nextOf(sh.cur,MS_SH);
+  gauge(document.getElementById('gSitup'),'腹筋 30秒',su.avg,30,34,MS_SU,
+    '<span>BEST <strong>'+su.best+'</strong></span><span>直近3回平均 <strong>'+(su.n?su.avg.toFixed(1):'—')+'</strong></span>',
+    su.done?'30回以上を安定再現 ✓':'NEXT '+(nsu||30));
+  gauge(document.getElementById('gShuttle'),'シャトルラン',sh.cur,100,110,MS_SH,
+    '<span>BEST <strong>'+sh.best+'</strong></span><span>最新 <strong>'+sh.cur+'</strong></span><span>90回以上 <strong>'+Math.min(2,sh.list.filter(l=>l.value>=90).length)+'/2</strong>'+(sh.list.filter(l=>l.value>=90).length>=2?'（100挑戦 解禁条件の回数クリア）':'')+'</span>',
+    nsh?'NEXT '+nsh:'100超え ✓');
+  const t=todayS(),m=menuFor(t),box=document.getElementById('todayBox');
+  let h='';
+  if(state.stopHigh)h+='<div class="card alert"><strong>痛みの記録あり</strong><p>次の高強度メニューは自動で軽い内容に差し替え。痛みが完全に引いたら再開。</p><button class="ghost" id="clearPain">痛みが引いた → 再開</button></div>';
+  h+='<div class="card"><div>'+'<span class="pill">'+DOW[parse(t).getDay()]+'曜</span>'+(m.test?'<span class="pill tape">測定日</span>':'')+(m.dl?'<span class="pill">軽い週</span>':'')+(m.postponed?'<span class="pill red">100回延期</span>':'')+'</div>'+
+    '<h3>'+m.title+'</h3><ul>'+m.items.map(x=>'<li>'+x+'</li>').join('')+'</ul>'+(m.rpe?'<p class="muted">今日の目標きつさ：RPE '+m.rpe+'</p>':'')+(m.track==='run'?(function(){const V=speeds();return '<p class="muted">速度の基準：シャトル'+V.laps+'回 → 最大有酸素スピード 時速'+V.mas.toFixed(1)+'km'+(state.adj.run?'（自動調整 '+(state.adj.run>0?'+':'')+(state.adj.run*.2).toFixed(1)+'km）':'')+'。ルームランナーは傾斜1%。RPEが9を超えたら0.5km落としてOK。</p>'})():'');
+  if(m.cap)h+='<button class="ghost" id="goCap" style="margin-top:8px">シャトル「'+m.cap+'回まで」を開く</button>';
+  if(m.test==='situp')h+=' <button class="ghost" id="goSu" style="margin-top:8px">30秒タイマーを開く</button>';
+  if(m.test==='shuttle')h+='<button class="ghost" id="goSh" style="margin-top:8px">測定モードを開く</button>';
+  if(m.check)h+=' <button class="ghost" id="goMisc" style="margin-top:8px">4種目を記録する</button>';
+  h+='</div>';
+  const logged=state.logs.find(l=>l.date===t&&l.session);
+  if(m.track!=='rest'){
+    if(logged){h+='<div class="card"><strong>今日の記録は保存済み</strong><p class="muted">完遂 '+(logged.done?'はい':'いいえ')+' ／ RPE '+(logged.rpe??'—')+' ／ 痛み '+(logged.pain?'あり':'なし')+(logged.value!=null?' ／ '+logged.value+'回':'')+'</p>'+(logged.msg?'<div class="result">'+logged.msg+'</div>':'')+'</div>'}
+    else{
+      h+='<div class="card"><strong>終わったら3問だけ</strong>'+
+      '<div class="q"><span>① メニューを完遂できた？</span><div class="seg" data-f="done"><button data-v="1">はい</button><button data-v="0">いいえ</button></div></div>'+
+      '<div class="q"><span>② きつさ（RPE 1〜10）</span><div class="seg rpe" data-f="rpe">'+[1,2,3,4,5,6,7,8,9,10].map(i=>'<button data-v="'+i+'">'+i+'</button>').join('')+'</div></div>'+
+      '<div class="q"><span>③ 関節・腱の痛み（筋肉痛は除く）</span><div class="seg" data-f="pain"><button data-v="0">なし</button><button data-v="1">あり</button></div></div>'+
+      (m.test?'<div class="q"><span>測定の回数'+(m.test==='situp'?'（30秒）':'（シャトル）')+'</span><input type="number" id="fVal" inputmode="numeric" placeholder="タイマー・プレイヤーで保存済みなら空欄でOK" value="'+form.value+'"></div>':'')+
+      '<button class="primary" id="fSave">記録する</button><p class="muted" id="fErr"></p></div>';
+    }
+  }
+  h+=weekSummary(t);
+  box.innerHTML=h;
+  box.querySelectorAll('.seg[data-f]').forEach(seg=>{const f=seg.dataset.f;
+    seg.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',String(form[f]!==null&&String(form[f])===b.dataset.v));
+      b.onclick=()=>{form[f]=Number(b.dataset.v);renderToday()}})});
+  const fv=document.getElementById('fVal');if(fv)fv.oninput=()=>{form.value=fv.value};
+  const fs=document.getElementById('fSave');if(fs)fs.onclick=()=>submit(m);
+  const cp=document.getElementById('clearPain');if(cp)cp.onclick=()=>{state.stopHigh=false;save();renderAll()};
+  const gc=document.getElementById('goCap');if(gc)gc.onclick=()=>{document.getElementById('shCustom').value=m.cap;setMode(0,true);showTab('shuttle')};
+  const gs=document.getElementById('goSu');if(gs)gs.onclick=()=>{setDur(30);showTab('timer')};
+  const gm=document.getElementById('goMisc');if(gm)gm.onclick=()=>{showTab('log');document.getElementById('miscBest').scrollIntoView()};
+  const gh=document.getElementById('goSh');if(gh)gh.onclick=()=>{document.getElementById('shCustom').value='';setMode(0);showTab('shuttle')};
+}
+function weekSummary(t){
+  const w=weekOf(t);if(w<2)return '';
+  const ws=addDays(S().start,(w-2)*7),we=addDays(ws,6);
+  const L=state.logs.filter(l=>l.session&&l.date>=ws&&l.date<=we);
+  let plan=0;for(let i=0;i<7;i++){if(menuFor(addDays(ws,i)).track!=='rest')plan++}
+  const done=L.filter(l=>l.done).length,rp=L.filter(l=>l.rpe!=null),avg=rp.length?(rp.reduce((a,l)=>a+l.rpe,0)/rp.length).toFixed(1):'—',pain=L.some(l=>l.pain);
+  let v;
+  if(pain)v='痛みの記録あり → 高強度は様子見';
+  else if(plan&&done>=plan&&rp.length&&avg<=7.5)v='全メニュー完遂 → 今週の負荷で順調';
+  else if(plan&&done<plan-1)v='未実施・未完遂が多い → 今週は量より継続を優先';
+  else v='おおむね計画どおり';
+  return '<div class="card"><strong>先週（W'+(w-1)+'）の振り返り</strong><p class="muted">完遂 '+done+'/'+plan+' ／ 平均RPE '+avg+' ／ 痛み '+(pain?'あり':'なし')+'</p><div class="result">'+v+'</div></div>';
+}
+function submit(m){
+  const err=document.getElementById('fErr');
+  if(form.done===null||form.rpe===null||form.pain===null){err.textContent='3問すべて選んでから記録する';return}
+  const done=form.done===1,rpe=form.rpe,pain=form.pain===1,tr=m.track;
+  let val=form.value===''?null:Number(form.value);
+  const e={date:m.date,ts:Date.now(),session:true,title:m.title,track:tr,done,rpe,pain,value:null,kind:null};
+  if(m.test&&val!=null&&!isNaN(val)){e.value=val;e.kind=m.test==='situp'?'situpTest':'shuttleTest'}
+  let msg='';
+  if(pain){state.stopHigh=true;state.streak[tr]={good:0,bad:0};msg='痛みあり：次の高強度メニューを停止。'}
+  else{
+    if(m.replaced)state.stopHigh=false;
+    if(!m.test&&!m.replaced){const s=state.streak[tr];
+      if(done&&rpe<=7){s.good++;s.bad=0;if(s.good>=2){state.adj[tr]=clamp(state.adj[tr]+1,-2,3);s.good=0;msg='完遂＋RPE7以下が2回連続 → 1段階UP。'}else msg='順調。もう1回同じ手応えなら1段階UP。'}
+      else if(done&&rpe===8){s.good=0;s.bad=0;msg='RPE8 → 次回も同じ段階で維持。'}
+      else{s.bad++;s.good=0;if(s.bad>=2){state.adj[tr]=clamp(state.adj[tr]-1,-2,3);s.bad=0;msg='きつい日が2回続いた → 1段階DOWN。'}else msg='次回も同じ段階でもう一度。'}
+    }else msg='記録した。';
+  }
+  e.msg=msg;state.logs.push(e);form={done:null,rpe:null,pain:null,value:''};save();renderAll();
+}
+
+/* ---------- render: plan ---------- */
+let openWeek=null;
+function renderPlan(){
+  const T=totalWeeks(),t=todayS(),cw=weekOf(t);if(openWeek===null)openWeek=cw;
+  let h='';
+  for(let w=1;w<=T;w++){
+    const ws=addDays(S().start,(w-1)*7);if(diff(ws,S().exam)<0)break;
+    const tags=[PH[phaseOf(w)]];if(isDeload(w))tags.push('軽い週');if(isShuttleTestWeek(w))tags.push(phaseOf(w)>=4?'シャトル測定/100挑戦':'シャトル測定');if(w%2===0)tags.push('腹筋測定');
+    h+='<div class="week'+(w===cw?' cur':'')+'"><button data-w="'+w+'" aria-expanded="'+(openWeek===w)+'"><span><span class="wk">W'+w+'</span> '+md(ws)+'〜</span><span class="muted">'+tags.join('・')+'</span></button>';
+    if(openWeek===w){h+='<div class="days">';for(let i=0;i<7;i++){const ds=addDays(ws,i);if(diff(ds,S().exam)<0)break;const m=menuFor(ds);
+      h+='<div class="'+(ds===t?'today':'')+'"><span>'+md(ds)+'('+DOW[parse(ds).getDay()]+')</span><span>'+m.title+(m.items[1]&&m.track!=='rest'?'：'+m.items.filter(x=>!/^アップ|^ダウン/.test(x))[0]:'')+'</span></div>'}
+      h+='</div>'}
+    h+='</div>';
+  }
+  const el=document.getElementById('planList');el.innerHTML=h;
+  el.querySelectorAll('.week > button').forEach(b=>b.onclick=()=>{const w=Number(b.dataset.w);openWeek=openWeek===w?-1:w;renderPlan()});
+}
+
+/* ---------- records ---------- */
+function chart(list,goal,max){
+  if(!list.length)return '<p class="muted">まだ測定記録がない。</p>';
+  const W=320,H=140,px=24,py=14,n=list.length;const lo=Math.min(...list.map(l=>l.value),goal)*0.85;const hi=Math.max(max,...list.map(l=>l.value));
+  const x=i=>n===1?W/2:px+i*(W-2*px)/(n-1),y=v=>H-py-(v-lo)/(hi-lo)*(H-2*py);
+  const pts=list.map((l,i)=>x(i)+','+y(l.value)).join(' ');
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="測定推移"><line x1="0" x2="'+W+'" y1="'+y(goal)+'" y2="'+y(goal)+'" stroke="currentColor" stroke-dasharray="4 4" opacity=".5"/>'+
+    '<text x="'+(W-2)+'" y="'+(y(goal)-4)+'" text-anchor="end" font-size="10" fill="currentColor" opacity=".7">目標 '+goal+'</text>'+
+    '<polyline points="'+pts+'" fill="none" stroke="currentColor" stroke-width="2.5"/>'+
+    list.map((l,i)=>'<circle cx="'+x(i)+'" cy="'+y(l.value)+'" r="4" fill="var(--tape)" stroke="currentColor" stroke-width="1.5"/><text x="'+x(i)+'" y="'+(y(l.value)-8)+'" text-anchor="middle" font-size="10" fill="currentColor">'+l.value+'</text>').join('')+'</svg>';
+}
+const MISC=[['flex','長座体前屈','cm'],['jump','立ち幅とび','cm'],['side','反復横とび','回'],['grip','握力','kg']];
+function renderMisc(){
+  const L=state.logs.filter(l=>l.kind==='misc').sort((a,b)=>a.date<b.date?-1:1);
+  document.getElementById('miscBest').innerHTML='<div class="stat" style="grid-template-columns:repeat(2,1fr)">'+MISC.map(([k,n,u])=>{
+    const v=L.filter(l=>l.m&&l.m[k]!=null).map(l=>l.m[k]);
+    return '<div><b>'+(v.length?v[v.length-1]:'—')+'</b><span>'+n+'（'+u+'）'+(v.length>1?'　初回 '+v[0]:'')+'</span></div>'}).join('')+'</div>';
+}
+document.getElementById('mSave').onclick=()=>{
+  const ids={flex:'mFlex',jump:'mJump',side:'mSide',grip:'mGrip'},m={};
+  for(const k in ids){const v=document.getElementById(ids[k]).value;if(v!==''&&!isNaN(Number(v)))m[k]=Number(v)}
+  if(!Object.keys(m).length)return;
+  state.logs.push({date:todayS(),ts:Date.now(),title:'4種目チェック',kind:'misc',m,value:null});save();
+  for(const k in ids)document.getElementById(ids[k]).value='';renderAll();
+};
+function renderLog(){
+  renderMisc();
+  document.getElementById('chSitup').innerHTML=chart(tests('situpTest'),30,32);
+  document.getElementById('chShuttle').innerHTML=chart(tests('shuttleTest'),100,100);
+  document.getElementById('sExam').value=S().exam;document.getElementById('sStart').value=S().start;
+  document.getElementById('sSu').value=S().initSitup;document.getElementById('sSh').value=S().initShuttle;
+  const f=v=>v>0?'+'+v:String(v);
+  document.getElementById('adjLine').textContent='自動調整の現在値：ラン '+f(state.adj.run)+' ／ 腹筋 '+f(state.adj.situp);
+  const L=state.logs.map((l,i)=>({l,i})).sort((a,b)=>a.l.date<b.l.date?1:a.l.date>b.l.date?-1:b.l.ts-a.l.ts);
+  document.getElementById('logList').innerHTML=L.length?L.map(({l,i})=>'<div class="log"><span>'+md(l.date)+'　'+l.title+(l.value!=null?'　<strong>'+l.value+'回</strong>':'')+(l.m?'　'+MISC.filter(([k])=>l.m[k]!=null).map(([k,n,u])=>n+' '+l.m[k]+u).join('・'):'')+(l.session?'<br><span class="muted">RPE '+(l.rpe??'—')+'・'+(l.done?'完遂':'未完遂')+(l.pain?'・痛み':'')+'</span>':'')+'</span><button data-i="'+i+'" aria-label="削除">×</button></div>').join(''):'<p class="muted">記録はまだない。</p>';
+  document.querySelectorAll('#logList button').forEach(b=>b.onclick=()=>{if(confirm('この記録を削除する？')){state.logs.splice(Number(b.dataset.i),1);save();renderAll()}});
+}
+document.getElementById('saveSet').onclick=()=>{
+  const ex=document.getElementById('sExam').value,st=document.getElementById('sStart').value;
+  const su=Number(document.getElementById('sSu').value),sh=Number(document.getElementById('sSh').value);
+  if(ex&&st&&diff(st,ex)>=28){S().exam=ex;S().start=st}else if(ex&&st){alert('試験日は開始日から4週間以上あとにしてください');return}
+  if(su>0)S().initSitup=su;if(sh>0)S().initShuttle=sh;openWeek=null;save();renderAll();alert('保存した');
+};
+document.getElementById('bkCopy').onclick=async()=>{
+  const txt=JSON.stringify(state),ta=document.getElementById('bkText'),msg=document.getElementById('bkMsg');
+  try{await navigator.clipboard.writeText(txt);msg.textContent='コピーした。メモ帳などに貼って保存してね。'}
+  catch(e){ta.value=txt;ta.select();msg.textContent='下の欄を全選択してコピーしてね。'}
+};
+document.getElementById('bkLoad').onclick=()=>{
+  const msg=document.getElementById('bkMsg');
+  try{const d=JSON.parse(document.getElementById('bkText').value);
+    if(!d||!d.settings||!Array.isArray(d.logs))throw 0;
+    if(!confirm('今の記録をバックアップの内容で上書きする？'))return;
+    state=Object.assign(defState(),d);save();renderAll();msg.textContent='復元した。記録 '+state.logs.length+'件';
+  }catch(e){msg.textContent='読み込めなかった。コピーした文字をそのまま全部貼り付けてね。'}
+};
+document.getElementById('resetAll').onclick=()=>{if(confirm('記録と設定をすべて消去する？元に戻せません')){state=defState();save();renderAll()}};
+
+/* ---------- audio ---------- */
+let ac=null;
+function ensureAC(){if(!ac){const C=window.AudioContext||window.webkitAudioContext;if(C)ac=new C()}if(ac&&ac.state==='suspended')ac.resume()}
+function tone(f,dur,when,vol){if(!ac)return;const t=ac.currentTime+(when||0);const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;
+  g.gain.setValueAtTime(vol||.22,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur+.03)}
+let wake=null;async function lockScreen(on){try{if(on&&navigator.wakeLock)wake=await navigator.wakeLock.request('screen');else if(wake){await wake.release();wake=null}}catch(e){}}
+
+/* ---------- situp timer ---------- */
+let suDur=15,suRun=null,metro=true,lastSu=null;
+function setDur(d){suDur=d;document.querySelectorAll('#suDur button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.d)===d)));if(!suRun){document.getElementById('suBig').textContent=d.toFixed(1);document.getElementById('suAfter').innerHTML=''}}
+document.querySelectorAll('#suDur button').forEach(b=>b.onclick=()=>setDur(Number(b.dataset.d)));
+document.getElementById('metro').onclick=e=>{metro=!metro;e.target.setAttribute('aria-pressed',String(metro))};
+document.getElementById('suStart').onclick=()=>{
+  if(suRun){cancelAnimationFrame(suRun.raf);suRun=null;document.getElementById('suStart').textContent='スタート';document.getElementById('suSub').textContent='中止した';setDur(suDur);lockScreen(false);return}
+  ensureAC();lockScreen(true);
+  const t0=performance.now()+3000;suRun={t0,lastSec:-4};
+  for(let i=0;i<3;i++)tone(660,.12,i);tone(1100,.3,3);
+  document.getElementById('suStart').textContent='中止';document.getElementById('suAfter').innerHTML='';
+  const big=document.getElementById('suBig'),sub=document.getElementById('suSub');
+  const loop=()=>{if(!suRun)return;const now=performance.now();
+    if(now<t0){big.textContent=Math.ceil((t0-now)/1000);sub.textContent='構えて';suRun.raf=requestAnimationFrame(loop);return}
+    const el=(now-t0)/1000,rem=suDur-el;
+    if(rem<=0){big.textContent='0.0';sub.textContent='終了';tone(880,.7,0,.25);suRun=null;lockScreen(false);document.getElementById('suStart').textContent='スタート';afterSu();return}
+    const sec=Math.floor(el);if(metro&&sec>suRun.lastSec&&sec>0){tone(1400,.04,0,.12)}suRun.lastSec=sec;
+    big.textContent=rem.toFixed(1);sub.textContent='1秒1回のテンポ';suRun.raf=requestAnimationFrame(loop)};
+  suRun.raf=requestAnimationFrame(loop);
+};
+function afterSu(){
+  const box=document.getElementById('suAfter');
+  box.innerHTML='<div class="q"><span>何回できた？</span><input type="number" id="suCnt" inputmode="numeric"></div>'+
+   (suDur===30?'<button class="primary" id="suSave">30秒測定として記録</button>':'<p class="muted">15秒・20秒は練習なので記録不要。今日の目標回数と比べればOK。</p>');
+  const sv=document.getElementById('suSave');if(sv)sv.onclick=()=>{const v=Number(document.getElementById('suCnt').value);if(!(v>=0&&v<80)){return}
+    state.logs.push({date:todayS(),ts:Date.now(),title:'腹筋30秒測定',kind:'situpTest',value:v,track:'situp'});save();renderAll();
+    box.innerHTML='<div class="result">'+v+'回で記録した。</div>'};
+}
+
+/* ---------- shuttle player ---------- */
+let shMode=0,sh=null;
+function setMode(v,keepCustom){shMode=v;document.querySelectorAll('#shMode button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.m)===v)));if(!keepCustom&&v)document.getElementById('shCustom').value='';resetShDisplay()}
+document.querySelectorAll('#shMode button').forEach(b=>b.onclick=()=>setMode(Number(b.dataset.m)));
+document.getElementById('shCustom').oninput=()=>{if(document.getElementById('shCustom').value)setMode(0,true)};
+const lapDur=l=>20/((8.5+.5*(l-1))/3.6);
+const lapsIn=l=>LAPS[Math.min(l,LAPS.length)-1];
+function capNow(){const c=Number(document.getElementById('shCustom').value);return c>0?c:shMode}
+function goalNow(){const c=capNow();return c||nextOf(shStats().cur,MS_SH)||100}
+function resetShDisplay(){if(sh)return;document.getElementById('shBig').textContent='0';document.getElementById('shLv').textContent='1';
+  const g=goalNow();document.getElementById('shNext').textContent=g;document.getElementById('shRemain').textContent=g;
+  document.getElementById('shBar').style.width='0';document.getElementById('shBeep').textContent='次のビープまで —';
+  document.getElementById('shSub').textContent=capNow()?capNow()+'回で自動終了':'測定モード：限界まで。ラインに2回届かなかったら終了';}
+function stopSh(reason){if(!sh)return;cancelAnimationFrame(sh.raf);const laps=sh.laps,measure=!sh.cap;sh=null;lockScreen(false);
+  document.getElementById('shStart').textContent='スタート';const box=document.getElementById('shAfter');
+  if(reason==='cap'){box.innerHTML='<div class="result">'+laps+'回 到達。お疲れさま。</div>'}
+  else if(measure){box.innerHTML='<div class="result">記録：<strong>'+laps+'回</strong></div><button class="primary" id="shSave">シャトル測定として記録</button>';
+    document.getElementById('shSave').onclick=()=>{state.logs.push({date:todayS(),ts:Date.now(),title:'シャトル測定',kind:'shuttleTest',value:laps,track:'run'});save();renderAll();box.innerHTML='<div class="result">'+laps+'回で記録した。</div>'}}
+  else box.innerHTML='<div class="result">'+laps+'回で終了。</div>';
+}
+document.getElementById('shStart').onclick=()=>{
+  if(sh){stopSh('manual');return}
+  ensureAC();lockScreen(true);document.getElementById('shAfter').innerHTML='';
+  const t0=performance.now()+5000;
+  for(let i=0;i<5;i++)tone(600,.1,i);tone(1000,.35,5);
+  sh={t0,laps:0,level:1,inLv:0,cap:capNow(),next:t0+lapDur(1)*1000,prev:t0};
+  document.getElementById('shStart').textContent='終了';
+  const big=document.getElementById('shBig'),bar=document.getElementById('shBar'),bt=document.getElementById('shBeep');
+  const goal=goalNow();document.getElementById('shNext').textContent=goal;
+  const loop=()=>{if(!sh)return;const now=performance.now();
+    if(now<sh.t0){big.textContent=Math.ceil((sh.t0-now)/1000);document.getElementById('shSub').textContent='スタートラインへ';sh.raf=requestAnimationFrame(loop);return}
+    if(now>=sh.next){sh.laps++;sh.inLv++;
+      if(sh.cap&&sh.laps>=sh.cap){tone(1320,.8,0,.25);big.textContent=sh.laps;stopSh('cap');return}
+      if(sh.inLv>=lapsIn(sh.level)){sh.level++;sh.inLv=0;tone(880,.12,0);tone(880,.12,.18)}else tone(880,.18,0);
+      sh.prev=sh.next;sh.next+=lapDur(sh.level)*1000;}
+    big.textContent=sh.laps;document.getElementById('shSub').textContent='回';
+    document.getElementById('shLv').textContent=sh.level;
+    document.getElementById('shRemain').textContent=Math.max(0,goal-sh.laps);
+    const rem=(sh.next-now)/1000,span=(sh.next-sh.prev)/1000;
+    bar.style.width=clamp((1-rem/span)*100,0,100)+'%';bt.textContent='次のビープまで '+rem.toFixed(1)+'秒';
+    sh.raf=requestAnimationFrame(loop)};
+  sh.raf=requestAnimationFrame(loop);
+};
+
+/* ---------- tabs ---------- */
+function showTab(name){document.querySelectorAll('main section').forEach(s=>s.hidden=s.id!=='tab-'+name);
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===name?'page':'false'));window.scrollTo(0,0);
+  if(name==='shuttle')resetShDisplay()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+function renderAll(){renderHeader();renderToday();renderPlan();renderLog();resetShDisplay()}
+renderAll();
+initRemote();
+})();
+</script>
+</body>
+</html>
