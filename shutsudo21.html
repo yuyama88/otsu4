@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1A2B">
+<title>出動準備21</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚒</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1A2B; --panel:#15273D; --panel2:#1C3250; --line:#26405F;
+  --ink:#EDF2F7; --muted:#93A6BB; --stripe:#F3C433; --silver:#C9D3DD;
+  --alert:#E3452F; --ok:#5CC08C; --onstripe:#1A1400;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#EAF0F5; --panel:#FFFFFF; --panel2:#F1F5F9; --line:#D3DDE7;
+    --ink:#0F1F2E; --muted:#56687A; --stripe:#E0AE12; --silver:#9AA8B5;
+    --alert:#C9321E; --ok:#23895A; --onstripe:#1A1400; color-scheme:light;
+  }
+}
+:root[data-theme="dark"]{ --bg:#0D1A2B; --panel:#15273D; --panel2:#1C3250; --line:#26405F; --ink:#EDF2F7; --muted:#93A6BB; --stripe:#F3C433; --silver:#C9D3DD; --alert:#E3452F; --ok:#5CC08C; color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+.num{font-family:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;font-weight:700;letter-spacing:.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--stripe);outline-offset:2px}
+.tape{height:9px;background:linear-gradient(to bottom,var(--stripe) 0 33%,var(--silver) 33% 67%,var(--stripe) 67% 100%)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px}
+.brand{font-weight:700;font-size:18px}
+.brand span{color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
+.iconbtn{background:none;border:0;padding:8px;min-width:44px;min-height:44px;border-radius:10px;color:var(--muted)}
+main{max-width:560px;margin:0 auto;padding:14px 16px 120px}
+.view[hidden]{display:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* phase */
+.phase{display:flex;align-items:flex-end;gap:10px;padding:4px 2px 10px}
+.phase .big{font-size:54px;line-height:.9;white-space:nowrap}
+.phase .of{font-size:24px;color:var(--muted);white-space:nowrap}
+.phase .label{margin-left:auto;text-align:right;font-size:12.5px;color:var(--muted);line-height:1.4;min-width:108px}
+.phase .label b{display:block;color:var(--ink);font-size:15px}
+
+/* character */
+.hero{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center}
+.hero svg{width:140px;height:auto;display:block}
+.xp{font-size:40px;line-height:1}
+.xp small{font-size:18px;color:var(--muted);margin-left:4px}
+.gearname{font-weight:700;margin-top:6px}
+.bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;background:var(--stripe);border-radius:6px;transition:width .6s}
+.concept{font-size:12.5px;color:var(--muted);margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.pulse{animation:pulse .7s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+/* streak */
+.streak{border-color:#FF7A2A;background:linear-gradient(160deg,rgba(255,110,40,.16),transparent 60%),var(--panel)}
+.streak.blue{border-color:#3A9BFF;background:linear-gradient(160deg,rgba(40,140,255,.2),transparent 60%),var(--panel)}
+.srow{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.sbig{font-size:60px;line-height:.95}
+.sbig small{font-size:22px;color:var(--muted);margin-left:2px}
+.sside{text-align:right;font-size:14px;color:var(--muted);line-height:1.7}
+.sside b{color:var(--ink);font-size:17px}
+.snext{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:15px}
+.snext b{font-size:22px;color:#FF7A2A}
+.streak.blue .snext b{color:#3A9BFF}
+.aura{transform-origin:80px 180px;animation:flick 2.4s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.03)}}
+/* missions */
+.mission{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.mission:last-child{border-bottom:0}
+.check{width:26px;height:26px;border-radius:7px;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:15px}
+.mission.done .check{background:var(--ok);border-color:var(--ok);color:#fff}
+.mission.done .mtext{color:var(--muted);text-decoration:line-through}
+.mtext{flex:1}
+.mxp{font-size:14px;color:var(--stripe)}
+.mission button.link{background:none;border:0;color:var(--stripe);text-decoration:underline;padding:0}
+.stats{display:flex;gap:18px;font-size:14px;color:var(--muted);margin-top:4px}
+.stats b{color:var(--ink)}
+
+/* form */
+.datenav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.datenav button{background:var(--panel2);border:1px solid var(--line);border-radius:10px;min-width:44px;min-height:40px}
+.datenav button:disabled{opacity:.3}
+.datenav .d{text-align:center;font-weight:700}
+.datenav .d small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row .lbl{font-size:15px}
+.row .lbl small{display:block;font-size:12px;color:var(--muted)}
+.seg{display:flex;background:var(--panel2);border-radius:11px;padding:3px;border:1px solid var(--line)}
+.seg button{border:0;background:none;min-width:58px;min-height:38px;border-radius:8px}
+.seg button.on{background:var(--stripe);color:var(--onstripe);font-weight:700}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:42px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:20px;line-height:1}
+.stepper .val{min-width:92px;text-align:center;font-size:20px}
+.stepper .val.unset{color:var(--muted);font-size:14px;font-family:inherit;font-weight:400}
+.toggles{display:flex;gap:8px;padding:12px 0 4px}
+.toggle{flex:1;min-height:44px;border-radius:11px;border:1px solid var(--line);background:var(--panel2)}
+.toggle.on{border-color:var(--stripe);color:var(--stripe);font-weight:700}
+.sub{background:var(--panel2);border-radius:12px;padding:2px 12px;margin-top:8px}
+.sub .row:last-child{border-bottom:0}
+.kmin{width:92px;min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-align:center;font-size:18px}
+.slider{padding:10px 0;border-bottom:1px solid var(--line)}
+.slider .top{display:flex;justify-content:space-between;align-items:center}
+.slider input{width:100%;accent-color:var(--stripe);margin:8px 0 0}
+.slider.unset input{opacity:.35}
+.slider .clr{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;min-height:32px}
+.primary{display:block;width:100%;min-height:52px;margin-top:16px;border:0;border-radius:14px;background:var(--stripe);color:var(--onstripe);font-weight:700;font-size:17px}
+.secondary{display:block;width:100%;min-height:48px;margin-top:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);font-weight:700}
+.danger{border-color:var(--alert);color:var(--alert)}
+
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center}
+nav.tabs button{background:none;border:0;min-height:60px;font-size:14px;color:var(--muted)}
+nav.tabs button.on{color:var(--ink);font-weight:700}
+nav.tabs button.emg{margin:8px 6px;min-height:50px;border-radius:14px;background:var(--alert);color:#fff;font-weight:700;font-size:16px}
+
+/* overlays */
+.ov{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.ov[hidden]{display:none}
+.ov .wrap{max-width:560px;margin:0 auto;padding:16px 18px 40px;min-height:100%;display:flex;flex-direction:column}
+.ov .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ov .head b{font-size:16px}
+.emg-tape{height:9px;background:linear-gradient(to bottom,var(--alert) 0 33%,var(--silver) 33% 67%,var(--alert) 67% 100%)}
+.stepno{font-size:15px;color:var(--muted);margin-top:24px}
+.stepmain{font-size:34px;font-weight:700;line-height:1.35;margin:10px 0 12px}
+.stepsub{color:var(--muted);font-size:16px}
+.grow{flex:1}
+.bigbtn{min-height:64px;font-size:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+.chip{min-height:44px;min-width:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2)}
+.chip.on{background:var(--stripe);color:var(--onstripe);border-color:var(--stripe);font-weight:700}
+.scale .chip{min-width:0;flex:1 0 calc(16.66% - 8px);padding:0}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:14px 0}
+.timer{font-size:48px;text-align:center;margin:10px 0}
+.words{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.words div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 8px;text-align:center;font-size:19px;font-weight:700}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.opts .chip{min-height:48px}
+
+/* results */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{color:var(--muted);font-weight:400;font-size:12px}
+td.up{color:var(--ok)} td.down{color:var(--alert)}
+.scroll{overflow-x:auto}
+.bigstat{font-size:52px;line-height:1}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.kv:last-child{border-bottom:0}
+.kv b{font-family:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;font-size:18px}
+.hist{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hist .dn{width:56px;flex:none}
+.hist .dn b{display:block;font-size:20px;line-height:1}
+.hist .dn small{color:var(--muted);font-size:11px}
+.hist .sum{flex:1;font-size:13px;color:var(--muted)}
+.hist button{border:1px solid var(--line);background:var(--panel2);border-radius:10px;min-height:38px;padding:0 12px;font-size:13px}
+textarea{width:100%;min-height:110px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:10px;font-size:13px}
+input[type=date],select,input.txt{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:0 10px;font-size:16px}
+
+.toast{position:fixed;left:50%;top:calc(60px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:80;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-size:15px;font-weight:700;max-width:90vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="tape"></div>
+  <div class="topbar">
+    <div class="brand">出動準備21<span>消防トレーニング実験</span></div>
+    <button class="iconbtn" id="openSettings" aria-label="設定">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="view" id="view-today"></section>
+  <section class="view" id="view-results" hidden></section>
+</main>
+
+<nav class="tabs"><div class="in">
+  <button id="tab-today" class="on">今日</button>
+  <button id="tab-emg" class="emg">緊急</button>
+  <button id="tab-results">結果</button>
+</div></nav>
+
+<div class="ov" id="ov-emg" hidden><div class="emg-tape"></div><div class="wrap" id="emg-wrap"></div></div>
+<div class="ov" id="ov-test" hidden><div class="tape"></div><div class="wrap" id="test-wrap"></div></div>
+<div class="ov" id="ov-settings" hidden><div class="tape"></div><div class="wrap" id="set-wrap"></div></div>
+<div class="ov" id="ov-onboard" hidden><div class="tape"></div><div class="wrap" id="onb-wrap"></div></div>
+<div class="ov" id="ov-confirm" hidden><div class="tape"></div><div class="wrap" id="cf-wrap"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+var LS = "shutsudo21_v1";
+var TEST_DAYS = [3,5,7,15,18,21];
+var GEARS = [
+  {xp:0,    name:"訓練生",       desc:"普段着とバッグ"},
+  {xp:100,  name:"ヘルメット装着", desc:"ヘルメットを獲得"},
+  {xp:250,  name:"防火服",       desc:"防火服を獲得"},
+  {xp:450,  name:"手袋・ブーツ",  desc:"手袋とブーツを獲得"},
+  {xp:700,  name:"フル装備",     desc:"空気呼吸器を背負った完全装備"},
+  {xp:1000, name:"特別装備",     desc:"14日を超えて積み上げた証"}
+];
+var PLACES = ["ベッド","風呂","トイレ","机","リビング","外"];
+var BEFORES = ["SNS・動画","暇","疲れ","ストレス","寝る前","その他"];
+var WORDS = ["消火栓","筒先","吸管","空気呼吸器","防火水槽","延焼","輻射熱","酸欠","救助袋","三連はしご",
+  "可燃物","引火点","発火点","煙感知器","熱感知器","スプリンクラー","連結送水管","避難誘導","心肺蘇生","止血",
+  "担架","防火扉","排煙設備","誘導灯","危険物","油火災","電気火災","泡消火剤","粉末消火器","窒息消火",
+  "冷却消火","除去消火","残火処理","放水圧力","ホースブリッジ","救命索","もやい結び","巻き結び","三角巾","無線",
+  "指揮隊","はしご車","ポンプ車","救助工作車","化学車","水利","防火服","耐熱手袋","火災報知設備","自然発火",
+  "フラッシュオーバー","バックドラフト","一酸化炭素","避難はしご","救急搬送","気道確保","胸骨圧迫","熱中症","減圧","検索救助",
+  "放水口","送水口","分岐金具","媒介金具","火点","風下","延長ホース","中継送水","警防","予防査察",
+  "消防法","防火管理者","避難訓練","初期消火","火の粉","炭化","再燃","煙道","給水塔","防火帯",
+  "救助ロープ","懸垂降下","確保","殉職防止","安全管理","無線交信","出場","現場到着","鎮圧","鎮火"];
+var SUGGEST = {
+  "ベッド":["布団から出て、リビングで紙の問題集を10分。","部屋の電気をつけて、明日の準備を10分。","ベッドを出てストレッチを5分、それから水を1杯。"],
+  "風呂":["すぐ上がって服を着る。髪を乾かしながら消防用語を3つ声に出す。","風呂から出て、着替えたら台所で温かい飲み物を作る。"],
+  "トイレ":["すぐ出て、机に座り問題を1問だけ解く。","トイレを出て、玄関まで歩いて深呼吸を5回。"],
+  "机":["スマホを別の部屋に置いて、タイマー10分で問題集。","立って腕立て10回を3セット。終わったら机に戻る。"],
+  "リビング":["外に出て10分歩く。スマホは家に置いていく。","スクワット20回×2セット、その後に用語を5つ復習。"],
+  "外":["そのまま10分歩き続ける。人の多い場所へ向かう。","コンビニで飲み物を買って、ゆっくり帰る。"]
+};
+
+/* ---------- storage ---------- */
+function norm(o){
+  o = (o && typeof o === "object") ? o : {};
+  var s = (o.settings && typeof o.settings === "object") ? o.settings : {};
+  return {
+    settings:{ start: typeof s.start === "string" ? s.start : null, sleepGoal: Number.isFinite(s.sleepGoal) ? s.sleepGoal : 390 },
+    days: (o.days && typeof o.days === "object" && !Array.isArray(o.days)) ? o.days : {},
+    urges: Array.isArray(o.urges) ? o.urges : [],
+    tests: Array.isArray(o.tests) ? o.tests : []
+  };
+}
+function load(){ try{ var r = localStorage.getItem(LS); if(r) return norm(JSON.parse(r)); }catch(e){} return norm({}); }
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(S)); return true; }catch(e){ toast("端末に保存できませんでした。設定からバックアップしてください"); return false; } }
+var S = load();
+
+/* ---------- utils ---------- */
+function pad(n){ return (n<10?"0":"")+n; }
+function fmt(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function parse(s){ var p=s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+function today(){ return fmt(new Date()); }
+function addDays(s,n){ var d=parse(s); d.setDate(d.getDate()+n); return fmt(d); }
+function diff(a,b){ return Math.round((parse(b)-parse(a))/864e5); }
+function expDay(date){ return S.settings.start ? diff(S.settings.start, date)+1 : 0; }
+function dateOfExp(n){ return addDays(S.settings.start, n-1); }
+function esc(v){ return String(v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
+function hm(v){ if(v==null) return "—"; var h=Math.floor(v/60), m=v%60; return h+"時間"+(m?m+"分":""); }
+function hmShort(v){ if(v==null) return "—"; var h=Math.floor(v/60), m=v%60; return h+"h"+(m?pad(m):""); }
+function md(s){ var d=parse(s); return (d.getMonth()+1)+"/"+d.getDate(); }
+function wd(s){ return "日月火水木金土"[parse(s).getDay()]; }
+function avg(a){ a=a.filter(function(x){return x!=null && Number.isFinite(x);}); return a.length ? a.reduce(function(p,c){return p+c;},0)/a.length : null; }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var toastT;
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("show");},2600); }
+function $(id){ return document.getElementById(id); }
+
+/* ---------- phase & xp ---------- */
+function phaseOf(n){
+  if(n<1) return {k:"pre"};
+  if(n<=7) return {k:"base", d:n};
+  var a=n-7; return {k: a<=14 ? "abst" : "ext", d:a};
+}
+function dayXP(date){
+  var n=expDay(date), abst = n>=8, xp=0, r=S.days[date], g=S.settings.sleepGoal;
+  if(r && r.saved){
+    xp+=10;
+    if(abst){
+      var s=r.study||0; if(s>=30) xp+=10; if(s>=60) xp+=10; if(s>=90) xp+=5;
+      if(r.sleep!=null && r.sleep>=g) xp+=10;
+      var ex=0;
+      if(r.wo){ ex+=15; if((r.woMin||0)>=30) ex+=5; }
+      if(r.run){ ex+=15; if((r.runMin||0)>=20) ex+=5; if((r.runMin||0)>=30) ex+=5; }
+      xp+=Math.min(ex,35);
+    }
+  }
+  if(abst && S.urges.some(function(u){return u.date===date && u.completed;})) xp+=10;
+  if(S.tests.some(function(t){return t.date===date;})) xp+=10;
+  return xp;
+}
+function totalXP(){
+  var set={};
+  Object.keys(S.days).forEach(function(d){set[d]=1;});
+  S.urges.forEach(function(u){ if(u.date) set[u.date]=1; });
+  S.tests.forEach(function(t){ if(t.date) set[t.date]=1; });
+  return Object.keys(set).reduce(function(p,d){ return p+(expDay(d)>=1?dayXP(d):0); },0);
+}
+var STAGES=[
+  {d:0, name:"通常"},
+  {d:1, name:"小さな炎"},
+  {d:3, name:"炎オーラ"},
+  {d:7, name:"青い炎"},
+  {d:14,name:"完成形"},
+  {d:30,name:"レジェンド形態"}
+];
+function isClean(d){ var r=S.days[d]; return !!(r && r.saved && r.ej===0 && r.porn===false); }
+function streakInfo(){
+  var t=today(), n=expDay(t);
+  if(!S.settings.start || n<8) return {active:false, cur:0, best:0, pending:false};
+  var todayRec=S.days[t], pending=!(todayRec&&todayRec.saved), cur=0, k;
+  if(pending) k=n-1; else if(isClean(t)) k=n; else k=null;
+  if(k!=null){ for(var i=k;i>=8;i--){ if(isClean(dateOfExp(i))) cur++; else break; } }
+  var best=0, run=0;
+  for(var j=8;j<=n;j++){ if(isClean(dateOfExp(j))){ run++; if(run>best) best=run; } else run=0; }
+  return {active:true, cur:cur, best:Math.max(best,cur), pending:pending};
+}
+function stageOf(days){ var l=0; STAGES.forEach(function(s,i){ if(days>=s.d) l=i; }); return l; }
+function gearLevel(xp){ var l=0; GEARS.forEach(function(g,i){ if(xp>=g.xp) l=i; }); return l; }
+
+/* ---------- character ---------- */
+function auraSVG(st){
+  if(st<1) return "";
+  var o='<defs><linearGradient id="ag" x1="0" y1="1" x2="0" y2="0">';
+  if(st>=5) o+='<stop offset="0" stop-color="#7B4DFF"/><stop offset=".5" stop-color="#2FA8FF"/><stop offset="1" stop-color="#FFD24A"/>';
+  else if(st>=3) o+='<stop offset="0" stop-color="#1F6BFF"/><stop offset="1" stop-color="#9BE3FF"/>';
+  else o+='<stop offset="0" stop-color="#FF5A1F"/><stop offset="1" stop-color="#FFC24A"/>';
+  o+='</linearGradient></defs>';
+  if(st===1){
+    return o+'<g class="aura"><path d="M128 96 C120 86 124 74 132 66 C132 76 140 78 138 90 C137 97 132 100 128 96Z" fill="url(#ag)"/></g>';
+  }
+  o+='<g class="aura">';
+  if(st>=4) o+='<circle cx="80" cy="104" r="76" fill="none" stroke="'+(st>=5?'#FFD24A':'#9BE3FF')+'" stroke-width="3" opacity=".7"/>';
+  o+='<path d="M80 6 C96 34 130 46 126 100 C123 142 104 178 80 182 C56 178 37 142 34 100 C30 46 64 34 80 6Z" fill="url(#ag)" opacity="'+(st>=3?.55:.4)+'"/>';
+  o+='<path d="M80 30 C92 52 112 62 110 102 C108 136 96 164 80 168 C64 164 52 136 50 102 C48 62 68 52 80 30Z" fill="url(#ag)" opacity=".45"/>';
+  if(st>=3) o+='<circle cx="30" cy="70" r="3" fill="#CFF2FF"/><circle cx="134" cy="56" r="2.5" fill="#CFF2FF"/><circle cx="140" cy="120" r="2" fill="#CFF2FF"/><circle cx="22" cy="130" r="2.5" fill="#CFF2FF"/>';
+  if(st>=5) o+='<path d="M80 2 l3 7 7 1-5 5 1.5 7-6.5-3.5-6.5 3.5 1.5-7-5-5 7-1z" fill="#FFD24A"/>';
+  return o+'</g>';
+}
+function charSVG(lv,st){
+  var cs=getComputedStyle(document.documentElement), cv=function(n,f){ var v=cs.getPropertyValue(n).trim(); return v||f; };
+  var coat="#22344D", skin="#F1C9A5", stripe = lv>=5 ? "#E8B730" : cv("--stripe","#F3C433");
+  var o='<svg viewBox="0 0 160 190" role="img" aria-label="新人消防隊員のキャラクター">'+auraSVG(st||0);
+  if(lv>=5) o+='<circle cx="80" cy="100" r="74" style="fill:var(--stripe)" opacity=".14"/>';
+  o+='<ellipse cx="80" cy="180" rx="40" ry="6" fill="#000" opacity=".22"/>';
+  if(lv>=4){ o+='<rect x="92" y="62" width="17" height="40" rx="8" fill="#B9C4CF" stroke="#7F8C99" stroke-width="2"/><rect x="95" y="58" width="11" height="7" rx="2" fill="#7F8C99"/>'; }
+  // legs
+  o+='<rect x="62" y="132" width="15" height="36" rx="5" fill="'+(lv>=2?coat:"#34465E")+'"/><rect x="83" y="132" width="15" height="36" rx="5" fill="'+(lv>=2?coat:"#34465E")+'"/>';
+  if(lv>=2){ o+='<rect x="62" y="150" width="15" height="4" fill="'+stripe+'"/><rect x="83" y="150" width="15" height="4" fill="'+stripe+'"/>'; }
+  if(lv>=3){ o+='<rect x="59" y="156" width="20" height="20" rx="4" fill="#1A1F26"/><rect x="81" y="156" width="20" height="20" rx="4" fill="#1A1F26"/><rect x="59" y="162" width="20" height="3" fill="'+stripe+'"/><rect x="81" y="162" width="20" height="3" fill="'+stripe+'"/>'; }
+  else { o+='<rect x="58" y="166" width="21" height="9" rx="4" fill="#6B4A32"/><rect x="81" y="166" width="21" height="9" rx="4" fill="#6B4A32"/>'; }
+  // arms
+  var arm = lv>=2 ? coat : "#5B7B9C";
+  o+='<rect x="41" y="86" width="15" height="44" rx="7" fill="'+arm+'"/><rect x="104" y="86" width="15" height="44" rx="7" fill="'+arm+'"/>';
+  if(lv>=2){ o+='<rect x="41" y="112" width="15" height="4" fill="'+stripe+'"/><rect x="104" y="112" width="15" height="4" fill="'+stripe+'"/><rect x="41" y="116" width="15" height="2" style="fill:var(--silver)"/><rect x="104" y="116" width="15" height="2" style="fill:var(--silver)"/>'; }
+  // hands
+  if(lv>=3){ o+='<rect x="40" y="126" width="17" height="14" rx="6" fill="#8A6A2E"/><rect x="103" y="126" width="17" height="14" rx="6" fill="#8A6A2E"/>'; }
+  else { o+='<circle cx="48.5" cy="133" r="7" fill="'+skin+'"/><circle cx="111.5" cy="133" r="7" fill="'+skin+'"/>'; }
+  // torso
+  if(lv>=2){
+    o+='<rect x="54" y="82" width="52" height="62" rx="10" fill="'+coat+'"/>';
+    o+='<path d="M68 82 L80 98 L92 82" fill="none" stroke="#0F1A28" stroke-width="3"/>';
+    o+='<rect x="54" y="110" width="52" height="5" fill="'+stripe+'"/><rect x="54" y="115" width="52" height="3" style="fill:var(--silver)"/><rect x="54" y="118" width="52" height="5" fill="'+stripe+'"/>';
+    o+='<rect x="54" y="137" width="52" height="4" fill="'+stripe+'"/>';
+    if(lv>=4){ o+='<rect x="63" y="84" width="5" height="52" fill="#0F1A28"/><rect x="92" y="84" width="5" height="52" fill="#0F1A28"/><path d="M76 100 Q94 96 100 70" fill="none" stroke="#11161C" stroke-width="3"/><circle cx="76" cy="101" r="5" fill="#11161C"/>'; }
+    if(lv>=5){ o+='<path d="M80 91 l2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.7-4.9 2.7 1.1-5.3-4-3.7 5.4-.6z" fill="#E8B730"/>'; }
+  } else {
+    o+='<rect x="56" y="82" width="48" height="54" rx="10" fill="#5B7B9C"/>';
+    o+='<path d="M72 82 Q80 90 88 82" fill="none" stroke="#3E5A77" stroke-width="3"/>';
+    o+='<path d="M60 84 L100 128" stroke="#3A2A1E" stroke-width="4"/><rect x="92" y="120" width="18" height="15" rx="3" fill="#7A5A3E"/>';
+  }
+  // head
+  o+='<circle cx="80" cy="58" r="22" fill="'+skin+'"/>';
+  if(lv>=1){
+    o+='<path d="M55 56 Q55 28 80 28 Q105 28 105 56 Z" fill="#E6ECF1"/>';
+    o+='<rect x="57" y="45" width="46" height="5" style="fill:var(--alert)"/>';
+    o+='<rect x="51" y="53" width="58" height="7" rx="3.5" fill="#D2DAE1"/>';
+    o+='<circle cx="80" cy="38" r="4.5" fill="'+stripe+'"/>';
+  } else {
+    o+='<path d="M58 56 Q58 34 80 34 Q102 34 102 56 Q97 44 80 44 Q64 44 58 56 Z" fill="#2A2A2E"/>';
+  }
+  o+='<path d="M69 57 L76 58" stroke="#2A2A2E" stroke-width="2.4" stroke-linecap="round"/><path d="M84 58 L91 57" stroke="#2A2A2E" stroke-width="2.4" stroke-linecap="round"/>';
+  o+='<circle cx="73" cy="63" r="2.5" fill="#1A1A1A"/><circle cx="87" cy="63" r="2.5" fill="#1A1A1A"/>';
+  o+='<path d="M75 71 Q80 75 85 71" fill="none" stroke="#7A4A3A" stroke-width="2.2" stroke-linecap="round"/>';
+  o+='</svg>';
+  return o;
+}
+
+/* ---------- views ---------- */
+var curDate = today();
+var D = null; // draft for form
+var lastXP = null;
+
+function loadDraft(){
+  var r = S.days[curDate];
+  D = r ? JSON.parse(JSON.stringify(r)) : {ej:null,porn:null,study:0,sleep:null,screen:null,wo:false,woMin:30,run:false,runMin:20,km:null,focus:null,vital:null};
+}
+
+function missionsFor(date){
+  var n=expDay(date), p=phaseOf(n), r=S.days[date]||{}, list=[];
+  var tested = S.tests.some(function(t){return t.date===date;});
+  var isTest = TEST_DAYS.indexOf(n)>=0;
+  list.push({t:"今日の記録", xp:10, done:!!r.saved});
+  if(p.k==="base"){
+    if(isTest) list.push({t:"記憶テスト（2分）", xp:10, done:tested, test:true});
+    list.push({t:"普段どおりに過ごす（記録期間）", xp:0, done:!!r.saved});
+  } else {
+    list.push({t:"消防勉強60分", xp:20, done:(r.study||0)>=60});
+    if(isTest) list.push({t:"記憶テスト（2分）", xp:10, done:tested, test:true});
+    else if(p.d%2) list.push({t:"筋トレ", xp:15, done:!!r.wo});
+    else list.push({t:"ランニング", xp:15, done:!!r.run});
+  }
+  return list.slice(0,3);
+}
+
+function renderToday(){
+  var el=$("view-today");
+  if(!S.settings.start){ el.innerHTML=""; return; }
+  var t=today(), n=expDay(t), p=phaseOf(n), xp=totalXP(), lv=gearLevel(xp);
+  var next=GEARS[lv+1], h="";
+  // phase
+  if(p.k==="pre"){ h+='<div class="phase"><div class="big num">'+(1-n)+'</div><div class="of">日後</div><div class="label"><b>実験スタート前</b>開始日 '+md(S.settings.start)+'</div></div>'; }
+  else if(p.k==="base"){ h+='<div class="phase"><div class="big num">Day '+p.d+'</div><div class="of num">/ 7</div><div class="label"><b>記録期間</b>普段どおり過ごして<br>記録だけする</div></div>'; }
+  else if(p.k==="abst"){ h+='<div class="phase"><div class="big num">Day '+p.d+'</div><div class="of num">/ 14</div><div class="label"><b>実験中（戻らない）</b>ポルノ0・自慰0<br>'+(p.d<=7?'前半は移行期間':'後半は判定期間')+'</div></div>'; }
+  else { h+='<div class="phase"><div class="big num">Day '+p.d+'</div><div class="of">延長</div><div class="label"><b>14日を完走</b>ここからは延長戦</div></div>'; }
+
+  // streak
+  var sk=streakInfo(), st=stageOf(sk.cur), nst=STAGES[st+1];
+  if(sk.active){
+    h+='<div class="card streak'+(st>=3?' blue':'')+'"><div class="srow"><div><div class="small muted">禁欲連続</div><div class="sbig num">'+sk.cur+'<small>日</small> '+(sk.cur>0?'🔥':'')+'</div></div><div class="sside"><div>自己ベスト <b class="num">'+sk.best+'</b>日</div><div>形態：<b>'+STAGES[st].name+'</b></div></div></div>';
+    if(nst) h+='<div class="snext">次の進化（'+nst.name+'）まで あと <b class="num">'+(nst.d-sk.cur)+'</b> 日</div>';
+    else h+='<div class="snext">最終形態に到達</div>';
+    if(sk.pending) h+='<div class="small muted" style="margin-top:6px">今日の記録で連続日数が確定します。記録を忘れた日は、結果画面の「修正」から入力すれば連続も復活します。</div>';
+    h+='</div>';
+  }
+
+  // hero
+  h+='<div class="card"><div class="hero"><div id="charbox">'+charSVG(lv, sk.active?st:0)+'</div><div>';
+  h+='<div class="xp num" id="xpnum">'+xp+'<small>XP</small></div>';
+  h+='<div class="gearname">'+GEARS[lv].name+'</div>';
+  if(next){ var pct=Math.round((xp-GEARS[lv].xp)/(next.xp-GEARS[lv].xp)*100); h+='<div class="bar"><i style="width:'+pct+'%"></i></div><div class="small muted">次の装備（'+next.name+'）まで <span class="num">'+(next.xp-xp)+'</span> XP</div>'; }
+  else h+='<div class="small muted">すべての装備がそろった</div>';
+  h+='</div></div><div class="concept">装備は消防の勉強・運動・睡眠・記録のXPで増えて、失うことはない。炎は禁欲連続日数で進化して、自慰かポルノで最初に戻る。実験Dayはどちらでも止まらない。</div>';
+  if(p.k==="abst"||p.k==="ext"){
+    var upto=Math.min(p.d,14), pn=0, en=0;
+    for(var i=8;i<8+upto;i++){ var r=S.days[dateOfExp(i)]; if(r&&r.saved){ if(r.porn===false) pn++; if(r.ej===0) en++; } }
+    h+='<div class="stats"><span>ポルノなし <b class="num">'+pn+'/'+upto+'</b>日</span><span>自慰なし <b class="num">'+en+'/'+upto+'</b>日</span></div>';
+  }
+  h+='</div>';
+
+  // missions
+  if(p.k!=="pre"){
+    h+='<div class="card"><h2>今日のミッション</h2>';
+    missionsFor(t).forEach(function(m){
+      h+='<div class="mission'+(m.done?' done':'')+'"><div class="check">'+(m.done?'✓':'')+'</div><div class="mtext">'+(m.test&&!m.done?'<button class="link" data-act="test">'+m.t+'</button>':m.t)+'</div>'+(m.xp?'<div class="mxp num">+'+m.xp+' XP</div>':'')+'</div>';
+    });
+    if(p.k==="base") h+='<p class="small muted" style="margin:8px 0 0">記録期間は比較のための基準づくり。勉強や運動のXPと禁欲連続は、実験Day 1から数えます。</p>';
+    h+='</div>';
+  }
+
+  // form
+  h+='<div class="card" id="formcard"><h2>記録</h2>'+dateNavHTML()+'<div id="form">'+formHTML()+'</div></div>';
+  el.innerHTML=h;
+  if(lastXP!==null && xp>lastXP){ var b=$("xpnum"); if(b) b.classList.add("pulse"); }
+  lastXP=xp;
+}
+
+function dateNavHTML(){
+  var n=expDay(curDate), t=today();
+  var canPrev = S.settings.start && curDate>S.settings.start;
+  var canNext = curDate<t;
+  var lab = curDate===t ? "今日" : md(curDate)+"（"+wd(curDate)+"）";
+  var p=phaseOf(n), sub = p.k==="base" ? "記録期間 Day "+p.d : (p.k==="pre" ? "開始前" : "実験 Day "+p.d);
+  return '<div class="datenav"><button data-act="prev" '+(canPrev?'':'disabled')+' aria-label="前の日">‹</button><div class="d">'+lab+'<small>'+sub+(S.days[curDate]&&S.days[curDate].saved?'・記録済み':'')+'</small></div><button data-act="next" '+(canNext?'':'disabled')+' aria-label="次の日">›</button></div>';
+}
+
+function stepper(k,label,sub,unit){
+  var v=D[k], txt;
+  if(v==null) txt='<span class="val unset">未入力</span>';
+  else if(unit==="hm") txt='<span class="val num">'+hmShort(v)+'</span>';
+  else if(unit==="min") txt='<span class="val num">'+v+'分</span>';
+  else txt='<span class="val num">'+v+'回</span>';
+  return '<div class="row"><div class="lbl">'+label+(sub?'<small>'+sub+'</small>':'')+'</div><div class="stepper"><button data-step="'+k+'" data-d="-1" aria-label="'+label+'を減らす">−</button>'+txt+'<button data-step="'+k+'" data-d="1" aria-label="'+label+'を増やす">＋</button></div></div>';
+}
+function sliderHTML(k,label){
+  var v=D[k];
+  return '<div class="slider'+(v==null?' unset':'')+'" id="sl-'+k+'"><div class="top"><div>'+label+' <span class="small muted">任意</span></div><div><span class="num" id="slv-'+k+'" style="font-size:20px">'+(v==null?'—':v)+'</span>'+(v!=null?' <button class="clr" data-clr="'+k+'">消す</button>':'')+'</div></div><input type="range" min="0" max="10" step="1" value="'+(v==null?5:v)+'" data-sl="'+k+'" aria-label="'+label+' 0から10"></div>';
+}
+function formHTML(){
+  var h='';
+  h+=stepper("ej","射精回数","","count");
+  h+='<div class="row"><div class="lbl">ポルノ</div><div class="seg"><button data-porn="0" class="'+(D.porn===false?'on':'')+'">なし</button><button data-porn="1" class="'+(D.porn===true?'on':'')+'">あり</button></div></div>';
+  h+=stepper("study","消防勉強","15分きざみ","min");
+  h+=stepper("sleep","睡眠","目標 "+hm(S.settings.sleepGoal),"hm");
+  h+=stepper("screen","スクリーンタイム","設定アプリの数字","hm");
+  h+='<div class="toggles"><button class="toggle'+(D.wo?' on':'')+'" data-tg="wo">筋トレ'+(D.wo?'した':'')+'</button><button class="toggle'+(D.run?' on':'')+'" data-tg="run">ランニング'+(D.run?'した':'')+'</button></div>';
+  if(D.wo||D.run){
+    h+='<div class="sub">';
+    if(D.wo) h+=stepper("woMin","筋トレ時間","","min");
+    if(D.run){ h+=stepper("runMin","ランニング時間","","min"); h+='<div class="row"><div class="lbl">距離<small>任意</small></div><div><input class="kmin num" type="number" inputmode="decimal" step="0.1" min="0" placeholder="—" value="'+(D.km!=null?esc(D.km):'')+'" data-km aria-label="ランニング距離 km"> km</div></div>'; }
+    h+='</div>';
+  }
+  h+=sliderHTML("focus","集中度");
+  h+=sliderHTML("vital","バイタリティ");
+  h+='<button class="primary" data-act="save">記録する</button>';
+  return h;
+}
+var STEP = {ej:1, study:15, sleep:15, screen:15, woMin:5, runMin:5};
+var BASE = {ej:0, study:0, sleep:null, screen:180, woMin:30, runMin:20};
+var MAX  = {ej:20, study:600, sleep:960, screen:1200, woMin:240, runMin:240};
+
+function onFormClick(e){
+  var b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.step){
+    var k=b.dataset.step, d=+b.dataset.d, base = k==="sleep" ? S.settings.sleepGoal : BASE[k];
+    if(D[k]==null) D[k]=base; else D[k]=Math.max(0,Math.min(MAX[k],D[k]+d*STEP[k]));
+    $("form").innerHTML=formHTML(); return;
+  }
+  if(b.dataset.porn!=null){ D.porn = b.dataset.porn==="1"; $("form").innerHTML=formHTML(); return; }
+  if(b.dataset.tg){ D[b.dataset.tg]=!D[b.dataset.tg]; $("form").innerHTML=formHTML(); return; }
+  if(b.dataset.clr){ D[b.dataset.clr]=null; $("form").innerHTML=formHTML(); return; }
+  var a=b.dataset.act;
+  if(a==="prev"){ curDate=addDays(curDate,-1); loadDraft(); renderToday(); scrollForm(); }
+  if(a==="next"){ curDate=addDays(curDate,1); loadDraft(); renderToday(); scrollForm(); }
+  if(a==="test"){ openTest(); }
+  if(a==="save"){ saveRecord(); }
+}
+function scrollForm(){ var f=$("formcard"); if(f) f.scrollIntoView({block:"start"}); }
+function onFormInput(e){
+  var t=e.target;
+  if(t.dataset.sl){ var k=t.dataset.sl; D[k]=+t.value; var box=$("sl-"+k); box.classList.remove("unset"); $("slv-"+k).textContent=t.value; }
+  if(t.hasAttribute("data-km")){ var v=parseFloat(t.value); D.km = Number.isFinite(v)&&v>=0 ? Math.round(v*10)/10 : null; }
+}
+function onFormChange(e){ if(e.target.dataset.sl){ $("form").innerHTML=formHTML(); } }
+
+function saveRecord(){
+  if(D.ej==null || D.porn==null){ toast("射精回数とポルノの有無を入力してください"); return; }
+  if(!D.wo){ D.woMin = D.woMin||30; }
+  if(!D.run){ D.km=null; }
+  var before = dayXP(curDate), skBefore = streakInfo().cur;
+  D.saved=true; D.updated=Date.now();
+  S.days[curDate]=JSON.parse(JSON.stringify(D));
+  if(!save()) return;
+  var after = dayXP(curDate), n=expDay(curDate), p=phaseOf(n);
+  var dayLabel = p.k==="base" ? "記録期間 Day "+p.d : (p.k==="pre" ? "開始前" : "Day "+p.d);
+  var gained = after-before;
+  var skAfter = streakInfo();
+  var abstDay = expDay(curDate)>=8;
+  if(abstDay && (D.ej>0 || D.porn===true) && skBefore>0 && skAfter.cur===0){
+    toast("禁欲連続は0日から。装備と実験Dayはそのまま。正直に記録した分 +10 XP");
+  } else if(abstDay && curDate===today() && isClean(curDate) && skAfter.cur>0){
+    var ns=stageOf(skAfter.cur), ps=stageOf(skAfter.cur-1);
+    toast(ns>ps ? "進化！ "+STAGES[ns].name+"（禁欲連続 "+skAfter.cur+"日）" : "禁欲連続 "+skAfter.cur+"日🔥"+(gained>0?"　+"+gained+" XP":""));
+  } else {
+    toast(dayLabel+" 記録完了。実験継続中"+(gained>0?"　+"+gained+" XP":""));
+  }
+  renderToday();
+}
+
+/* ---------- results ---------- */
+function recsFor(from,to){ var a=[]; for(var i=from;i<=to;i++){ var d=dateOfExp(i), r=S.days[d]; if(r&&r.saved) a.push(r); } return a; }
+function metric(rs,f){ return avg(rs.map(f)); }
+function fmtMetric(v,kind){
+  if(v==null) return "—";
+  if(kind==="min") return Math.round(v)+"分";
+  if(kind==="hm") return hmShort(Math.round(v));
+  if(kind==="pt") return (Math.round(v*10)/10).toFixed(1);
+  if(kind==="cnt") return (Math.round(v*10)/10).toFixed(1)+"回";
+  if(kind==="pct") return Math.round(v*100)+"%";
+  return v;
+}
+function fmtDiff(a,b,kind,goodUp){
+  if(a==null||b==null) return {t:"—",c:""};
+  var d=b-a; if(Math.abs(d)<0.05) return {t:"±0",c:""};
+  var s = d>0?"+":"−", ad=Math.abs(d), t;
+  if((kind==="min"||kind==="hm") && Math.round(ad)===0) return {t:"±0",c:""};
+  if(kind==="min"||kind==="hm") t=s+Math.round(ad)+"分";
+  else if(kind==="pct") t=s+Math.round(ad*100)+"pt";
+  else t=s+(Math.round(ad*10)/10).toFixed(1);
+  var good = goodUp===null ? "" : ((d>0)===goodUp ? "up" : "down");
+  return {t:t,c:good};
+}
+function renderResults(){
+  var el=$("view-results"), h="";
+  if(!S.settings.start){ el.innerHTML='<div class="card">まだ実験が始まっていません。</div>'; return; }
+  var t=today(), nt=expDay(t);
+  var base=recsFor(1,7), late=recsFor(15,21);
+  var testsB=S.tests.filter(function(x){return x.expDay<=7;}).map(function(x){return x.score;});
+  var testsL=S.tests.filter(function(x){return x.expDay>=15&&x.expDay<=21;}).map(function(x){return x.score;});
+  var rows=[
+    ["消防勉強", function(r){return r.study||0;}, "min", true],
+    ["睡眠", function(r){return r.sleep;}, "hm", true],
+    ["スクリーンタイム", function(r){return r.screen;}, "hm", false],
+    ["運動", function(r){return (r.wo?(r.woMin||0):0)+(r.run?(r.runMin||0):0);}, "min", true],
+    ["集中度", function(r){return r.focus;}, "pt", true],
+    ["バイタリティ", function(r){return r.vital;}, "pt", true],
+    ["射精回数/日", function(r){return r.ej;}, "cnt", null],
+    ["ポルノあり日", function(r){return r.porn?1:0;}, "pct", null]
+  ];
+  h+='<div class="card"><h2>比較レポート</h2><p class="small muted" style="margin:0 0 8px">記録期間（Day 1〜7の平均）と、実験後半（Day 8〜14の平均）の比較。記録した日だけで計算します。</p><div class="scroll"><table><thead><tr><th>指標</th><th>記録期間</th><th>実験後半</th><th>変化</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    var a=metric(base,r[1]), b=metric(late,r[1]), df=fmtDiff(a,b,r[2],r[3]);
+    h+='<tr><td>'+r[0]+'</td><td class="num">'+fmtMetric(a,r[2])+'</td><td class="num">'+fmtMetric(b,r[2])+'</td><td class="num '+df.c+'">'+df.t+'</td></tr>';
+  });
+  var ta=avg(testsB), tb=avg(testsL), tdf=fmtDiff(ta,tb,"pt",true);
+  h+='<tr><td>記憶テスト</td><td class="num">'+fmtMetric(ta,"pt")+'</td><td class="num">'+fmtMetric(tb,"pt")+'</td><td class="num '+tdf.c+'">'+tdf.t+'</td></tr>';
+  h+='</tbody></table></div><p class="small muted" style="margin:10px 0 0">これは「実験期間中にこう変化した」という記録です。原因が禁欲そのものか、時間・睡眠・スマホの変化かは断定できません。</p></div>';
+
+  // totals for 14-day experiment
+  var ab=[], upto=Math.min(21, Math.max(nt,7));
+  for(var i=8;i<=upto;i++){ var r=S.days[dateOfExp(i)]; if(r&&r.saved) ab.push(r); }
+  var studyT=ab.reduce(function(p,r){return p+(r.study||0);},0);
+  var woN=ab.filter(function(r){return r.wo;}).length, woM=ab.reduce(function(p,r){return p+(r.wo?(r.woMin||0):0);},0);
+  var runN=ab.filter(function(r){return r.run;}).length, runKm=ab.reduce(function(p,r){return p+(r.run&&r.km?r.km:0);},0);
+  var pn=ab.filter(function(r){return r.porn===false;}).length, en=ab.filter(function(r){return r.ej===0;}).length;
+  var emgN=S.urges.filter(function(u){ var n=expDay(u.date); return u.completed && n>=8 && n<=21; }).length;
+  var first=S.tests.filter(function(x){return x.expDay<=7;}).sort(function(a,b){return a.expDay-b.expDay;})[0];
+  var lastT=S.tests.filter(function(x){return x.expDay>=15;}).sort(function(a,b){return b.expDay-a.expDay;})[0];
+  h+='<div class="card"><h2>実験14日間で積み上げたもの</h2>';
+  h+='<div class="small muted">消防勉強の合計</div><div class="bigstat num">'+(Math.round(studyT/6)/10)+'<span style="font-size:22px;color:var(--muted)"> 時間</span></div><div style="margin-top:10px">';
+  h+=kv("筋トレ", woN+"回 / "+woM+"分");
+  h+=kv("ランニング", runN+"回 / "+(Math.round(runKm*10)/10)+"km");
+  h+=kv("睡眠の平均", hmShort(avg(ab.map(function(r){return r.sleep;}))==null?null:Math.round(avg(ab.map(function(r){return r.sleep;})))));
+  h+=kv("スクリーンタイムの平均", hmShort(avg(ab.map(function(r){return r.screen;}))==null?null:Math.round(avg(ab.map(function(r){return r.screen;})))));
+  h+=kv("ポルノなし", pn+" / 14日");
+  h+=kv("自慰なし", en+" / 14日");
+  h+=kv("緊急モードを最後まで実行", emgN+"回");
+  h+=kv("記憶テスト", (first?first.score:"—")+" → "+(lastT?lastT.score:"—"));
+  h+=kv("禁欲連続の自己ベスト", streakInfo().best+"日");
+  h+=kv("獲得XP", totalXP()+" XP");
+  h+='</div></div>';
+
+  // chart
+  h+='<div class="card"><h2>消防勉強の推移</h2>'+studyChart()+'<p class="small muted" style="margin:6px 0 0">グレーが記録期間、黄色が実験期間。</p></div>';
+
+  // urges
+  h+='<div class="card"><h2>衝動パターン</h2>'+urgeAnalysis()+'</div>';
+
+  // history
+  h+='<div class="card"><h2>記録一覧</h2><p class="small muted" style="margin:0 0 6px">過去の日も「修正」から直せます。</p>';
+  var last=Math.min(nt, 400);
+  for(var k=last;k>=1;k--){
+    var d=dateOfExp(k), rr=S.days[d], p=phaseOf(k);
+    var sum = rr&&rr.saved ? ('勉強'+(rr.study||0)+'分・睡眠'+hmShort(rr.sleep)+'・射精'+rr.ej+'・ポルノ'+(rr.porn?'あり':'なし')+(rr.wo?'・筋トレ':'')+(rr.run?'・ラン':'')) : '未記録';
+    h+='<div class="hist"><div class="dn"><b class="num">'+(p.k==="base"?"B"+p.d:"D"+p.d)+'</b><small>'+md(d)+'（'+wd(d)+'）</small></div><div class="sum">'+sum+'</div><button data-edit="'+d+'">修正</button></div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+function kv(k,v){ return '<div class="kv"><span>'+k+'</span><b>'+esc(v)+'</b></div>'; }
+function studyChart(){
+  var w=320,hgt=130,n=21,bw=w/n, vals=[], mx=60;
+  for(var i=1;i<=n;i++){ var r=S.days[dateOfExp(i)]; var v=r&&r.saved?(r.study||0):null; vals.push(v); if(v!=null&&v>mx) mx=v; }
+  var o='<svg viewBox="0 0 '+w+' '+(hgt+18)+'" width="100%" role="img" aria-label="日ごとの消防勉強時間">';
+  o+='<line x1="0" y1="'+hgt+'" x2="'+w+'" y2="'+hgt+'" style="stroke:var(--line)"/>';
+  var y60=hgt-60/mx*(hgt-10); o+='<line x1="0" y1="'+y60+'" x2="'+w+'" y2="'+y60+'" style="stroke:var(--line)" stroke-dasharray="3 3"/><text x="'+(w-2)+'" y="'+(y60-3)+'" text-anchor="end" font-size="9" style="fill:var(--muted)">60分</text>';
+  vals.forEach(function(v,i){
+    if(v==null) return;
+    var bh=v/mx*(hgt-10), x=i*bw+2;
+    o+='<rect x="'+x+'" y="'+(hgt-bh)+'" width="'+(bw-4)+'" height="'+Math.max(bh,1)+'" rx="2" fill="'+(i<7?'var(--muted)':'var(--stripe)')+'" opacity="'+(i<7?.55:1)+'"/>';
+  });
+  [1,7,8,14,21].forEach(function(d){ o+='<text x="'+((d-1)*bw+bw/2)+'" y="'+(hgt+13)+'" text-anchor="middle" font-size="9" style="fill:var(--muted)">'+(d<=7?"B"+d:"D"+(d-7))+'</text>'; });
+  return o+'</svg>';
+}
+function topOf(arr){ var c={}; arr.forEach(function(x){ if(x) c[x]=(c[x]||0)+1; }); var best=null; Object.keys(c).forEach(function(k){ if(!best||c[k]>c[best]) best=k; }); return best?{k:best,n:c[best]}:null; }
+function urgeAnalysis(){
+  var u=S.urges;
+  if(u.length<3) return '<p class="muted small" style="margin:0">緊急モードの記録が3回以上たまると、衝動が来やすい時間帯や場所がここに出ます（現在 '+u.length+'回）。</p>';
+  var late=u.filter(function(x){return x.hour>=22||x.hour<4;}).length;
+  var pl=topOf(u.map(function(x){return x.place;})), bf=topOf(u.map(function(x){return x.before;}));
+  var combo=topOf(u.map(function(x){return x.place&&x.before?x.place+"＋"+x.before:null;}));
+  var af=avg(u.map(function(x){return x.after;}));
+  var h='';
+  h+=kv("記録した回数", u.length+"回");
+  h+=kv("22時〜4時の割合", Math.round(late/u.length*100)+"%");
+  if(pl) h+=kv("一番多い場所", pl.k+"（"+pl.n+"回）");
+  if(bf) h+=kv("一番多い直前の状態", bf.k+"（"+bf.n+"回）");
+  if(combo) h+=kv("一番多い組み合わせ", combo.k);
+  if(af!=null) h+=kv("5ステップ後の衝動の平均", (Math.round(af*10)/10)+" / 10");
+  var tip="";
+  if(pl&&pl.k==="ベッド") tip="ベッドが最多。スマホの充電場所を寝室の外に移すのが一番効きそう。";
+  else if(pl&&pl.k==="風呂") tip="風呂が最多。入る前に「出たら何をするか」を決めておこう。";
+  else if(late/u.length>=0.5) tip="半分以上が深夜。22時以降のスマホの置き場所を変えよう。";
+  else if(bf&&bf.k==="暇") tip="暇がきっかけ最多。空き時間用の「次にやること」を先にメモしておこう。";
+  else if(bf&&bf.k==="SNS・動画") tip="SNS・動画がきっかけ最多。そのアプリを14日間だけ消すか制限しよう。";
+  if(tip) h+='<div class="note small" style="margin-bottom:0">'+tip+'</div>';
+  return h;
+}
+
+/* ---------- emergency ---------- */
+var emg=null, emgTimer=null;
+var STEPS=[
+  ["立つ","座っていたら、まず立ち上がる。"],
+  ["スマホを置いて、部屋を出る","今いる部屋の中で判断しない。出たら『できた』。"],
+  ["水を飲む","コップ1杯。ゆっくり。"],
+  ["1〜2分、身体を動かす","スクワット、腕立て、その場足踏み。"],
+  ["消防の問題を5分だけ","ムラムラしたままでいい。始めることが目的。"]
+];
+function openEmg(){ emg={step:0,after:null,place:null,before:null,timer:null}; $("ov-emg").hidden=false; renderEmg(); }
+function closeEmg(){ clearInterval(emgTimer); emgTimer=null; $("ov-emg").hidden=true; emg=null; renderToday(); if(!$("view-results").hidden) renderResults(); }
+function renderEmg(){
+  var w=$("emg-wrap"), h='<div class="head"><b>緊急モード</b><button class="iconbtn" data-e="close" aria-label="閉じる">✕</button></div>';
+  if(emg.step<5){
+    var s=STEPS[emg.step];
+    h+='<div class="stepno num">STEP '+(emg.step+1)+' / 5</div><div class="stepmain">'+s[0]+'</div><div class="stepsub">'+s[1]+'</div>';
+    if(emg.step===4){
+      h+= emg.timer!=null ? '<div class="timer num" id="emgt">'+tfmt(emg.timer)+'</div>' : '<button class="secondary" data-e="timer">5分タイマーを始める</button>';
+    }
+    if(emg.step===0) h+='<div class="note small">衝動は波のように強くなったり弱くなったりする。何分で消えるとは限らない。すぐ行動に移さず、変化を眺めればいい。</div>';
+    h+='<div class="grow"></div><button class="primary bigbtn" data-e="next">できた</button>';
+  } else if(emg.step===5){
+    h+='<div class="stepmain" style="font-size:26px;margin-top:20px">衝動は今どれくらい？</div><div class="chips scale">';
+    for(var i=0;i<=10;i++) h+='<button class="chip num'+(emg.after===i?' on':'')+'" data-after="'+i+'">'+i+'</button>';
+    h+='</div><div class="stepsub" style="margin-bottom:6px">どこにいた？</div><div class="chips">';
+    PLACES.forEach(function(p){ h+='<button class="chip'+(emg.place===p?' on':'')+'" data-place="'+p+'">'+p+'</button>'; });
+    h+='</div><div class="stepsub" style="margin-bottom:6px">直前の状態は？</div><div class="chips">';
+    BEFORES.forEach(function(p){ h+='<button class="chip'+(emg.before===p?' on':'')+'" data-before="'+p+'">'+p+'</button>'; });
+    h+='</div><div class="grow"></div><button class="primary" data-e="log">記録する</button>';
+  } else {
+    var strong = emg.after!=null && emg.after>=6;
+    if(strong){
+      var list=SUGGEST[emg.place]||SUGGEST["リビング"], sug=list[Math.floor(Math.random()*list.length)];
+      h+='<div class="stepmain" style="font-size:24px;margin-top:20px">まだ強い。次の10分はこれだけやる。</div><div class="note" style="font-size:19px;font-weight:700">'+esc(sug)+'</div>';
+      var msg='今'+emg.after+'/10、'+(emg.place||'家')+'、'+(emg.before||'その他')+'。次の10分でやることを1つだけ教えて';
+      h+='<div class="stepsub small">それでもきつければ、部屋の外でAIに送る：</div><div class="note small" id="aimsg">'+esc(msg)+'</div><button class="secondary" data-e="copy">この文をコピー</button>';
+      h+='<div class="grow"></div><button class="primary" data-e="again">もう一周やる</button><button class="secondary" data-e="close">閉じる</button>';
+    } else {
+      h+='<div class="stepmain" style="margin-top:30px">別の行動を選べた。</div><div class="stepsub">記録した。これが「自分で選べる」を取り戻すデータになる。</div><div class="grow"></div><button class="primary" data-e="close">閉じる</button>';
+    }
+  }
+  w.innerHTML=h;
+}
+function tfmt(s){ return Math.floor(s/60)+":"+pad(s%60); }
+function onEmgClick(e){
+  var b=e.target.closest("button"); if(!b||!emg) return;
+  if(b.dataset.after!=null){ emg.after=+b.dataset.after; renderEmg(); return; }
+  if(b.dataset.place){ emg.place=b.dataset.place; renderEmg(); return; }
+  if(b.dataset.before){ emg.before=b.dataset.before; renderEmg(); return; }
+  var a=b.dataset.e;
+  if(a==="close"){ closeEmg(); return; }
+  if(a==="next"){ clearInterval(emgTimer); emgTimer=null; emg.step++; renderEmg(); $("ov-emg").scrollTop=0; return; }
+  if(a==="timer"){ emg.timer=300; renderEmg(); emgTimer=setInterval(function(){ if(!emg){clearInterval(emgTimer);return;} emg.timer=Math.max(0,emg.timer-1); var t=$("emgt"); if(t) t.textContent=tfmt(emg.timer); if(emg.timer===0){ clearInterval(emgTimer); emgTimer=null; toast("5分たった。よくやった"); } },1000); return; }
+  if(a==="log"){
+    if(emg.after==null){ toast("衝動の強さをタップしてください"); return; }
+    var d=today(), before=dayXP(d), now=new Date();
+    S.urges.push({ts:now.getTime(), date:d, hour:now.getHours(), after:emg.after, place:emg.place, before:emg.before, completed:true});
+    save();
+    var gained=dayXP(d)-before; if(gained>0) toast("緊急モード完了　+"+gained+" XP");
+    emg.step=6; renderEmg(); return;
+  }
+  if(a==="again"){ emg={step:0,after:null,place:null,before:null,timer:null}; renderEmg(); return; }
+  if(a==="copy"){ copyText($("aimsg").textContent); return; }
+}
+function copyText(txt){
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast("コピーした");},function(){fallbackCopy(txt);}); }
+  else fallbackCopy(txt);
+}
+function fallbackCopy(txt){ var ta=document.createElement("textarea"); ta.value=txt; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); toast("コピーした"); }catch(e){ toast("コピーできませんでした"); } document.body.removeChild(ta); }
+
+/* ---------- memory test ---------- */
+var tst=null, tstTimer=null;
+function openTest(){
+  var d=today(), n=expDay(d), idx=TEST_DAYS.indexOf(n);
+  if(idx<0){ toast("今日は測定日ではありません"); return; }
+  if(S.tests.some(function(t){return t.date===d;})){ toast("今日の記憶テストは実施済み"); return; }
+  var targets=WORDS.slice(idx*10, idx*10+10), dis=shuffle(WORDS.slice(60)).slice(0,10);
+  tst={idx:idx, n:n, stage:"intro", t:0, targets:targets, options:shuffle(targets.concat(dis)), picked:{}};
+  $("ov-test").hidden=false; renderTest();
+}
+function closeTest(){ clearInterval(tstTimer); tstTimer=null; tst=null; $("ov-test").hidden=true; renderToday(); }
+function tick(sec,nextStage){
+  tst.t=sec; clearInterval(tstTimer);
+  tstTimer=setInterval(function(){ if(!tst){clearInterval(tstTimer);return;} tst.t--; var el=$("tt"); if(el) el.textContent=tst.t; if(tst.t<=0){ clearInterval(tstTimer); tstTimer=null; tst.stage=nextStage; renderTest(); } },1000);
+}
+function renderTest(){
+  var w=$("test-wrap"), h='<div class="head"><b>記憶テスト '+(tst.idx+1)+' / 6</b><button class="iconbtn" data-t="close" aria-label="閉じる">✕</button></div>';
+  if(tst.stage==="intro"){
+    h+='<div class="stepmain" style="font-size:26px;margin-top:20px">2分で終わる測定</div><div class="stepsub">消防用語10個を60秒で覚える → 30秒の引き算 → 20個の中から覚えた単語をタップ。毎回同じくらいの時間帯にやると比較しやすい。</div><div class="grow"></div><button class="primary bigbtn" data-t="start">始める</button>';
+  } else if(tst.stage==="mem"){
+    h+='<div class="timer num" id="tt">'+tst.t+'</div><div class="words">'+tst.targets.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>';
+  } else if(tst.stage==="dist"){
+    h+='<div class="timer num" id="tt">'+tst.t+'</div><div class="stepmain" style="font-size:24px;text-align:center">100から7を引き続けて<br>（頭の中で）</div><div class="stepsub" style="text-align:center">100、93、86…</div>';
+  } else if(tst.stage==="recall"){
+    var cnt=Object.keys(tst.picked).length;
+    h+='<div class="stepsub" style="margin-top:6px">覚えた単語をタップ（'+cnt+'個選択中）</div><div class="opts">'+tst.options.map(function(x,i){return '<button class="chip'+(tst.picked[x]?' on':'')+'" data-w="'+i+'">'+x+'</button>';}).join('')+'</div><button class="primary" data-t="done">答え合わせ</button>';
+  } else if(tst.stage==="result"){
+    h+='<div class="stepsub" style="margin-top:30px">スコア</div><div class="bigstat num">'+tst.score+'<span style="font-size:24px;color:var(--muted)"> / 10</span></div><div class="stepsub" style="margin-top:8px">正解 '+tst.hits+'個・誤選択 '+tst.fa+'個（スコア＝正解−誤選択）</div><div class="grow"></div><button class="primary" data-t="close">閉じる</button>';
+  }
+  w.innerHTML=h;
+}
+function onTestClick(e){
+  var b=e.target.closest("button"); if(!b||!tst) return;
+  if(b.dataset.w!=null){ var x=tst.options[+b.dataset.w]; if(tst.picked[x]) delete tst.picked[x]; else tst.picked[x]=1; renderTest(); return; }
+  var a=b.dataset.t;
+  if(a==="close"){ closeTest(); return; }
+  if(a==="start"){ tst.stage="mem"; tick(60,"dist"); renderTest(); return; }
+  if(a==="done"){
+    var hits=0, fa=0; Object.keys(tst.picked).forEach(function(x){ if(tst.targets.indexOf(x)>=0) hits++; else fa++; });
+    tst.hits=hits; tst.fa=fa; tst.score=Math.max(0,hits-fa); tst.stage="result";
+    var d=today(), before=dayXP(d);
+    S.tests.push({date:d, expDay:tst.n, idx:tst.idx, score:tst.score, hits:hits, fa:fa, ts:Date.now()});
+    save(); var g=dayXP(d)-before; if(g>0) toast("記憶テスト完了　+"+g+" XP");
+    renderTest(); return;
+  }
+}
+// stage transitions from timers: dist needs its own timer
+var _renderTest = renderTest;
+renderTest = function(){ _renderTest(); if(tst && tst.stage==="dist" && !tstTimer){ tick(30,"recall"); var el=$("tt"); if(el) el.textContent=tst.t; } };
+
+/* ---------- settings ---------- */
+function openSettings(){ $("ov-settings").hidden=false; renderSettings(); }
+function renderSettings(){
+  var g=S.settings.sleepGoal, gh=Math.floor(g/60), gm=g%60, h='';
+  h+='<div class="head"><b>設定</b><button class="iconbtn" data-s="close" aria-label="閉じる">✕</button></div>';
+  h+='<div class="card"><h2>実験の開始日</h2><p class="small muted" style="margin:0 0 8px">Day 1〜7が記録期間、Day 8〜21が14日間の実験。</p><input type="date" id="s-start" value="'+esc(S.settings.start||today())+'"></div>';
+  h+='<div class="card"><h2>睡眠の目標</h2><p class="small muted" style="margin:0 0 8px">達成した日に +10 XP。</p><select id="s-gh">';
+  for(var i=4;i<=10;i++) h+='<option value="'+i+'"'+(i===gh?' selected':'')+'>'+i+'時間</option>';
+  h+='</select> <select id="s-gm">';
+  [0,15,30,45].forEach(function(m){ h+='<option value="'+m+'"'+(m===gm?' selected':'')+'>'+m+'分</option>'; });
+  h+='</select><button class="primary" data-s="savecfg">設定を保存</button></div>';
+  h+='<div class="card"><h2>バックアップ</h2><p class="small muted" style="margin:0 0 4px">記録はこの端末のブラウザ内に保存されています。ブラウザのデータを消すと記録も消えるので、ときどき保存しておくと安心。</p><button class="secondary" data-s="dl">ファイルに保存（JSON）</button><button class="secondary" data-s="cp">テキストでコピー</button></div>';
+  h+='<div class="card"><h2>復元</h2><p class="small muted" style="margin:0 0 8px">今の記録は上書きされます。</p><input type="file" id="s-file" accept="application/json,.json" style="font-size:14px"><p class="small muted" style="margin:12px 0 6px">またはテキストを貼り付け：</p><textarea id="s-txt" placeholder="バックアップのテキスト"></textarea><button class="secondary" data-s="restore">テキストから復元</button></div>';
+  h+='<div class="card"><h2>全データ削除</h2><button class="secondary danger" data-s="wipe">すべての記録を削除する</button></div>';
+  $("set-wrap").innerHTML=h;
+  $("s-file").addEventListener("change",function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f) return;
+    var rd=new FileReader(); rd.onload=function(){ tryRestore(String(rd.result)); }; rd.readAsText(f);
+  });
+}
+function tryRestore(txt){
+  var o; try{ o=JSON.parse(txt); }catch(e){ toast("読み込めませんでした。JSONの形式を確認してください"); return; }
+  if(!o||typeof o!=="object"||!o.days){ toast("この実験のバックアップではないようです"); return; }
+  confirmBox("記録を復元する","今この端末にある記録は、バックアップの内容で上書きされます。",null,"復元する",function(){
+    S=norm(o); save(); curDate=today(); loadDraft(); $("ov-settings").hidden=true; renderAll(); toast("復元した");
+  });
+}
+function onSetClick(e){
+  var b=e.target.closest("button"); if(!b) return; var a=b.dataset.s;
+  if(a==="close"){ $("ov-settings").hidden=true; renderAll(); }
+  if(a==="savecfg"){
+    var st=$("s-start").value; if(!st){ toast("開始日を選んでください"); return; }
+    S.settings.start=st; S.settings.sleepGoal=(+$("s-gh").value)*60+(+$("s-gm").value); save(); toast("設定を保存した");
+  }
+  if(a==="dl"){
+    try{ var blob=new Blob([JSON.stringify(S,null,1)],{type:"application/json"}); var url=URL.createObjectURL(blob); var ln=document.createElement("a"); ln.href=url; ln.download="shutsudo21-backup-"+today()+".json"; document.body.appendChild(ln); ln.click(); document.body.removeChild(ln); setTimeout(function(){URL.revokeObjectURL(url);},4000); toast("保存した"); }
+    catch(err){ toast("保存できませんでした。テキストでコピーを使ってください"); }
+  }
+  if(a==="cp"){ copyText(JSON.stringify(S)); }
+  if(a==="restore"){ var t=$("s-txt").value.trim(); if(!t){ toast("テキストを貼り付けてください"); return; } tryRestore(t); }
+  if(a==="wipe"){
+    confirmBox("すべての記録を削除","記録・XP・衝動ログ・記憶テストがすべて消え、元に戻せません。先にバックアップを取ることをおすすめします。","削除","削除する",function(){
+      try{ localStorage.removeItem(LS); }catch(e){}
+      S=norm({}); curDate=today(); loadDraft(); lastXP=null; $("ov-settings").hidden=true; renderAll(); toast("削除した");
+    });
+  }
+}
+
+/* ---------- confirm ---------- */
+var cfCb=null, cfReq=null;
+function confirmBox(title,msg,req,okLabel,cb){
+  cfCb=cb; cfReq=req;
+  var h='<div class="head"><b>確認</b></div><div class="stepmain" style="font-size:24px">'+title+'</div><div class="stepsub">'+msg+'</div>';
+  if(req) h+='<p class="small" style="margin:18px 0 6px">続けるには「'+req+'」と入力：</p><input class="txt" id="cf-in" autocomplete="off" style="width:100%">';
+  h+='<div class="grow"></div><button class="primary" id="cf-ok" style="background:var(--alert);color:#fff">'+okLabel+'</button><button class="secondary" id="cf-no">やめる</button>';
+  $("cf-wrap").innerHTML=h; $("ov-confirm").hidden=false;
+  $("cf-no").onclick=function(){ $("ov-confirm").hidden=true; };
+  $("cf-ok").onclick=function(){
+    if(cfReq){ var v=($("cf-in").value||"").trim(); if(v!==cfReq){ toast("「"+cfReq+"」と入力してください"); return; } }
+    $("ov-confirm").hidden=true; if(cfCb) cfCb();
+  };
+}
+
+/* ---------- onboarding ---------- */
+function showOnboard(){
+  var h='<div class="stepmain" style="margin-top:20px">21日間の実験を始める</div>';
+  h+='<div class="note"><b>Day 1〜7：記録期間</b><br><span class="small muted">普段どおり過ごして、記録だけする。比較の基準になる。</span></div>';
+  h+='<div class="note"><b>Day 8〜21：14日間の実験</b><br><span class="small muted">ポルノ0・自慰0。やってしまっても0日目には戻らない。記録してそのまま続ける。</span></div>';
+  h+='<div class="note"><b>キャラについて</b><br><span class="small muted">装備は勉強・運動・睡眠・記録のXPで増えて、失わない。炎は禁欲連続日数で進化し、自慰かポルノで0日に戻る。実験Dayは戻らない。</span></div>';
+  h+='<p class="small muted">予定のある平日スタートがおすすめ。試験直前の時期は避けよう。</p>';
+  h+='<div class="row"><div class="lbl">開始日</div><input type="date" id="o-start" value="'+today()+'"></div>';
+  h+='<div class="row" style="border:0"><div class="lbl">睡眠の目標</div><div><select id="o-gh">';
+  for(var i=4;i<=10;i++) h+='<option value="'+i+'"'+(i===6?' selected':'')+'>'+i+'時間</option>';
+  h+='</select> <select id="o-gm"><option value="0">0分</option><option value="15">15分</option><option value="30" selected>30分</option><option value="45">45分</option></select></div></div>';
+  h+='<div class="grow"></div><button class="primary" id="o-go">この日から始める</button>';
+  $("onb-wrap").innerHTML=h; $("ov-onboard").hidden=false;
+  $("o-go").onclick=function(){
+    var st=$("o-start").value; if(!st){ toast("開始日を選んでください"); return; }
+    S.settings.start=st; S.settings.sleepGoal=(+$("o-gh").value)*60+(+$("o-gm").value);
+    if(save()){ $("ov-onboard").hidden=true; curDate=today(); loadDraft(); renderAll(); }
+  };
+}
+
+/* ---------- tabs ---------- */
+function showTab(name){
+  $("view-today").hidden = name!=="today"; $("view-results").hidden = name!=="results";
+  $("tab-today").classList.toggle("on",name==="today"); $("tab-results").classList.toggle("on",name==="results");
+  if(name==="results") renderResults(); else renderToday();
+  window.scrollTo(0,0);
+}
+function renderAll(){ if(!S.settings.start){ showOnboard(); } renderToday(); if(!$("view-results").hidden) renderResults(); }
+
+$("tab-today").onclick=function(){ showTab("today"); };
+$("tab-results").onclick=function(){ showTab("results"); };
+$("tab-emg").onclick=openEmg;
+$("openSettings").onclick=openSettings;
+$("view-today").addEventListener("click",onFormClick);
+$("view-today").addEventListener("input",onFormInput);
+$("view-today").addEventListener("change",onFormChange);
+$("view-results").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-edit]"); if(!b) return;
+  curDate=b.dataset.edit; loadDraft(); showTab("today"); setTimeout(scrollForm,30);
+});
+$("emg-wrap").addEventListener("click",onEmgClick);
+$("test-wrap").addEventListener("click",onTestClick);
+$("set-wrap").addEventListener("click",onSetClick);
+var shownDay=today();
+document.addEventListener("visibilitychange",function(){ if(!document.hidden && shownDay!==today()){ shownDay=today(); curDate=today(); loadDraft(); renderAll(); } });
+
+loadDraft();
+renderAll();
+})();
+</script>
+</body>
+</html>
